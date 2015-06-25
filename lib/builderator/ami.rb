@@ -6,12 +6,12 @@ module Builderator
     desc 'ubuntu RELEASE [^daily|release]', 'Get AMI IDs for Ubuntu images'
     option 'region', :aliases => :r, :default => 'us-east-1'
     option 'architecture', :aliases => :a, :default => 'amd64'
-    option 'root_volume', :aliases => :d, :default => 'ebs'
-    option 'virtualization', :aliases => :v, :default => 'hvm'
-    option 'one', :type => :boolean, :aliases => :o, :default => false
+    option 'root_volume', :aliases => :d
+    option 'virtualization', :aliases => :v
+    option 'multi', :type => :boolean, :aliases => :m, :default => false
     def ubuntu(release, iteration = 'daily')
       images = manifest(release, iteration, options).map { |i| i[:ami] }
-      puts (images.size == 1 || options[:one]) ? images.first : images
+      puts (options[:multi]) ? images : images.first
     end
 
     no_commands do
