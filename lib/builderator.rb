@@ -1,5 +1,6 @@
+require 'thor'
+require 'builderator/ami'
 require 'builderator/metadata'
 
 module Builderator
-  # Your code goes here...
 end

@@ -1,6 +1,5 @@
 # Builderator
-
-TODO: Write a gem description
+__Tools to make CI Packer builds awesome__
 
 ## Installation
 
@@ -20,7 +19,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Run `bundle exec thor build help`
 
 ## Contributing
 
