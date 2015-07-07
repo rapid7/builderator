@@ -1,11 +1,14 @@
 require 'thor'
 require 'thor/actions'
+require_relative './berks'
 require_relative '../control/packer'
 
 module Builderator
   module Tasks
     class Packer < Thor
       include Thor::Actions
+      class_option :config, :aliases => :c, :desc => "Path to Berkshelf's config.json"
+      class_option :berksfile, :aliases => :b, :desc => 'Path to the Berksfile to use'
 
       desc 'install [VERSION = 0.8.0]', 'Ensure that the desired version of packer is installed'
       def install(version = '0.8.0')
@@ -23,6 +26,7 @@ module Builderator
 
       desc 'build ARGS', 'Run a build with the installed version of packer'
       def build(*args)
+        invoke Tasks::Berks, 'vendor', [], options
         run "#{ Control::Packer.bin } build #{ args.join(' ') }"
       end
     end
