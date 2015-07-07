@@ -18,6 +18,7 @@ module Builderator
         command << " -b #{ options['berksfile'] }" if options.include?('berksfile')
 
         remove_file File.expand_path('../Berksfile.lock', options.fetch('berksfile', Control::Berks.file!))
+        invoke Tasks::Cookbook, 'metadata', [], {}
         run command
       end
 
@@ -34,14 +35,14 @@ module Builderator
 
       desc 'upload', 'Upload the local cookbook source and its dependencies to the Chef server'
       option 'dry-run', :type => :boolean, :default => false
-      def upload(cookbook_path = './')
+      option :path, :default => Util::Cookbook::DEFAULT_VENDOR
+      def upload
         command = 'BERKS_INSTALL_FROM=source'
         command << " berks upload"
         command << " -c #{ options['config'] }" if options.include?('config')
         command << " -b #{ options['berksfile'] }" if options.include?('berksfile')
 
-        remove_file File.expand_path('../Berksfile.lock', options.fetch('berksfile', Control::Berks.file!))
-        invoke Tasks::Cookbook, 'metadata', [cookbook_path], {}
+        invoke Tasks::Berks, :local, [options['path']], {}
 
         return say_status :dryrun, command if options['dry-run']
         run command
