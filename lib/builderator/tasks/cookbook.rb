@@ -9,7 +9,7 @@ module Builderator
 
       desc 'metadata [PATH = ./]', 'Use cookbook matadata file at PATH/metadata.rb to generate PATH/matadata.json'
       def metadata(cookbook_path = './')
-        invoke :version, :current, [], options
+        invoke 'version:current', [], options
         Util::Cookbook.path(cookbook_path)
 
         create_file File.join(Util::Cookbook.path, 'metadata.json'),
