@@ -42,7 +42,7 @@ module Builderator
         command << " -c #{ options['config'] }" if options.include?('config')
         command << " -b #{ options['berksfile'] }" if options.include?('berksfile')
 
-        invoke Tasks::Berks, :local, [options['path']], {}
+        invoke Tasks::Berks, :local, [options.delete('path')], options
 
         return say_status :dryrun, command if options['dry-run']
         run command
