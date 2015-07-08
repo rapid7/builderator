@@ -9,6 +9,22 @@ module Builderator
       class_option :config, :aliases => :c, :desc => "Path to Berkshelf's config.json"
       class_option :berksfile, :aliases => :b, :desc => 'Path to the Berksfile to use'
 
+      def initialize(*_)
+        unless Gem.loaded_specs.key?('vagrant')
+          say '!!! Vagrant is not available in this bundle !!!!', [:red, :bold]
+          puts ''
+          say 'Please add the following to your Gemfile and update your bundle to use the `vagrant` command:'
+          say '  +------------------------------------------------+', :green
+          say "  | gem 'vagrant', :github => 'mitchellh/vagrant', |", :green
+          say "  |                :tag => 'v1.7.2'                |", :green
+          say '  +------------------------------------------------+', :green
+
+          exit 1
+        end
+
+        super
+      end
+
       desc 'up ARGS', 'Start Vagrant VM(s)'
       def up(*args)
         command = 'ulimit -n 1024;'
