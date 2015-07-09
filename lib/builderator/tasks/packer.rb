@@ -54,7 +54,7 @@ module Builderator
         tee = Builderator::Util::Shell::BufferTee.new($stdout)
         $stdin.each { |l| tee.write(l) } # Buffer stdin
 
-        ami_id_search = /AMI: (ami-[0-9a-f]{8})/.match(packer_output.string)
+        ami_id_search = /AMI: (ami-[0-9a-f]{8})/.match(tee.string)
         if ami_id_search.nil?
           say_status :failure, 'Unable to find AMI ID from packer build', :red
           return
