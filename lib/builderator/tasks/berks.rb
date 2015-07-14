@@ -17,8 +17,11 @@ module Builderator
         command << " -c #{ options['config'] }" if options.include?('config')
         command << " -b #{ options['berksfile'] }" if options.include?('berksfile')
 
-        remove_file File.expand_path('../Berksfile.lock', options.fetch('berksfile', Control::Berks.file!))
-        invoke Tasks::Cookbook, 'metadata', [], {}
+        remove_file File.expand_path('../Berksfile.lock', Control::Berks.file!(options['berksfile']))
+
+        cookbook_path = options.include?('berksfile') ? File.dirname(options['berksfile']) : './'
+        invoke Tasks::Cookbook, 'metadata', [cookbook_path], {}
+
         run command
       end
 

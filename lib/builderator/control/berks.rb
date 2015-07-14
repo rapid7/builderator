@@ -19,7 +19,8 @@ module Builderator
           File.join(dir, 'Berksfile')
         end
 
-        def file!
+        def file!(arg = nil)
+          return arg unless arg.nil?
           file.tap { |f| fail 'Unable to locate Berksfile!' if f.nil? }
         end
       end
