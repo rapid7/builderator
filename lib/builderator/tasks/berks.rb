@@ -9,6 +9,9 @@ module Builderator
       include Thor::Actions
       class_option :config, :aliases => :c, :desc => "Path to Berkshelf's config.json"
       class_option :berksfile, :aliases => :b, :desc => 'Path to the Berksfile to use'
+      class_option :version, :type => :boolean,
+                             :default => true,
+                             :desc => 'Write current verison to file'
 
       desc "local [PATH = #{ Util::Cookbook::DEFAULT_VENDOR }]", 'Vendor the local cookbook source and its dependencies'
       def local(path = Util::Cookbook::DEFAULT_VENDOR)
@@ -20,7 +23,7 @@ module Builderator
         remove_file File.expand_path('../Berksfile.lock', Control::Berks.file!(options['berksfile']))
 
         cookbook_path = options.include?('berksfile') ? File.dirname(options['berksfile']) : './'
-        invoke Tasks::Cookbook, 'metadata', [cookbook_path], {}
+        invoke Tasks::Cookbook, 'metadata', [cookbook_path], options
 
         run command
       end

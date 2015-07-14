@@ -6,10 +6,13 @@ module Builderator
   module Tasks
     class Cookbook < Thor
       include Thor::Actions
+      class_option :version, :type => :boolean,
+                             :default => true,
+                             :desc => 'Write current verison to file'
 
       desc 'metadata [PATH = ./]', 'Use cookbook matadata file at PATH/metadata.rb to generate PATH/matadata.json'
       def metadata(cookbook_path = './')
-        invoke 'version:current', [], options
+        invoke 'version:current', [], options if options['version']
         Util::Cookbook.path(cookbook_path)
 
         create_file File.join(Util::Cookbook.path, 'metadata.json'),
