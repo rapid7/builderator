@@ -15,7 +15,7 @@ module Builderator
         UBUNTU = '099720109477'.freeze
       end
 
-      ## Filter fields defined in http://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Client.html#describe_images-instance_method
+      ## Filter fields defined in http://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Builderator::Util.ec2.html#describe_images-instance_method
       FILTERS = %w(architecture block-device-mapping.delete-on-termination
                    block-device-mapping.device-name block-device-mapping.snapshot-id
                    block-device-mapping.volume-size block-device-mapping.volume-type
@@ -25,18 +25,9 @@ module Builderator
                    state state-reason-code state-reason-message virtualization-type).freeze
 
       class << self
-        def region(arg = nil)
-          return @region || 'us-east-1' if arg.nil?
-          @region = arg
-        end
-
-        def client
-          @client ||= Aws::EC2::Client.new(:region => region)
-        end
-
         def search(filters = {})
           [].tap do |images|
-            client.describe_images(search_options(filters)).each { |page| images.push(*page.images) }
+            Builderator::Util.ec2.describe_images(search_options(filters)).each { |page| images.push(*page.images) }
           end
         end
 
