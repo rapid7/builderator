@@ -36,13 +36,13 @@ module Builderator
 
         ## Try to find the ID of the new AMI
         ami_id_search = /AMI: (ami-[0-9a-f]{8})/.match(packer_output.string)
-        if ami_id_search.nil?
+        if ami_id_search.nil? && options.include?('properties-file')
           say_status :failure, 'Unable to find AMI ID from packer build', :red
           return
         end
 
-        say_status :success, "Created AMI #{ ami_id_search[1] }"
         return unless options['properties-file']
+        say_status :success, "Created AMI #{ ami_id_search[1] }"
 
         create_file options['properties-file'], '', :force => true
         append_file options['properties-file'], "image.useast1=#{ ami_id_search[1] }"
