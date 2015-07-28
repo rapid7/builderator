@@ -32,8 +32,12 @@ module Builderator
             Model.launch_configs.resources.delete(l)
 
             next unless commit?
+            puts "delete_launch_configuration(:launch_configuration_name => #{l})"
             # Util.asg.delete_launch_configuration(:launch_configuration_name => l)
           end
+        rescue Aws::AutoScaling::Errors::ServiceError => e
+          exceptions << Util::AwsException.new('Cleanup Launch Configurations', e)
+          yield(*exceptions.last.status)
         end
 
         def images!
@@ -47,8 +51,12 @@ module Builderator
             Model.images.resources.delete(i)
 
             next unless commit?
+            puts "deregister_image(:image_id => #{i})"
             # Util.ec2.deregister_image(:image_id => i)
           end
+        rescue Aws::EC2::Errors::ServiceError => e
+          exceptions << Util::AwsException.new('Cleanup Images', e)
+          yield(*exceptions.last.status)
         end
 
         def snapshots!
@@ -62,8 +70,12 @@ module Builderator
             Model.snapshots.resources.delete(s)
 
             next unless commit?
+            puts "delete_snapshot(:snapshot_id => #{s})"
             # Util.ec2.delete_snapshot(:snapshot_id => s)
           end
+        rescue Aws::EC2::Errors::ServiceError => e
+          exceptions << Util::AwsException.new('Cleanup Snapshots', e)
+          yield(*exceptions.last.status)
         end
 
         def volumes!
@@ -77,8 +89,12 @@ module Builderator
             Model.volumes.resources.delete(v)
 
             next unless commit?
+            puts "delete_volume(:volume_id => #{v})"
             # Util.ec2.delete_volume(:volume_id => v)
           end
+        rescue Aws::EC2::Errors::ServiceError => e
+          exceptions << Util::AwsException.new('Cleanup Volumes', e)
+          yield(*exceptions.last.status)
         end
 
         def commit?

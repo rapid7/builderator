@@ -45,4 +45,5 @@ module Builderator
   end
 end
 
+require_relative './util/aws_exception'
 require_relative './util/limit_exception'
