@@ -5,6 +5,7 @@ module Builderator
     ##
     class Base
       attr_reader :resources
+      LIMIT = 4
 
       def initialize(*args)
         fetch(*args)
@@ -22,7 +23,7 @@ module Builderator
         resources.select { |k, _| set.include?(k) }
       end
 
-      def reject(set)
+      def reject(set = [])
         resources.reject { |k, _| set.include?(k) }
       end
 
