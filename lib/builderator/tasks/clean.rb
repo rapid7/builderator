@@ -75,10 +75,10 @@ module Builderator
              :default => 5,
              :desc => 'Number of images in each group to keep'
       def all
-        invoke :volumes
-        invoke :configs
-        invoke :images
-        invoke :snapshots
+        invoke :volumes, [], options
+        invoke :configs, [], options
+        invoke :images, [], options
+        invoke :snapshots, [], options
 
         return if Control::Clean.exceptions.empty?
 
