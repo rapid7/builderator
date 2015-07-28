@@ -1,20 +1,39 @@
 require 'thor'
-require_relative '../model'
+require_relative '../control/clean'
 
 module Builderator
   module Tasks
     class Clean < Thor
-      class_option :commit, :type => :boolean, :default => false, :desc => 'Execute cleanup'
+      class_option :region,
+                   :type => :string,
+                   :default => 'us-east-1',
+                   :aliases => :r,
+                   :desc => 'AWS Region in which to perform tasks'
+      class_option :commit,
+                   :type => :boolean,
+                   :default => false,
+                   :desc => 'Perform mutating API calls to cleanup resources'
       class_option :filter,
                    :type => :array,
+                   :aliases => :f,
                    :desc => 'Key/value pairs to filter resources (--filter name foo owner_id 123456789)'
+      class_option :limit,
+                   :type => :boolean,
+                   :default => true,
+                   :desc => 'By default, limit the number of resources to remove'
+
+      def initialize(*_)
+        super
+
+        ## Convert array of filter key-values to a hash
+        options['filters'] = Hash[*options['filter']] if options['filter'].is_a?(Array)
+
+        Control::Clean.options(options)
+      end
 
       desc 'configs', 'Delete unused launch configurations'
       def configs
-        Model.launch_configs.unused.each do |l, _|
-          say_status :remove, "Launch Configuration #{ l }", :red
-          Model.launch_configs.resources.delete(l)
-        end
+        Control::Clean.configs!(&method(:say_status))
       end
 
       desc 'images', 'Deregister unused images'
@@ -30,27 +49,17 @@ module Builderator
              :default => 5,
              :desc => 'Number of images in each group to keep'
       def images
-        options['filters'] = Hash[*options['filter']]
-        Model.images.unused(options).each do |i, image|
-          say_status :remove, "Image #{ i } (#{ image[:properties]['name'] })", :red
-          Model.images.resources.delete(i)
-        end
+        Control::Clean.images!(&method(:say_status))
       end
 
       desc 'snapshots', 'Delete unused snapshots'
       def snapshots
-        Model.snapshots.unused.each do |s, _|
-          say_status :remove, "Snapshot #{ s }", :red
-          Model.snapshots.resources.delete(s)
-        end
+        Control::Clean.snapshots!(&method(:say_status))
       end
 
       desc 'volumes', 'Delete unused volumes'
       def volumes
-        Model.volumes.unused.each do |v, _|
-          say_status :remove, "Volume #{ v }", :red
-          Model.volumes.resources.delete(v)
-        end
+        Control::Clean.volumes!(&method(:say_status))
       end
 
       desc 'all', 'Clean volumes, launch configs, images, and snapshots in order'
@@ -70,6 +79,14 @@ module Builderator
         invoke :configs
         invoke :images
         invoke :snapshots
+
+        return if Control::Clean.exceptions.empty?
+
+        say_status :fail, 'Not all tasks completed successfully. The following '\
+          'exceptions occured:', :red
+        Control::Clean.exceptions.each do |e|
+          say_status(*e.status)
+        end
       end
     end
   end

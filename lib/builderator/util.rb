@@ -25,6 +25,8 @@ module Builderator
               r[:properties][k.to_s] == v
           end
         end
+
+        resources
       end
 
       def region(arg = nil)
@@ -42,3 +44,5 @@ module Builderator
     end
   end
 end
+
+require_relative './util/limit_exception'
