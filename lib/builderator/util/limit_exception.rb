@@ -1,15 +1,17 @@
+require_relative './task_exception'
+
 module Builderator
   module Util
     ##
     # Exception raised if a safety limit is exceeded
     ##
-    class LimitException < StandardError
-      attr_reader :task
+    class LimitException < TaskException
       attr_reader :resources
 
       def initialize(klass, task, resources)
+        super(:limit, task, :yellow)
+
         @klass = klass
-        @task = task
         @resources = resources
       end
 
@@ -30,10 +32,6 @@ module Builderator
         " greater than the limit of #{ limit } set in #{ resource }. Please"\
         " re-run this task with the --no-limit flag if you are sure this is"\
         " the correct set of resources to delete."
-      end
-
-      def status
-        [:limit, message, :yellow]
       end
     end
   end
