@@ -9,7 +9,7 @@ module Builderator
     end
 
     ##
-    # Manage AusoScaling resources
+    # AutoScaling Group Resoruces
     ##
     class ScalingGroups < Model::Base
       attr_reader :resources

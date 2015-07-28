@@ -8,7 +8,7 @@ module Builderator
       @instances ||= Instances.new
     end
     ##
-    # Manage AusoScaling resources
+    # EC2 Instance resources
     ##
     class Instances < Model::Base
       PROPERTIES = %w(private_dns_name public_dns_name instance_type

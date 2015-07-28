@@ -9,9 +9,10 @@ module Builderator
     end
 
     ##
-    # Manage AusoScaling resources
+    # ASG LaunchConfiguration Resources
     ##
     class LaunchConfigs < Model::Base
+      LIMIT = 24
       PROPERTIES = %w(launch_configuration_arn key_name security_groups
                       user_data instance_type spot_price iam_instance_profile
                       ebs_optimized associate_public_ip_address placement_tenancy)

@@ -9,9 +9,10 @@ module Builderator
     end
 
     ##
-    # Manage AusoScaling resources
+    # EC2 AMI Resources
     ##
     class Images < Model::Base
+      LIMIT = 24
       PROPERTIES = %w(image_location state owner_id public architecture image_type
                       name description root_device_type virtualization_type
                       hypervisor)

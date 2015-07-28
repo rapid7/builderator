@@ -9,9 +9,10 @@ module Builderator
     end
 
     ##
-    # Manage AusoScaling resources
+    # EC2 Snapshot Resources
     ##
     class Snapshots < Model::Base
+      LIMIT = 24
       PROPERTIES = %w(state owner_id description volume_size)
 
       def fetch

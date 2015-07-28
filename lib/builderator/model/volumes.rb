@@ -9,9 +9,10 @@ module Builderator
     end
 
     ##
-    # Manage AusoScaling resources
+    # EC2 Volume Resources
     ##
     class Volumes < Model::Base
+      LIMIT = 8
       PROPERTIES = %w(size availability_zone state volume_type iops)
 
       def fetch
