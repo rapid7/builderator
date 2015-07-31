@@ -32,8 +32,8 @@ module Builderator
             Model.launch_configs.resources.delete(l)
 
             next unless commit?
-            puts "delete_launch_configuration(:launch_configuration_name => #{l})"
-            # Util.asg.delete_launch_configuration(:launch_configuration_name => l)
+            # puts "delete_launch_configuration(:launch_configuration_name => #{l})"
+            Util.asg.delete_launch_configuration(:launch_configuration_name => l)
           end
         rescue Aws::AutoScaling::Errors::ServiceError => e
           exceptions << Util::AwsException.new('Cleanup Launch Configurations', e)
