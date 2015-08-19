@@ -13,8 +13,8 @@ module Builderator
       class_option :config, :aliases => :c, :desc => "Path to Berkshelf's config.json"
       class_option :berksfile, :aliases => :b, :desc => 'Path to the Berksfile to use'
 
-      desc 'install [VERSION = 0.8.1]', 'Ensure that the desired version of packer is installed'
-      def install(version = '0.8.1')
+      desc 'install [VERSION = 0.8.2]', 'Ensure that the desired version of packer is installed'
+      def install(version = '0.8.2')
         Control::Packer.use(version)
 
         if Control::Packer.installed?
@@ -25,6 +25,7 @@ module Builderator
         say_status :packer, "install version #{ version } to #{ Control::Packer.path }"
         run "wget #{ Control::Packer.url } -O packer.zip -q"
         run "unzip -d #{ Control::Packer.path } -q packer.zip"
+        run "ln -sf #{ Control::Packer.path } $HOME/packer"
       end
 
       desc 'build ARGS', 'Run a build with the installed version of packer'

@@ -10,7 +10,7 @@ module Builderator
       class << self
         def version(arg = nil)
           return @version = arg unless arg.nil?
-          @version || '0.8.0'
+          @version || '0.8.2'
         end
         alias_method :use, :version
 
@@ -27,7 +27,7 @@ module Builderator
         end
 
         def bin
-          File.join(ENV['HOME'], "packer_#{ version }/packer")
+          File.join(ENV['HOME'], "packer/packer")
         end
 
         def url

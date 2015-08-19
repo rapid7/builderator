@@ -9,6 +9,26 @@ module Builderator
         {}.tap { |tt| aws_tags.each { |t| tt[t.key.to_s] = t.value } }
       end
 
+      def filter(resources, filters = {})
+        resources.select do |_, r|
+          filters.reduce(true) do |memo, (k, v)|
+            memo && r[:properties].include?(k.to_s) &&
+              r[:properties][k.to_s] == v
+          end
+        end
+      end
+
+      def filter!(resources, filters = {})
+        resources.select! do |_, r|
+          filters.reduce(true) do |memo, (k, v)|
+            memo && r[:properties].include?(k.to_s) &&
+              r[:properties][k.to_s] == v
+          end
+        end
+
+        resources
+      end
+
       def region(arg = nil)
         return @region || 'us-east-1' if arg.nil?
         @region = arg
@@ -24,3 +44,6 @@ module Builderator
     end
   end
 end
+
+require_relative './util/aws_exception'
+require_relative './util/limit_exception'
