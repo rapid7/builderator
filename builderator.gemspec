@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['jmanero@rapid7.com']
   spec.summary       = 'Tools to make CI Packer builds awesome'
   spec.description   = Builderator::DESCRIPTION
-  spec.homepage      = ''
+  spec.homepage      = 'https://github.com/rapid7/builderator'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0")
