@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0")
-  spec.executables   = Dir[File.join(Builderator::GEM_ROOT, 'bin/*')].map { |f| File.basename(f) }
+  spec.executables   = Dir[File.join(Builderator::PATH, 'bin/*')].map { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(/^(test|spec|features)\//)
   spec.require_paths = ['lib']
 

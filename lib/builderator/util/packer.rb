@@ -2,7 +2,7 @@ require 'json'
 require_relative '../util'
 
 module Builderator
-  module Control
+  module Util
     ##
     # Helpers for packer
     ##
@@ -10,7 +10,7 @@ module Builderator
       class << self
         def version(arg = nil)
           return @version = arg unless arg.nil?
-          @version || '0.8.2'
+          @version || '0.8.6'
         end
         alias_method :use, :version
 

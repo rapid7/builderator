@@ -16,7 +16,7 @@ module Builderator
           say 'Please add the following to your Gemfile and update your bundle to use the `vagrant` command:'
           say '  +------------------------------------------------+', :green
           say "  | gem 'vagrant', :github => 'mitchellh/vagrant', |", :green
-          say "  |                :tag => 'v1.7.2'                |", :green
+          say "  |                :tag => 'v1.7.4'                |", :green
           say '  +------------------------------------------------+', :green
 
           exit 1

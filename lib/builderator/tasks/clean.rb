@@ -80,6 +80,7 @@ module Builderator
         invoke :images, [], options
         invoke :snapshots, [], options
 
+        ## TODO Print resource counts here.
         return if Control::Clean.exceptions.empty?
 
         say_status :fail, 'Not all tasks completed successfully. The following '\
