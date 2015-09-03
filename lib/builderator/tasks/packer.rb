@@ -1,7 +1,7 @@
 require 'thor'
 require 'thor/actions'
 require_relative './berks'
-require_relative '../control/packer'
+require_relative '../util/packer'
 require_relative '../util/shell'
 
 module Builderator
@@ -15,17 +15,17 @@ module Builderator
 
       desc 'install [VERSION = 0.8.2]', 'Ensure that the desired version of packer is installed'
       def install(version = '0.8.2')
-        Control::Packer.use(version)
+        Util::Packer.use(version)
 
-        if Control::Packer.installed?
+        if Util::Packer.installed?
           say_status :packer, "is already installed at version #{ version }"
           return
         end
 
-        say_status :packer, "install version #{ version } to #{ Control::Packer.path }"
-        run "wget #{ Control::Packer.url } -O packer.zip -q"
-        run "unzip -d #{ Control::Packer.path } -q packer.zip"
-        run "ln -sf #{ Control::Packer.path } $HOME/packer"
+        say_status :packer, "install version #{ version } to #{ Util::Packer.path }"
+        run "wget #{ Util::Packer.url } -O packer.zip -q"
+        run "unzip -d #{ Util::Packer.path } -q packer.zip"
+        run "ln -sf #{ Util::Packer.path } $HOME/packer"
       end
 
       desc 'build ARGS', 'Run a build with the installed version of packer'
@@ -33,7 +33,7 @@ module Builderator
       def build(*args)
         invoke Tasks::Berks, 'vendor', [], options
 
-        packer_output = execute("#{ Control::Packer.bin } build #{ args.join(' ') }")
+        packer_output = execute("#{ Util::Packer.bin } build #{ args.join(' ') }")
 
         ## Try to find the ID of the new AMI
         ami_id_search = /AMI: (ami-[0-9a-f]{8})/.match(packer_output.string)
