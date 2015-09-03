@@ -41,6 +41,10 @@ module Builderator
       def asg
         @asg ||= Aws::AutoScaling::Client.new(:region => region)
       end
+
+      def working_dir(relative = '.')
+        File.expand_path(relative, Dir.pwd)
+      end
     end
   end
 end
