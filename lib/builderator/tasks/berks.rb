@@ -60,7 +60,7 @@ module Builderator
       end
 
       desc "clean [PATH = #{ Util::Cookbook::DEFAULT_VENDOR }]", 'Remove a local vendor directory'
-      def clean(path = Util::Cookbook::DEFAULT_VENDOR)
+      def clean(path = Util::Cookbook::DEFAULT_VENDOR.to_s)
         remove_dir path
       end
     end

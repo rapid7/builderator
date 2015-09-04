@@ -74,7 +74,7 @@ module Builderator
               c.from_file(path.join('metadata.rb').to_s)
 
             elsif path.join('metadata.json').exist?
-              c.from_json(path.join('metadata.json').to_s)
+              c.from_json(path.join('metadata.json').read)
 
             else
               fail IOError, 'Unable to read metadata.rb or metadata.json!'
