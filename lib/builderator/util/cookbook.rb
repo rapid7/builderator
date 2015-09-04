@@ -1,6 +1,5 @@
 require 'chef/cookbook/metadata'
 require 'ignorefile'
-require 'thor-scmversion'
 
 require_relative '../util'
 

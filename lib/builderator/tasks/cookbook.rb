@@ -3,6 +3,7 @@ require 'chef/cookbook_site_streaming_uploader'
 require 'rubygems/package'
 require 'thor'
 require 'thor/actions'
+require 'thor-scmversion'
 require 'zlib'
 
 require_relative '../util'
@@ -32,7 +33,7 @@ module Builderator
       def build(cookbook = nil)
         Util::Cookbook.path(cookbook) unless cookbook.nil?
 
-        ## Generate
+        ## Generate metadata.json
         metadata = invoke(Tasks::Cookbook, :metadata, [], options)
 
         ## Create a gzipped tarball and add cookbook files to it. We avoid
