@@ -14,7 +14,7 @@ module Builderator
                              :desc => 'Write current verison to file'
 
       desc "local [PATH = #{ Util::Cookbook::DEFAULT_VENDOR }]", 'Vendor the local cookbook source and its dependencies'
-      def local(path = Util::Cookbook::DEFAULT_VENDOR)
+      def local(path = Util::Cookbook::DEFAULT_VENDOR.to_s)
         Util::Cookbook.path(options['cookbook'])
 
         command = 'BERKS_INSTALL_FROM=source'
@@ -28,7 +28,7 @@ module Builderator
       end
 
       desc "vendor [PATH = #{ Util::Cookbook::DEFAULT_VENDOR }]", 'Vendor a cookbook release and its dependencies'
-      def vendor(path = Util::Cookbook::DEFAULT_VENDOR)
+      def vendor(path = Util::Cookbook::DEFAULT_VENDOR.to_s)
         Util::Cookbook.path(options['cookbook'])
 
         command = 'BERKS_INSTALL_FROM=release'
@@ -42,7 +42,7 @@ module Builderator
 
       desc 'upload', 'Upload the local cookbook source and its dependencies to the Chef server'
       option 'dry-run', :type => :boolean, :default => false
-      def upload(path = Util::Cookbook::DEFAULT_VENDOR)
+      def upload(path = Util::Cookbook::DEFAULT_VENDOR.to_s)
         command = 'BERKS_INSTALL_FROM=source'
         command << " berks upload"
         command << " -c #{ options['config'] }" if options.include?('config')
