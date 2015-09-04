@@ -1,3 +1,5 @@
+require 'pathname'
+
 module Builderator
   module Util
     class << self
@@ -43,7 +45,7 @@ module Builderator
       end
 
       def working_dir(relative = '.')
-        File.expand_path(relative, Dir.pwd)
+        Pathname.pwd.join(relative).expand_path
       end
     end
   end
