@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'aws-sdk', '~> 2.0'
   spec.add_dependency 'bundler', '~> 1.7.0'
-  spec.add_dependency 'berkshelf', '~> 3.2'
+  spec.add_dependency 'berkshelf', '~> 4.0'
   spec.add_dependency 'chef', '~> 12.0'
   spec.add_dependency 'ignorefile'
   spec.add_dependency 'thor', '~> 0.19.0'
