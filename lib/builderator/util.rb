@@ -13,19 +13,13 @@ module Builderator
 
       def filter(resources, filters = {})
         resources.select do |_, r|
-          filters.reduce(true) do |memo, (k, v)|
-            memo && r[:properties].include?(k.to_s) &&
-              r[:properties][k.to_s] == v
-          end
+          _filter_reduce(r, filters)
         end
       end
 
       def filter!(resources, filters = {})
         resources.select! do |_, r|
-          filters.reduce(true) do |memo, (k, v)|
-            memo && r[:properties].include?(k.to_s) &&
-              r[:properties][k.to_s] == v
-          end
+          _filter_reduce(r, filters)
         end
 
         resources
@@ -46,6 +40,19 @@ module Builderator
 
       def working_dir(relative = '.')
         Pathname.pwd.join(relative).expand_path
+      end
+
+      private
+
+      def _filter_reduce(resource, filters)
+        filters.reduce(true) do |memo, (k, v)|
+          ## Allow for negation with a leading `~`
+          if v[0] == '~'
+            memo && (!resource[:properties].include?(k.to_s) || resource[:properties][k.to_s] != v[1..-1])
+          else
+            memo && resource[:properties].include?(k.to_s) && resource[:properties][k.to_s] == v
+          end
+        end
       end
     end
   end

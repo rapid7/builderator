@@ -88,6 +88,9 @@ module Builderator
         Control::Clean.exceptions.each do |e|
           say_status(*e.status)
         end
+
+        ## Mark the Jenkins job as fail if there were errors.
+        exit(1)
       end
     end
   end
