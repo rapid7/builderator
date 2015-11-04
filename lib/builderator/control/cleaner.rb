@@ -1,4 +1,4 @@
-require_relative '../model'
+require_relative '../model/cleaner'
 require_relative '../util'
 
 module Builderator
@@ -6,15 +6,13 @@ module Builderator
     ##
     # Control logic for cleanup tasks
     ##
-    module Clean
+    module Cleaner
       class << self
 
         def options(arg = nil)
           return @options unless arg.is_a?(Hash)
 
-          @options = arg.clone
-
-          Util.region(@options.delete('region'))
+          @options = arg.to_hash
           @commit = @options.delete('commit') { false }
           @limit = @options.delete('limit') { true }
 
@@ -22,74 +20,74 @@ module Builderator
         end
 
         def configs!
-          resources = Model.launch_configs.unused(options)
+          resources = Model::Cleaner.launch_configs.unused(options)
 
-          limit!(Model::LaunchConfigs, 'Cleanup Launch Configurations', resources, &Proc.new)
+          limit!(:launch_configs, 'Cleanup Launch Configurations', resources, &Proc.new)
           aborted!(&Proc.new)
 
           resources.each do |l, _|
             yield :remove, "Launch Configuration #{ l }", :red
-            Model.launch_configs.resources.delete(l)
+            Model::Cleaner.launch_configs.resources.delete(l)
 
             next unless commit?
             Util.asg.delete_launch_configuration(:launch_configuration_name => l)
           end
         rescue Aws::AutoScaling::Errors::ServiceError => e
-          exceptions << Util::AwsException.new('Cleanup Launch Configurations', e)
+          exceptions << Util::AwsException.new('Cleanerup Launch Configurations', e)
           yield(*exceptions.last.status)
         end
 
         def images!
-          resources = Model.images.unused(options)
+          resources = Model::Cleaner.images.unused(options)
 
-          limit!(Model::Images, 'Cleanup Images', resources, &Proc.new)
+          limit!(:images, 'Cleanup Images', resources, &Proc.new)
           aborted!(&Proc.new)
 
           resources.each do |i, image|
             yield :remove, "Image #{ i } (#{ image[:properties]['name'] })", :red
-            Model.images.resources.delete(i)
+            Model::Cleaner.images.resources.delete(i)
 
             next unless commit?
             Util.ec2.deregister_image(:image_id => i)
           end
         rescue Aws::EC2::Errors::ServiceError => e
-          exceptions << Util::AwsException.new('Cleanup Images', e)
+          exceptions << Util::AwsException.new('Cleanerup Images', e)
           yield(*exceptions.last.status)
         end
 
         def snapshots!
-          resources = Model.snapshots.unused
+          resources = Model::Cleaner.snapshots.unused
 
-          limit!(Model::Snapshots, 'Cleanup Snapshots', resources, &Proc.new)
+          limit!(:snapshots, 'Cleanup Snapshots', resources, &Proc.new)
           aborted!(&Proc.new)
 
           resources.each do |s, _|
             yield :remove, "Snapshot #{ s }", :red
-            Model.snapshots.resources.delete(s)
+            Model::Cleaner.snapshots.resources.delete(s)
 
             next unless commit?
             Util.ec2.delete_snapshot(:snapshot_id => s)
           end
         rescue Aws::EC2::Errors::ServiceError => e
-          exceptions << Util::AwsException.new('Cleanup Snapshots', e)
+          exceptions << Util::AwsException.new('Cleanerup Snapshots', e)
           yield(*exceptions.last.status)
         end
 
         def volumes!
-          resources = Model.volumes.unused
+          resources = Model::Cleaner.volumes.unused
 
-          limit!(Model::Volumes, 'Cleanup Volumes', resources, &Proc.new)
+          limit!(:volumes, 'Cleanup Volumes', resources, &Proc.new)
           aborted!(&Proc.new)
 
           resources.each do |v, _|
             yield :remove, "Volume #{ v }", :red
-            Model.volumes.resources.delete(v)
+            Model::Cleaner.volumes.resources.delete(v)
 
             next unless commit?
             Util.ec2.delete_volume(:volume_id => v)
           end
         rescue Aws::EC2::Errors::ServiceError => e
-          exceptions << Util::AwsException.new('Cleanup Volumes', e)
+          exceptions << Util::AwsException.new('Cleanerup Volumes', e)
           yield(*exceptions.last.status)
         end
 
@@ -116,10 +114,11 @@ module Builderator
             ' safty constraints have not been met!', :yellow if aborted?
         end
 
-        def limit!(klass, task, resources)
-          return unless limit? && (resources.size >= klass::LIMIT)
+        def limit!(resource_name, task, resources)
+          return unless limit? && (resources.size >=
+            Config[:cleaner][:limits].fetch(resource_name, Util::LimitException::DEFAULT_LIMIT))
 
-          exceptions << Util::LimitException.new(klass, task, resources)
+          exceptions << Util::LimitException.new(resource_name, task, resources)
           @abort = true
 
           yield(*exceptions.last.status)
