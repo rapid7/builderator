@@ -32,6 +32,16 @@ module Builderator
                                    'virtualization-type' => options['virtualization_type'],
                                    'architecture' => options['architecture'] }.merge(Hash[*args])).image_id
       end
+
+      desc 'windows SEARCH', 'Print the latest AMI ID for a Windows image matching the SEARCH string'
+      def windows(search = 'Windows_Server-2012-R2_RTM-English-64Bit-Base*')
+        puts Control::AMI.latest(:owner => Builderator::Control::AMI::Owners::AMAZON,
+                                 'root-device-type' => options['root_device_type'],
+                                 'virtualization-type' => options['virtualization_type'],
+                                 'architecture' => options['architecture'],
+                                 'name' => search).image_id
+      end
+
     end
   end
 end
