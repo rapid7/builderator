@@ -13,6 +13,7 @@ module Builderator
       module Owners
         SELF = 'self'.freeze
         UBUNTU = '099720109477'.freeze
+        AMAZON = 'amazon'.freeze
       end
 
       ## Filter fields defined in http://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Builderator::Util.ec2.html#describe_images-instance_method
