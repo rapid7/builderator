@@ -1,5 +1,5 @@
 require_relative './config/file'
-require_relative './config/mash'
+require_relative './config/defaults'
 
 module Builderator
   ##
@@ -7,60 +7,75 @@ module Builderator
   ##
   module Config
     class << self
+      ## GLOBAL_DEFAULTS is the lowest-precedence layer, followed by dynamicly
+      ## defined instance-defaults.
       def layers
         @layers ||= []
       end
 
       def defaults
-        @default ||= Mash.new(
-          :aws => {
-            :region => 'us-east-1'
-          },
-          :cleaner => {
-            :limits => {
-              :images => 24,
-              :launch_configs => 24,
-              :snapshots => 24,
-              :volumes => 8
-            }
-          }
-        )
+        @defaults ||= File.new({}, :source => 'dafaults', :config => self)
       end
 
       def overrides
-        @override ||= Mash.new
+        @overrides ||= File.new({}, :source => 'overrides', :config => self)
       end
 
-      def load(path)
-        layers << Config::File.load(path) if ::File.exist?(path)
+      def argv(options = {})
+        @argv ||= File.new(options, :source => 'overrides', :config => self)
       end
 
-      ## Get the most precedent attribute value
-      def get(k)
-        ## Overrides beat everything
-        return overrides[k] if overrides.has?(k)
+      def append(path)
+        layers << File.from_file(path, :config => self) if ::File.exist?(path)
+      end
+      alias_method :load, :append
 
-        ## The last layer is the most precedent: Search in reverse.
-        layers.reverse_each do |layer|
-          return layer[k] if layer.has?(k)
-        end
+      def append_json(path)
+        layers << File.from_json(path, :config => self) if ::File.exist?(path)
+      end
+      alias_method :load_json, :append_json
 
-        ## Defaults are last
-        defaults[k]
+      def prepend(path)
+        layers.unshift(File.from_file(path, :config => self)) if ::File.exist?(path)
       end
 
-      alias_method :[], :get
-
-      ## Getters for composed hashes of vandors, Packerfiles,and Vagrantfiles
-      [:vendors, :packer, :vagrant].each do |col|
-        define_method(col) do
-          ## In order of precedence, compose a single hash. Last occurance
-          ## of a key wins, which works because the layers stack is ordered low -> high
-          layers.each_with_object({}) do |layer, memo|
-            memo.merge(layer.send(col))
-          end
-        end
+      def prepend_json(path)
+        layers.unshift(File.from_json(path, :config => self)) if ::File.exist?(path)
       end
+
+      def compile
+        ## Merge layers from lowest to highest
+        compiled_layers = ([GLOBAL_DEFAULTS, defaults] + layers + [overrides, argv])
+                          .reduce(File.new({}, :config => self)) do |file, layer|
+                            file.merge(layer.compile)
+                          end
+
+        ## Don't auto-populate keys anymore
+        compiled_layers.seal
+      end
+
+      def recompile
+        @compiled = compile
+      end
+
+      def compiled
+        @compiled ||= compile
+      end
+
+      def compiled?
+        !@compiled.nil?
+      end
+
+      def fetch(key, *args)
+        return method_really_missing(key, *args) unless compiled.respond_to?(key)
+        ## TODO Guard against compile-loops
+
+        compiled.send(key, *args)
+      end
+
+      alias_method :[], :fetch
+      alias_method :method_really_missing, :method_missing
+      alias_method :method_missing, :fetch
     end
   end
 end

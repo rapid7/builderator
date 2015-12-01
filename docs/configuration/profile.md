@@ -1,0 +1,71 @@
+Collection `profile`
+====================
+
+A profile is a combination of Chef parameters, and Vagrant and Packer configurations. Profiles should provide
+
+* `tags, type: hash` EC2 tags to apply to instances and AMIs
+* `log_level` Chef log-level. Default `:info`
+
+## Collection `artifact`
+
+An externally managed resource to push to VMs and image builds, e.g. `bundle.tar.gz` from a Maven build.
+
+* `path` The workspace-rooted path to the artiface
+* `destination` The absolute path on the VM or image at which the artifact should be placed
+
+## Namespace `chef`
+* `run_list, type: list, singular: run_list_item, unique: true` The Chef runlist for this profile
+* `environment` The Chef environment to load for this
+* `node_attrs, type: hash` A hash of node attributes for this profile
+
+
+## Namespace `packer`
+
+Packer configurations for this profile
+
+### Collection `build`
+
+Add a packer build
+
+* `type` the build provider (e.g. amazon-ebs, virtualbox)
+* `instance_type` the EC2 instance type to use
+* `source_ami` The source AMI ID for an `amazon-ebs`
+* `ssh_username` Default `ubuntu`
+* `virtualization_type` Default `hvm`
+
+## TODO: Share accounts
+
+* `ami_name` Name for new AMI
+* `ami_description` Descriotion for the new AMI
+
+
+## Namespace `vagrant`
+
+Vagrant VM configurations
+
+### Namespace `local`
+
+Parameters for a local VM build
+
+* `provider` Default `virtualbox`
+* `box` Default `ubuntu-14.04-x86_64`
+* `box_url` Default `https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box`
+
+* `cpus` Default 2
+* `memory` Default 1024 (MB)
+
+## Namespace `ec2`
+
+Parameters for the provisioning EC2 nodes with Vagrant
+
+* `provider` Default `aws`
+* `box` Default `dummy`
+* `box_url` Default `https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box`
+* `instance_type`
+* `source_ami`
+* `ssh_username`
+* `virtualization_type`
+* `instance_profile`
+* `subnet_id`
+* `security_groups, type: list, singular: security_group, unique: true`
+* `public_ip`

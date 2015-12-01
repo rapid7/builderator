@@ -1,81 +1,210 @@
-require_relative './mash'
-require_relative './packer'
-require_relative './vagrant'
+require 'time'
+
+require_relative './attributes'
+require_relative '../util'
 
 module Builderator
   module Config
     ##
     # DSL Loader for a configuration file
     ##
-    class File < DSL
-      def initialize
-        super
+    class File < Attributes
+      class << self
+        ## DSL Loaders
+        def from_file(source, **options)
+          new({}, options.merge(:type => :file, :source => source))
+        end
 
-        @packer = {}
-        @vagrant = {}
-        @vendors = {}
+        def from_json(source, **options)
+          new({}, options.merge(:type => :json, :source => source))
+        end
+      end
+
+      attr_reader :date ## Provide an authoritative, UTC-based date for any consumers
+      attr_reader :source ## Where the instance was defined
+      attr_reader :type ## How compile should populate attributes
+
+      def initialize(attributes = {}, options = {}, &block)
+        super(attributes, &block)
+
+        @date = Time.now.utc
+        @type = options.fetch(:type, :code)
+        @source = options.fetch(:source, nil)
+        @config = options.fetch(:config, nil)
+      end
+
+      def compile
+        case @type
+        when :file
+          instance_eval(IO.read(source), source, 0)
+        when :json
+          @attributes = Rash.coerce(JSON.parse(IO.read(source)))
+        else
+          instance_eval(&@block) if @block
+        end
+
+        self
+      end
+
+      attribute :build_name, :required => true
+      attribute :build_number
+      attribute :build_url
+
+      attribute :description
+      attribute :version
+
+      ##
+      # Enable/disable auto-versioning features
+      ##
+      namespace :autoversion do
+        attribute :create_tags
+        attribute :search_tags
       end
 
       ##
-      # Chef configurations
+      # Local resource paths
       ##
-      def run_list(*args)
-        set_or_return([:chef, :run_list], args.flatten)
+      namespace :local do
+        attribute :vendor_path, :workspace => true
+        attribute :cookbook_path, :workspace => true
+
+        attribute :data_bag_path, :workspace => true
+        attribute :environment_path, :workspace => true
+
+        attribute :staging_directory
       end
 
-      def environment(arg = nil)
-        set_or_return([:chef, :environment], arg)
-      end
+      ##
+      # Cookbook build options
+      ##
+      namespace :cookbook do
+        attribute :path
 
-      def node_attrs(arg = nil)
-        set_or_return([:chef, :node_attrs], arg, Mash.new)
-      end
+        attribute :sources, :type => :list, :singular => :add_source, :unique => true
+        attribute :metadata
 
-      def cookbook_paths(*args)
-        set_or_return([:chef, :cookbooks_path], args.flatten, [])
-      end
+        collection :depends do
+          attribute :version
 
-      def data_bag_path(arg = nil)
-        set_or_return([:chef, :data_bag_path], arg)
-      end
+          attribute :git
+          attribute :github
+          attribute :branch
+          attribute :tag
+          attribute :ref
+          attribute :rel
 
-      def environment_path(arg = nil)
-        set_or_return([:chef, :environment_path], arg)
+          attribute :path, :relative => true
+        end
       end
 
       ##
       # AWS configurations
       ##
-      def aws_region(arg = nil)
-        set_or_return([:aws, :region], arg, 'us-east-1')
+      namespace :aws do
+        attribute :region
+        attribute :access_key
+        attribute :secret_key
       end
 
-      def aws_key(arg = nil)
-        set_or_return([:aws, :key], arg)
+      collection :profile do
+        attribute :tags, :type => :hash
+        attribute :log_level
+
+        ##
+        # Sync'd artifacts
+        ##
+        collection :artifact do
+          attribute :path, :relative => true
+          attribute :destination
+        end
+
+        ##
+        # Chef configurations
+        ##
+        namespace :chef do
+          attribute :run_list, :type => :list, :singular => :run_list_item, :unique => true
+          attribute :environment
+          attribute :node_attrs
+        end
+
+        ##
+        # Packerfile
+        ##
+        namespace :packer do
+          collection :build do
+            attribute :type
+            attribute :instance_type
+            attribute :source_ami
+            attribute :ssh_username
+            attribute :virtualization_type
+
+            ## TODO: Share accounts
+
+            attribute :ami_name
+            attribute :ami_description
+          end
+        end
+
+        ##
+        # Vagrantfile
+        ##
+        namespace :vagrant do
+          namespace :local do
+            attribute :provider
+            attribute :box
+            attribute :box_url
+
+            attribute :cpus
+            attribute :memory
+          end
+
+          namespace :ec2 do
+            attribute :provider
+            attribute :box
+            attribute :box_url
+
+            attribute :instance_type
+            attribute :source_ami
+            attribute :ssh_username
+            attribute :virtualization_type
+            attribute :instance_profile
+            attribute :subnet_id
+            attribute :security_groups, :type => :list, :singular => :security_group, :unique => true
+            attribute :public_ip
+          end
+        end
       end
 
-      def aws_secret(arg = nil)
-        set_or_return([:aws, :secret], arg)
+      ##
+      # Configure resources that must be fetched for a build
+      ##
+      collection :vendor do
+        attribute :path
+
+        attribute :git
+        attribute :github
+        attribute :branch
+        attribute :tag
+        attribute :ref
+        attribute :rel
       end
 
-      ## Add a Packer build
-      def packer(name = 'default', &block)
-        return @packer[name] if block.nil?
-
-        @packer[name] = Packer.from_dsl(self, name, &block)
+      ##
+      # Cleaner Parameters
+      ##
+      namespace :cleaner do
+        namespace :limits do
+          attribute :images
+          attribute :launch_configs
+          attribute :snapshots
+          attribute :volumes
+        end
       end
 
-      ## Add a Vagrant VM
-      def vagrant(name = 'default', &block)
-        return @vagrant[name] if block.nil?
-
-        @vagrant[name] = Vagrant.from_dsl(self, name, &block)
-      end
-
-      ## Add a vendor source
-      def vendor(name, source)
-        @vendors[name] = source
-      end
+      ##
+      # Option to disable cleanup of build resources
+      ##
+      attribute :cleanup
     end
   end
 end
