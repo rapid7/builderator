@@ -9,11 +9,11 @@ cookbook
 
 Collection of declared cookbook dependencies. Options are passed to [Berkshelf](http://berkshelf.com/). Check out their docs for additional details.
 
-* `version` A verison constraint spec for the cookbook
+* `version` A version constraint spec for the cookbook
 * `git` A git URI from which to fetch the cookbook
-* `github` A GitHub URL from which to fetch the cookbook
+* `GitHub` A GitHub URL from which to fetch the cookbook
 * `branch` A branch reference from which to fetch the cookbook
 * `tag` A tag reference from which to fetch the cookbook
 * `ref` A comittish reference from which to fetch the cookbook
-* `rel` The sub-directory of a git repositoru to check out as a cookbook
+* `rel` The sub-directory of a git repository to check out as a cookbook
 * `path` The path to a local cookbook, relative to the build workspace.

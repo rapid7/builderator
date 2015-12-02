@@ -10,7 +10,7 @@ A profile is a combination of Chef parameters, and Vagrant and Packer configurat
 
 An externally managed resource to push to VMs and image builds, e.g. `bundle.tar.gz` from a Maven build.
 
-* `path` The workspace-rooted path to the artiface
+* `path` The workspace-rooted path to the artifact
 * `destination` The absolute path on the VM or image at which the artifact should be placed
 
 ## Namespace `chef`
@@ -36,7 +36,7 @@ Add a packer build
 ## TODO: Share accounts
 
 * `ami_name` Name for new AMI
-* `ami_description` Descriotion for the new AMI
+* `ami_description` Description for the new AMI
 
 
 ## Namespace `vagrant`

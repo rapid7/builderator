@@ -7,14 +7,14 @@ module Builderator
   ##
   module Config
     class << self
-      ## GLOBAL_DEFAULTS is the lowest-precedence layer, followed by dynamicly
+      ## GLOBAL_DEFAULTS is the lowest-precedence layer, followed by dynamically
       ## defined instance-defaults.
       def layers
         @layers ||= []
       end
 
       def defaults
-        @defaults ||= File.new({}, :source => 'dafaults', :config => self)
+        @defaults ||= File.new({}, :source => 'defaults', :config => self)
       end
 
       def overrides
