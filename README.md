@@ -28,3 +28,7 @@ Configuration can be loaded from DSL files as well as JSON and command line argu
 * CLI arguments loaded from Thor
 
 [Additional documentation](docs/configuration.md) describes the configuration DSL interface.
+
+## Integrations
+
+Builderator integrates with other tools, including [Berkshelf](http://berkshelf.com), [Vagrant](https://www.vagrantup.com/), and [Packer](https://www.packer.io/), to orchestrate workflows by generating `Berksfile`s, `Vagrantfile`s, and JSON strings for Packer. This means that you can replace all of these files in your project with a single `Buildfile`.
