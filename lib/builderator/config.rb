@@ -67,15 +67,15 @@ module Builderator
       end
 
       def fetch(key, *args)
-        return method_really_missing(key, *args) unless compiled.respond_to?(key)
-        ## TODO Guard against compile-loops
-
         compiled.send(key, *args)
       end
-
       alias_method :[], :fetch
-      alias_method :method_really_missing, :method_missing
-      alias_method :method_missing, :fetch
+
+      def method_missing(method_name, *args)
+        return super unless compiled? && compiled.respond_to?(method_name)
+
+        compiled.send(method_name, *args)
+      end
     end
   end
 end

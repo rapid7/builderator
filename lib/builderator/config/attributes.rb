@@ -93,11 +93,7 @@ module Builderator
               @attributes[collection_name])
 
             return collection_instance if instance_name.nil?
-
-            collection_class.namespace_class.new(
-              @attributes[collection_name][instance_name],
-              :collection => collection_instance,
-              :name => instance_name, &block).compile
+            collection_instance.fetch(instance_name, &block).compile
           end
         end
       end
@@ -253,19 +249,14 @@ module Builderator
           self.class.name
         end
 
-        def fetch(instance_name, *args)
-          # return method_really_missing(key, *args) unless compiled.respond_to?(key)
-
+        ## Get namespace instances
+        def fetch(instance_name, &block)
           self.class.namespace_class.new(
             attributes[instance_name],
             :collection => self,
-            :name => instance_name)
+            :name => instance_name, &block)
         end
-
-        ## Get namespace instances
         alias_method :[], :fetch
-        # alias_method :method_really_missing, :method_missing
-        alias_method :method_missing, :fetch
       end
     end
   end
