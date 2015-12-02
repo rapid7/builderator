@@ -52,7 +52,7 @@ module Builderator
         attribute :node_attrs
       end
 
-      def write
+      def render
         packer_json = {
           :builders => builders,
           :provisioners => [{
