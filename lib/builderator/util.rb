@@ -1,8 +1,17 @@
 require 'pathname'
 
 module Builderator
+  ##
+  # Shared helper methods
+  ##
   module Util
+    GEM_PATH = Pathname.new(__FILE__).join('../../..').expand_path
+    WORKSPACE = '.builderator'.freeze
+
     class << self
+      ##
+      # Transform helpers
+      ##
       def to_array(arg)
         arg.is_a?(Array) ? arg : [arg]
       end
@@ -11,6 +20,24 @@ module Builderator
         {}.tap { |tt| aws_tags.each { |t| tt[t.key.to_s] = t.value } }
       end
 
+      ##
+      # Relative path from working directory
+      ##
+      def relative_path(*relative)
+        Pathname.pwd.join(*relative).expand_path
+      end
+
+      def workspace(*relative)
+        relative_path.join(WORKSPACE).join(*relative)
+      end
+
+      def source_path(*relative)
+        GEM_PATH.join(*relative).expand_path
+      end
+
+      ##
+      # Set-filter helpers
+      ##
       def filter(resources, filters = {})
         resources.select do |_, r|
           _filter_reduce(r, filters)
@@ -25,21 +52,15 @@ module Builderator
         resources
       end
 
-      def region(arg = nil)
-        return @region || 'us-east-1' if arg.nil?
-        @region = arg
-      end
-
+      ##
+      # AWS Clients
+      ##
       def ec2
         @ec2 ||= Aws::EC2::Client.new(:region => region)
       end
 
       def asg
         @asg ||= Aws::AutoScaling::Client.new(:region => region)
-      end
-
-      def working_dir(relative = '.')
-        Pathname.pwd.join(relative).expand_path
       end
 
       private

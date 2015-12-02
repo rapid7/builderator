@@ -1,30 +1,30 @@
 # Builderator
-__Tools to make CI Packer builds awesome__
 
-## Installation
+Orchestration and configuration of the code development life-cycle.
 
-Add this line to your application's Gemfile:
+## Commands
 
-```ruby
-gem 'builderator'
-```
+### `local [PROFILE = default]`
 
-And then execute:
+Provision a local VM using Vagrant and, by default, VirtualBox. Uses Berkshelf to fetch cookbooks, and Chef to provision the VM.
 
-    $ bundle
+### `ec2 [PROFILE = default]`
 
-Or install it yourself as:
+Provision an EC2 VM using Vagrant. Same workflow as `local` using the `vagrant-aws` plugin.
 
-    $ gem install builderator
+### `release [PROFILE = default]`
 
-## Usage
+Perform release tasks and execute Packer builds with released artifacts.
 
-Run `bundle exec thor build help`
+## Configuration
 
-## Contributing
+Configuration can be loaded from DSL files as well as JSON and command line arguments. By default, Builderator searches in your home directory (`$HOME/.builderator/Buildfile`) and the working directory (`./Builderator`) for DSL files. Configuration sources are layered and flattened into a single DSL in the following order:
 
-1. Fork it ( https://github.com/[my-github-username]/builderator/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+* Global defaults defined in the Builderator sources
+* `Config.defaults` set by plugins, tasks, etc. in code
+* `$HOME/.builderator/Buildfile`
+* `./Buildfile`
+* `Config.overrides` set by plugins, tasks, etc. in code
+* CLI arguments loaded from Thor
+
+[Additional documentation](docs/configuration.md) describes the configuration DSL interface.
