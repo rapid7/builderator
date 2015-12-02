@@ -79,6 +79,7 @@ module Builderator
       ##
       namespace :cookbook do
         attribute :path
+        attribute :berkshelf_config
 
         attribute :sources, :type => :list, :singular => :add_source, :unique => true
         attribute :metadata

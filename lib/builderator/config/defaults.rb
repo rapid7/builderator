@@ -24,6 +24,7 @@ module Builderator
 
       cookbook do |cookbook|
         cookbook.path = '.'
+        cookbook.berkshelf_config = ::File.join(ENV['HOME'], '.berkshelf/config.json')
         cookbook.add_source 'https://supermarket.chef.io'
       end
 
@@ -66,15 +67,6 @@ module Builderator
             if Config.compiled?
               build.ami_name "#{ Config.build_name }-#{ Config.version }-#{ Config.build_number }"
               build.ami_description Config.description
-
-              build.tags(
-                :service => Config.name,
-                :version => "#{ Config.version }-#{ Config.build_number }",
-                :build_date => Config.date.iso8601,
-                :build_url => Config.build_url,
-                :parent_ami => Config.profile(build.name).packer
-                                 .build(build.name).source_ami
-              )
             end
           end
         end
