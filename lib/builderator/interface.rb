@@ -22,11 +22,14 @@ module Builderator
       Util.workspace
     end
 
+    def render
+      ERB.new(Util.source_path(self.class.template).binread,
+              nil, '-', '@output_buffer').result(instance_eval('binding'))
+    end
+
     def write
       directory.mkpath
-      source.write(
-        ERB.new(Util.source_path(self.class.template).binread,
-                nil, '-', '@output_buffer').result(instance_eval('binding')))
+      source.write(render)
       self
     end
 

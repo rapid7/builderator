@@ -4,6 +4,13 @@ require_relative '../util'
 
 module Builderator
   class Interface
+    class << self
+      def vagrant(profile = :default)
+        @vagrant ||= {}
+        @vagrant[profile] ||= Vagrant.new(profile)
+      end
+    end
+
     ##
     # Render a temporary Vagrantfile
     ##

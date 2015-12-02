@@ -2,8 +2,16 @@ require_relative '../config'
 require_relative '../interface'
 require_relative '../util'
 
+require_relative '../control/cookbook'
+
 module Builderator
   class Interface
+    class << self
+      def berkshelf
+        @berkshelf ||= Berkshelf.new
+      end
+    end
+
     ##
     # Render an updated Berksfile
     ##
@@ -19,7 +27,6 @@ module Builderator
 
       template 'template/Berksfile.erb'
 
-      attribute :path
       attribute :vendor
       attribute :lockfile, :workspace => true
 

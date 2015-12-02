@@ -4,6 +4,13 @@ require_relative '../util'
 
 module Builderator
   class Interface
+    class << self
+      def packer(profile = :default)
+        @packer ||= {}
+        @packer[profile] ||= Packer.new(profile)
+      end
+    end
+
     ##
     # Generate packer.json
     ##
