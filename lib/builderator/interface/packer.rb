@@ -16,7 +16,7 @@ module Builderator
     ##
     class Packer < Interface
       def initialize(profile = :default)
-        super({})
+        super
 
         date Config.date
 

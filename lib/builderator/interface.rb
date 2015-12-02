@@ -18,6 +18,13 @@ module Builderator
       end
     end
 
+    def initialize(*_)
+      ## Ensure that Config is compiled before reading from it
+      Config.recompile
+
+      super
+    end
+
     def directory
       Util.workspace
     end

@@ -16,7 +16,7 @@ module Builderator
     ##
     class Vagrant < Interface
       def initialize(profile_ = :default)
-        super({})
+        super
 
         includes Config.profile(profile_).vagrant
         artifact.includes Config.profile(profile_).artifact
