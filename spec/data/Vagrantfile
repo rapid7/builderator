@@ -1,0 +1,51 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure('2') do |config|
+  config.vm.hostname = 'builderator-builderator'
+
+  ## Local Provider
+  config.vm.provider 'virtualbox' do |local, override|
+    local.memory = 512
+    local.cpus = 2
+
+    override.vm.box = 'ubuntu-14.04-x86_64'
+    override.vm.box_url = 'https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box'
+  end
+
+  ## EC2 Provider
+  config.vm.provider 'aws' do |ec2, override|
+    ec2.subnet_id = ''
+    ec2.security_groups = []
+    ec2.iam_instance_profile_arn = ''
+
+    ec2.region = 'us-east-1'
+    ec2.instance_type = 't2.micro'
+
+    override.vm.box = 'dummy'
+    override.vm.box_url = 'https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box'
+  end
+
+  # config.vm.network :forwarded_port, :host => 9200, :guest => 9200
+
+  ##
+  # Use the standard data directory for Chef
+  ##
+  config.vm.provision :shell,
+                      :inline => 'mkdir -p /var/chef/cache && chown vagrant:vagrant -R /var/chef',
+                      :privileged => true
+
+  ##
+  # Sync build artifacts to the VM
+  ##
+
+  config.omnibus.chef_version = 'latest'
+  config.vm.provision :chef_solo do |chef|
+    chef.log_level = :info
+
+    chef.cookbooks_path = '/Users/jmanero/workspace/builderator/spec/resource/.builderator/cookbooks'
+    chef.provisioning_path = '/var/chef'
+
+    chef.run_list = ["apt::default", "etcd-v2::node"]
+  end
+end

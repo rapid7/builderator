@@ -1,0 +1,6 @@
+require 'builderator/patch/berkshelf'
+
+source 'https://supermarket.chef.io'
+
+cookbook 'apt', '>= 0.0.0', {}
+cookbook 'etcd-v2', '>= 0.0.0', {}

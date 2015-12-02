@@ -4,6 +4,7 @@
 build_name 'builderator'
 
 autoversion.create_tags false
+autoversion.search_tags false
 
 cookbook do |cookbook|
   cookbook.depends 'apt'
@@ -17,4 +18,10 @@ end
 
 profile :default do |profile|
   profile.chef.run_list 'apt::default', 'etcd-v2::node'
+
+  profile.vagrant do |vagrant|
+    vagrant.local do |local|
+      local.memory 512
+    end
+  end
 end

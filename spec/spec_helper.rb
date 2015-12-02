@@ -1,7 +1,23 @@
 lib = File.expand_path('../../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
+require 'builderator/config'
+require 'builderator/util'
+
+## Hack everything into running in spec/resource
+module Builderator
+  module Util
+    class << self
+      def relative_path(*relative)
+        Pathname.new(__FILE__).join('../resource').join(*relative).expand_path
+      end
+    end
+  end
+end
+
 RSpec.configure do |config|
+  Builderator::Config.load(::File.expand_path('../resource/Buildfile', __FILE__))
+
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
