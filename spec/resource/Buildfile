@@ -1,0 +1,20 @@
+##
+# Test Buildfile
+##
+build_name 'builderator'
+
+autoversion.create_tags false
+
+cookbook do |cookbook|
+  cookbook.depends 'apt'
+  cookbook.depends 'etcd-v2'
+end
+
+## Fetch Chef resources
+vendor :chef do |vendor|
+  vendor.git 'git@github.com:rapid7/chef-demo-data.git'
+end
+
+profile :default do |profile|
+  profile.chef.run_list 'apt::default', 'etcd-v2::node'
+end
