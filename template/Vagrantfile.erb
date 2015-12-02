@@ -1,0 +1,66 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure('2') do |config|
+  config.vm.hostname = 'builderator-<%= build_name %>'
+
+  ## Local Provider
+  config.vm.provider '<%= local.provider %>' do |local, override|
+    local.memory = <%= local.memory %>
+    local.cpus = <%= local.cpus %>
+
+    override.vm.box = '<%= local.box %>'
+    override.vm.box_url = '<%= local.box_url %>'
+  end
+
+  ## EC2 Provider
+  config.vm.provider '<%= ec2.provider %>' do |ec2, override|
+    ec2.subnet_id = '<%= ec2.subnet_id %>'
+    ec2.security_groups = <%= ec2.security_groups %>
+    ec2.iam_instance_profile_arn = '<%= ec2.instance_profile %>'
+
+    <% unless ec2.public_ip -%>
+    ## VPN Connected VPC
+    ec2.associate_public_ip = false
+    ec2.ssh_host_attribute = :private_ip_address
+    <% end -%>
+
+    ec2.region = '<%= ec2.region %>'
+    ec2.instance_type = '<%= ec2.instance_type %>'
+
+    override.vm.box = '<%= ec2.box %>'
+    override.vm.box_url = '<%= ec2.box_url %>'
+  end
+
+  # config.vm.network :forwarded_port, :host => 9200, :guest => 9200
+
+  ##
+  # Use the standard data directory for Chef
+  ##
+  config.vm.provision :shell,
+                      :inline => 'mkdir -p <%= chef.staging_directory %>/cache && chown vagrant:vagrant -R <%= chef.staging_directory %>',
+                      :privileged => true
+
+  ##
+  # Sync build artifacts to the VM
+  ##
+<% artifact.each do |name, artifact| -%>
+  config.vm.provision :file,
+                      :source => '<%= artifact.path %>',
+                      :destination => '<%= artifact.destination %>'
+<% end -%>
+
+  config.omnibus.chef_version = 'latest'
+  config.vm.provision :chef_solo do |chef|
+    chef.log_level = :<%= log_level %>
+
+    chef.cookbooks_path = '<%= chef.cookbook_path %>'
+    chef.data_bags_path = '<%= chef.data_bag_path %>'
+    chef.environments_path = '<%= chef.environment_path %>'
+    chef.provisioning_path = '<%= chef.staging_directory %>'
+
+    chef.run_list = <%= chef.run_list %>
+    chef.environment = '<%= chef.environment %>'
+    chef.json = <%= chef.node_attrs %>
+  end
+end
