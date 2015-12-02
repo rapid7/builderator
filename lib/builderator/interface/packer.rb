@@ -85,24 +85,3 @@ module Builderator
     end
   end
 end
-
-
-#   "builders": [{
-#     "ami_name": "{{user `SERVICE_NAME`}}-{{user `VERSION`}}-{{user `BUILD_NUMBER`}}",
-#     "source_ami": "{{user `SOURCE_AMI`}}",
-#     "ami_virtualization_type": "hvm",
-#     "ami_description": "{{user `SERVICE_DESCRIPTION`}}",
-#     "tags": {
-#       "service": "{{user `SERVICE_NAME`}}",
-#       "version": "{{user `VERSION`}}-{{user `BUILD_NUMBER`}}",
-#       "build_date": "{{user `BUILD_DATE`}}",
-#       "build_url": "{{user `BUILD_URL`}}",
-#       "parent_ami": "{{user `SOURCE_AMI`}}"
-#     }
-#   }],
-#   "provisioners": [{
-#     "type": "file",
-#     "source": "bundle.tar.gz",
-#     "destination": "/var/chef/cache/{{user `SERVICE_NAME`}}-{{user `VERSION`}}.tar.gz"
-#   },
-# }
