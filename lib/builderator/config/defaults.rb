@@ -19,10 +19,6 @@ module Builderator
       local do |local|
         local.vendor_path 'vendor'
         local.cookbook_path 'cookbooks'
-
-        local.data_bag_path 'vendor/chef/data_bags'
-        local.environment_path 'vendor/chef/environments'
-
         local.staging_directory '/var/chef'
       end
 
