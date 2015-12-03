@@ -28,6 +28,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'chef', '~> 12.0'
   spec.add_dependency 'faraday_middleware', '~> 0.10.0'
   spec.add_dependency 'ignorefile'
-  spec.add_dependency 'mkfifo'
+  spec.add_dependency 'mixlib-shellout', '~> 2.2'
   spec.add_dependency 'thor', '~> 0.19.0'
 end
