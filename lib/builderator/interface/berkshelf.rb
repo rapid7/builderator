@@ -28,6 +28,7 @@ module Builderator
       template 'template/Berksfile.erb'
 
       attribute :vendor
+      attribute :berkshelf_config
       attribute :lockfile, :workspace => true
 
       attribute :sources, :type => :list

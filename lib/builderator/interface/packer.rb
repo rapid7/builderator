@@ -24,7 +24,7 @@ module Builderator
         artifact.includes Config.profile(profile).artifact
 
         builders.each do |builder|
-          builder.tags = Config.profile(profile).tags
+          builder[:tags] = Config.profile(profile).tags
         end
 
         chef do |chef|
