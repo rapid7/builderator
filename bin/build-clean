@@ -1,0 +1,110 @@
+#!/usr/bin/env ruby
+
+require 'thor'
+
+require_relative '../lib/builderator/config'
+require_relative '../lib/builderator/control/cleaner'
+
+module Builderator
+  module Tasks
+    ##
+    # Tasks to identify and remove unused EC2 resources
+    ##
+    class Cleaner < Thor
+      class_option :region,
+                   :type => :string,
+                   :aliases => :r,
+                   :desc => 'AWS Region in which to perform tasks'
+      class_option :commit,
+                   :type => :boolean,
+                   :default => false,
+                   :desc => 'Perform mutating API calls to cleanup resources'
+      class_option :filter,
+                   :type => :array,
+                   :aliases => :f,
+                   :desc => 'Key/value pairs to filter resources (--filter name foo owner_id 123456789)'
+      class_option :limit,
+                   :type => :boolean,
+                   :default => true,
+                   :desc => 'By default, limit the number of resources to remove'
+
+      def initialize(*_)
+        super
+
+        ## Convert array of filter key-values to a hash
+        options['filters'] = Hash[*options['filter']] if options['filter'].is_a?(Array)
+
+        ## Configuration Overrides
+        Builderator::Config.overrides.set_unless_nil(:region, options['region'])
+
+        Control::Cleaner.options(options)
+      end
+
+      desc 'configs', 'Delete unused launch configurations'
+      def configs
+        Control::Cleaner.configs!(&method(:say_status))
+      end
+
+      desc 'images', 'Deregister unused images'
+      option 'group-by',
+             :type => :array,
+             :desc => 'Tags/properties to group images by for pruning'
+      option 'sort-by',
+             :type => :string,
+             :default => 'creation_date',
+             :desc => 'Tag/property to sort grouped images on'
+      option :keep,
+             :type => :numeric,
+             :default => 5,
+             :desc => 'Number of images in each group to keep'
+      def images
+        Control::Cleaner.images!(&method(:say_status))
+      end
+
+      desc 'snapshots', 'Delete unused snapshots'
+      def snapshots
+        Control::Cleaner.snapshots!(&method(:say_status))
+      end
+
+      desc 'volumes', 'Delete unused volumes'
+      def volumes
+        Control::Cleaner.volumes!(&method(:say_status))
+      end
+
+      desc 'all', 'Cleaner volumes, launch configs, images, and snapshots in order'
+      option 'group-by',
+             :type => :array,
+             :desc => 'Tags/properties to group images by for pruning'
+      option 'sort-by',
+             :type => :string,
+             :default => 'creation_date',
+             :desc => 'Tag/property to sort grouped images on'
+      option :keep,
+             :type => :numeric,
+             :default => 5,
+             :desc => 'Number of images in each group to keep'
+      def all
+        invoke :volumes, [], options
+        invoke :configs, [], options
+        invoke :images, [], options
+        invoke :snapshots, [], options
+
+        ## TODO Print resource counts here.
+        return if Control::Cleaner.exceptions.empty?
+
+        say_status :fail, 'Not all tasks completed successfully. The following '\
+          'exceptions occured:', :red
+        Control::Cleaner.exceptions.each do |e|
+          say_status(*e.status)
+        end
+
+        ## Mark the Jenkins job as fail if there were errors.
+        exit(1)
+      end
+    end
+  end
+end
+
+Builderator::Config.load(File.join(ENV['HOME'], '.builderator/Buildfile'))
+Builderator::Config.load(File.join(Dir.pwd, 'Buildfile'))
+Builderator::Tasks::Cleaner.start(ARGV)
