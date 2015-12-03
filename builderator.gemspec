@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
+  spec.add_development_dependency 'thor-scmversion', '1.7.0'
 
   spec.add_dependency 'aws-sdk', '~> 2.0'
   spec.add_dependency 'bundler', '~> 1.7.0'
@@ -27,7 +28,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'chef', '~> 12.0'
   spec.add_dependency 'faraday_middleware', '~> 0.10.0'
   spec.add_dependency 'ignorefile'
-  spec.add_dependency 'mkfifo'
+  spec.add_dependency 'mixlib-shellout', '~> 2.2'
   spec.add_dependency 'thor', '~> 0.19.0'
-  spec.add_dependency 'thor-scmversion', '1.7.0'
 end
