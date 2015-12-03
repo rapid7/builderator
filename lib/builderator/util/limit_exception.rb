@@ -23,14 +23,14 @@ module Builderator
       end
 
       def limit
-        Config[:cleaner][:limits].fetch(resource_name, DEFAULT_LIMIT)
+        Config.cleaner.limits[resource_name]
       end
 
       def message
-        "Safety limit exceeded for task `#{ task }`: Count #{ count } is"\
-        " greater than the limit of #{ limit } set in #{ resource_name }. Please"\
-        " re-run this task with the --no-limit flag if you are sure this is"\
-        " the correct set of resources to delete."
+        "Safety limit exceeded for task `#{task}`: Count #{count} is "\
+        "greater than the limit of #{limit} set in `cleaner.limits.#{resource_name}`. "\
+        'Please re-run this task with the --force flag if you are sure this is '\
+        'the correct set of resources to delete.'
       end
     end
   end

@@ -23,10 +23,10 @@ module Builderator
                    :type => :array,
                    :aliases => :f,
                    :desc => 'Key/value pairs to filter resources (--filter name foo owner_id 123456789)'
-      class_option :limit,
+      class_option :force,
                    :type => :boolean,
-                   :default => true,
-                   :desc => 'By default, limit the number of resources to remove'
+                   :default => false,
+                   :desc => 'Disable safety restrictions, including resource limits'
 
       def initialize(*_)
         super
@@ -34,10 +34,30 @@ module Builderator
         ## Convert array of filter key-values to a hash
         options['filters'] = Hash[*options['filter']] if options['filter'].is_a?(Array)
 
-        ## Configuration Overrides
-        Builderator::Config.overrides.set_unless_nil(:region, options['region'])
+        Config.argv(:cleaner => options) ## Load command flags
+        Config.load(File.join(ENV['HOME'], '.builderator/Buildfile'))
+        Config.load(Util.relative_path('Buildfile').to_s)
 
-        Control::Cleaner.options(options)
+        Config.recompile
+
+        puts Config.cleaner.to_hash
+
+        unless Config.cleaner.commit
+          say_status 'dry-run', 'This is a dry-run.'
+          return
+        end
+
+        say_status :grouping, "Group by #{Config.cleaner.group_by}" if Config.cleaner.group_by
+
+        say_status :commit, 'This is not a dry-run. Press CTL-C to stop! '\
+                            '(continuing in 5 seconds)', :red
+        sleep(5) ## Give $USER a few seconds to stop
+
+        return unless Config.cleaner.force
+
+        say_status :force, 'Limits will be ignored. Press CTL-C to stop! '\
+                           '(continuing in 5 seconds)', :red
+        sleep(5) ## Give $USER a few seconds to stop
       end
 
       desc 'configs', 'Delete unused launch configurations'
@@ -84,10 +104,10 @@ module Builderator
              :default => 5,
              :desc => 'Number of images in each group to keep'
       def all
-        invoke :volumes, [], options
-        invoke :configs, [], options
-        invoke :images, [], options
-        invoke :snapshots, [], options
+        volumes
+        configs
+        images
+        snapshots
 
         ## TODO Print resource counts here.
         return if Control::Cleaner.exceptions.empty?
@@ -105,6 +125,4 @@ module Builderator
   end
 end
 
-Builderator::Config.load(File.join(ENV['HOME'], '.builderator/Buildfile'))
-Builderator::Config.load(File.join(Dir.pwd, 'Buildfile'))
 Builderator::Tasks::Cleaner.start(ARGV)

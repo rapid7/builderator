@@ -8,29 +8,20 @@ module Builderator
     ##
     module Cleaner
       class << self
-
-        def options(arg = nil)
-          return @options unless arg.is_a?(Hash)
-
-          @options = arg.to_hash
-          @commit = @options.delete('commit') { false }
-          @limit = @options.delete('limit') { true }
-
-          @options
-        end
-
         def configs!
-          resources = Model::Cleaner.launch_configs.unused(options)
+          resources = Model::Cleaner.launch_configs.unused
 
           limit!(:launch_configs, 'Cleanup Launch Configurations', resources, &Proc.new)
           aborted!(&Proc.new)
 
-          resources.each do |l, _|
-            yield :remove, "Launch Configuration #{ l }", :red
-            Model::Cleaner.launch_configs.resources.delete(l)
+          yield :launch_configs, "Found #{resources.length} Launch Configurations to remove"
+
+          resources.keys.sort.each do |id|
+            yield :remove, "Launch Configuration #{id}", :red
+            Model::Cleaner.launch_configs.resources.delete(id)
 
             next unless commit?
-            Util.asg.delete_launch_configuration(:launch_configuration_name => l)
+            Util.asg.delete_launch_configuration(:launch_configuration_name => id)
           end
         rescue Aws::AutoScaling::Errors::ServiceError => e
           exceptions << Util::AwsException.new('Cleanerup Launch Configurations', e)
@@ -38,18 +29,23 @@ module Builderator
         end
 
         def images!
-          resources = Model::Cleaner.images.unused(options)
+          resources = Model::Cleaner.images.unused
 
           limit!(:images, 'Cleanup Images', resources, &Proc.new)
           aborted!(&Proc.new)
 
-          resources.each do |i, image|
-            yield :remove, "Image #{ i } (#{ image[:properties]['name'] })", :red
-            Model::Cleaner.images.resources.delete(i)
+          yield :images, "Found #{resources.length} Images to remove"
 
-            next unless commit?
-            Util.ec2.deregister_image(:image_id => i)
-          end
+          resources.values
+            .sort { |a, b| a[:properties]['name'] <=> b[:properties]['name'] }
+            .each do |image|
+              yield :remove, "Image #{image[:id]} (#{image[:properties]['name']})", :red
+              Model::Cleaner.images.resources.delete(image[:id])
+
+              next unless commit?
+              Util.ec2.deregister_image(:image_id => image[:id])
+            end
+
         rescue Aws::EC2::Errors::ServiceError => e
           exceptions << Util::AwsException.new('Cleanerup Images', e)
           yield(*exceptions.last.status)
@@ -61,12 +57,14 @@ module Builderator
           limit!(:snapshots, 'Cleanup Snapshots', resources, &Proc.new)
           aborted!(&Proc.new)
 
-          resources.each do |s, _|
-            yield :remove, "Snapshot #{ s }", :red
-            Model::Cleaner.snapshots.resources.delete(s)
+          yield :snapshots, "Found #{resources.length} Snapshots to remove"
+
+          resources.keys.sort.each do |id|
+            yield :remove, "Snapshot #{id}", :red
+            Model::Cleaner.snapshots.resources.delete(id)
 
             next unless commit?
-            Util.ec2.delete_snapshot(:snapshot_id => s)
+            Util.ec2.delete_snapshot(:snapshot_id => id)
           end
         rescue Aws::EC2::Errors::ServiceError => e
           exceptions << Util::AwsException.new('Cleanerup Snapshots', e)
@@ -79,12 +77,14 @@ module Builderator
           limit!(:volumes, 'Cleanup Volumes', resources, &Proc.new)
           aborted!(&Proc.new)
 
-          resources.each do |v, _|
-            yield :remove, "Volume #{ v }", :red
-            Model::Cleaner.volumes.resources.delete(v)
+          yield :volumes, "Found #{resources.length} Volumes to remove"
+
+          resources.keys.sort.each do |id|
+            yield :remove, "Volume #{id}", :red
+            Model::Cleaner.volumes.resources.delete(id)
 
             next unless commit?
-            Util.ec2.delete_volume(:volume_id => v)
+            Util.ec2.delete_volume(:volume_id => id)
           end
         rescue Aws::EC2::Errors::ServiceError => e
           exceptions << Util::AwsException.new('Cleanerup Volumes', e)
@@ -93,10 +93,6 @@ module Builderator
 
         def commit?
           @commit && !@abort
-        end
-
-        def limit?
-          @limit
         end
 
         def aborted?
@@ -115,8 +111,8 @@ module Builderator
         end
 
         def limit!(resource_name, task, resources)
-          return unless limit? && (resources.size >=
-            Config[:cleaner][:limits].fetch(resource_name, Util::LimitException::DEFAULT_LIMIT))
+          return unless !Config.cleaner.force &&
+                        (resources.size >= Config.cleaner.limits[resource_name])
 
           exceptions << Util::LimitException.new(resource_name, task, resources)
           @abort = true
