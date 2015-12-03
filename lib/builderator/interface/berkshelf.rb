@@ -42,13 +42,6 @@ module Builderator
         attribute :path
       end
 
-      ##
-      # If there's a cookbook, put the Berksfile there
-      ##
-      def directory
-        Control::Cookbook.exist? ? Config.cookbook.path : Util.workspace
-      end
-
       def source
         directory.join('Berksfile')
       end
