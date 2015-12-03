@@ -11,10 +11,9 @@ module Builderator
         def configs!
           resources = Model::Cleaner.launch_configs.unused
 
-          limit!(:launch_configs, 'Cleanup Launch Configurations', resources, &Proc.new)
-          aborted!(&Proc.new)
-
           yield :launch_configs, "Found #{resources.length} Launch Configurations to remove"
+          verify!(:launch_configs, 'Cleanup Launch Configurations', resources, &Proc.new)
+          aborted!(&Proc.new)
 
           resources.keys.sort.each do |id|
             yield :remove, "Launch Configuration #{id}", :red
@@ -31,10 +30,11 @@ module Builderator
         def images!
           resources = Model::Cleaner.images.unused
 
-          limit!(:images, 'Cleanup Images', resources, &Proc.new)
-          aborted!(&Proc.new)
-
           yield :images, "Found #{resources.length} Images to remove"
+          yield :grouping, "Groupd images by #{Config.cleaner.group_by}" if Config.cleaner.group_by
+          yield :keep, "Keeping #{Config.cleaner.keep} images in each group"
+          verify!(:images, 'Cleanup Images', resources, &Proc.new)
+          aborted!(&Proc.new)
 
           resources.values
             .sort { |a, b| a[:properties]['name'] <=> b[:properties]['name'] }
@@ -54,10 +54,9 @@ module Builderator
         def snapshots!
           resources = Model::Cleaner.snapshots.unused
 
-          limit!(:snapshots, 'Cleanup Snapshots', resources, &Proc.new)
-          aborted!(&Proc.new)
-
           yield :snapshots, "Found #{resources.length} Snapshots to remove"
+          verify!(:snapshots, 'Cleanup Snapshots', resources, &Proc.new)
+          aborted!(&Proc.new)
 
           resources.keys.sort.each do |id|
             yield :remove, "Snapshot #{id}", :red
@@ -74,10 +73,9 @@ module Builderator
         def volumes!
           resources = Model::Cleaner.volumes.unused
 
-          limit!(:volumes, 'Cleanup Volumes', resources, &Proc.new)
-          aborted!(&Proc.new)
-
           yield :volumes, "Found #{resources.length} Volumes to remove"
+          verify!(:volumes, 'Cleanup Volumes', resources, &Proc.new)
+          aborted!(&Proc.new)
 
           resources.keys.sort.each do |id|
             yield :remove, "Volume #{id}", :red
@@ -110,14 +108,29 @@ module Builderator
             ' safty constraints have not been met!', :yellow if aborted?
         end
 
-        def limit!(resource_name, task, resources)
-          return unless !Config.cleaner.force &&
-                        (resources.size >= Config.cleaner.limits[resource_name])
+        def verify!(resource_name, task, resources)
+          if Config.cleaner.commit
+            yield :commit, 'This is not a dry-run. Press CTL-C to stop! '\
+                           '(continuing in 5 seconds)', :red
 
-          exceptions << Util::LimitException.new(resource_name, task, resources)
+            sleep(5) ## Give $USER a few seconds to stop
+          end
+
+          return unless resources.size >= Config.cleaner.limits[resource_name]
+
+          ex = Util::LimitException.new(resource_name, task, resources)
+          yield(*ex.status)
+
+          if Config.cleaner.force
+            yield :force, 'Limits will be ignored. Press CTL-C to stop! '\
+                          '(continuing in 5 seconds)', :red
+            sleep(5) ## Give $USER a few seconds to stop
+
+            return
+          end
+
+          exceptions << ex
           @abort = true
-
-          yield(*exceptions.last.status)
         end
       end
     end

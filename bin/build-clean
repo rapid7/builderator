@@ -40,24 +40,7 @@ module Builderator
 
         Config.recompile
 
-        puts Config.cleaner.to_hash
-
-        unless Config.cleaner.commit
-          say_status 'dry-run', 'This is a dry-run.'
-          return
-        end
-
-        say_status :grouping, "Group by #{Config.cleaner.group_by}" if Config.cleaner.group_by
-
-        say_status :commit, 'This is not a dry-run. Press CTL-C to stop! '\
-                            '(continuing in 5 seconds)', :red
-        sleep(5) ## Give $USER a few seconds to stop
-
-        return unless Config.cleaner.force
-
-        say_status :force, 'Limits will be ignored. Press CTL-C to stop! '\
-                           '(continuing in 5 seconds)', :red
-        sleep(5) ## Give $USER a few seconds to stop
+        say_status 'dry-run', 'This is a dry-run.' unless Config.cleaner.commit
       end
 
       desc 'configs', 'Delete unused launch configurations'
