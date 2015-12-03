@@ -82,11 +82,19 @@ module Builderator
 
       profile(:bake).extends :default
 
-      cleaner.limits do |limits|
-        limits.images 24
-        limits.launch_configs 24
-        limits.snapshots 24
-        limits.volumes 8
+      cleaner do |cleaner|
+        cleaner.commit false
+        cleaner.force false
+        cleaner.filters {}
+        cleaner.sort_by 'creation_date'
+        cleaner.keep 5
+
+        cleaner.limits do |limits|
+          limits.images 24
+          limits.launch_configs 48
+          limits.snapshots 24
+          limits.volumes 8
+        end
       end
 
       ## Ensure that attributes[:vendor] is a populated

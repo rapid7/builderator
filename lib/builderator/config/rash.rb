@@ -49,6 +49,9 @@ module Builderator
                         " Recieved #{other.class}" unless other.is_a?(Hash)
 
         other.each do |k, v|
+          ## Replace `-`s with `_`s in in String keys
+          k = k.gsub(/\-/, '_') if k.is_a?(String)
+
           ## Merge Arrays
           next self[k] += v if fetch(k, nil).is_a?(Array) && v.is_a?(Array)
 

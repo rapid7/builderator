@@ -6,12 +6,15 @@ module Builderator
     # Exception raised if a safety limit is exceeded
     ##
     class LimitException < TaskException
+      DEFAULT_LIMIT = 4
+
+      attr_reader :resource_name
       attr_reader :resources
 
-      def initialize(klass, task, resources)
+      def initialize(resource_name, task, resources)
         super(:limit, task, :yellow)
 
-        @klass = klass
+        @resource_name = resource_name
         @resources = resources
       end
 
@@ -20,18 +23,16 @@ module Builderator
       end
 
       def limit
-        @klass::LIMIT
-      end
-
-      def resource
-        @klass.name
+        Config.cleaner.limits[resource_name]
       end
 
       def message
-        "Safety limit exceeded for task `#{ task }`: Count #{ count } is"\
-        " greater than the limit of #{ limit } set in #{ resource }. Please"\
-        " re-run this task with the --no-limit flag if you are sure this is"\
-        " the correct set of resources to delete."
+        msg = "Safety limit exceeded for task `#{task}`: Count #{count} is "
+        msg << "greater than the limit of #{limit} set in `cleaner.limits.#{resource_name}`. "
+        msg << 'Please re-run this task with the --force flag if you are sure this is '\
+        'the correct set of resources to delete.' unless Config.cleaner.force
+
+        msg
       end
     end
   end

@@ -193,6 +193,13 @@ module Builderator
       # Cleaner Parameters
       ##
       namespace :cleaner do
+        attribute :commit
+        attribute :force
+        attribute :filters, Hash
+        attribute :group_by, :type => :list
+        attribute :sort_by
+        attribute :keep
+
         namespace :limits do
           attribute :images
           attribute :launch_configs

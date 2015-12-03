@@ -23,7 +23,7 @@ module Builderator
       end
 
       def message
-        "An error occured executing performing task #{ task }. #{ operation }"\
+        "An error occured performing task #{ task }. #{ operation }"\
           "(#{ JSON.generate(parameters) }): #{ exception.message }"
       end
     end

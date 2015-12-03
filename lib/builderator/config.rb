@@ -22,7 +22,7 @@ module Builderator
       end
 
       def argv(options = {})
-        @argv ||= File.new(options, :source => 'overrides', :config => self)
+        @argv ||= File.new(options, :source => 'argv', :config => self)
       end
 
       def append(path)

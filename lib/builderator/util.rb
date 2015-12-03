@@ -56,11 +56,11 @@ module Builderator
       # AWS Clients
       ##
       def ec2
-        @ec2 ||= Aws::EC2::Client.new(:region => region)
+        @ec2 ||= Aws::EC2::Client.new(:region => Config.aws.region)
       end
 
       def asg
-        @asg ||= Aws::AutoScaling::Client.new(:region => region)
+        @asg ||= Aws::AutoScaling::Client.new(:region => Config.aws.region)
       end
 
       private
