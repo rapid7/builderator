@@ -31,7 +31,7 @@ Add a packer build
 * `instance_type` the EC2 instance type to use
 * `source_ami` The source AMI ID for an `amazon-ebs`
 * `ssh_username` Default `ubuntu`
-* `virtualization_type` Default `hvm`
+* `ami_virtualization_type` Default `hvm`
 
 ## TODO: Share accounts
 

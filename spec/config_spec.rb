@@ -1,10 +1,7 @@
 require_relative './spec_helper'
-require 'builderator/config'
 
 RSpec.describe Builderator::Config, '#load' do
   it 'loads a DSL file' do
-    Builderator::Config.load(::File.expand_path('../resource/Buildfile', __FILE__))
-
     expect(Builderator::Config.layers.length).to eq 1
   end
 
@@ -21,9 +18,7 @@ RSpec.describe Builderator::Config, '#load' do
   end
 
   it 'compiles configuration layers' do
-    expect(Builderator::Config.compiled?).to be false
     Builderator::Config.recompile
-
     expect(Builderator::Config.compiled?).to be true
 
     ## Ensure that layer-order is respected

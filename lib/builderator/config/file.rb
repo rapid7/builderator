@@ -79,6 +79,7 @@ module Builderator
       ##
       namespace :cookbook do
         attribute :path
+        attribute :berkshelf_config
 
         attribute :sources, :type => :list, :singular => :add_source, :unique => true
         attribute :metadata
@@ -136,7 +137,7 @@ module Builderator
             attribute :instance_type
             attribute :source_ami
             attribute :ssh_username
-            attribute :virtualization_type
+            attribute :ami_virtualization_type
 
             ## TODO: Share accounts
 
