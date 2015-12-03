@@ -27,10 +27,12 @@ module Builderator
       end
 
       def message
-        "Safety limit exceeded for task `#{task}`: Count #{count} is "\
-        "greater than the limit of #{limit} set in `cleaner.limits.#{resource_name}`. "\
-        'Please re-run this task with the --force flag if you are sure this is '\
-        'the correct set of resources to delete.'
+        msg = "Safety limit exceeded for task `#{task}`: Count #{count} is "
+        msg << "greater than the limit of #{limit} set in `cleaner.limits.#{resource_name}`. "
+        msg << 'Please re-run this task with the --force flag if you are sure this is '\
+        'the correct set of resources to delete.' unless Config.cleaner.force
+
+        msg
       end
     end
   end
