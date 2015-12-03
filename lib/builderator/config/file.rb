@@ -137,7 +137,7 @@ module Builderator
             attribute :instance_type
             attribute :source_ami
             attribute :ssh_username
-            attribute :virtualization_type
+            attribute :ami_virtualization_type
 
             ## TODO: Share accounts
 

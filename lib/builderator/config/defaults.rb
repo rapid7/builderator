@@ -61,7 +61,7 @@ module Builderator
             build.type 'amazon-ebs'
             build.instance_type 'c3.large'
             build.ssh_username 'ubuntu'
-            build.virtualization_type 'hvm'
+            build.ami_virtualization_type 'hvm'
 
             ## The Packer task will ensure a re-compile is performed
             if Config.compiled?
