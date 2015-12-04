@@ -33,7 +33,7 @@ module Builderator
         end
 
         def set_config_version
-          Config.defaults.version = @current.to_s
+          Config.defaults.version = current.to_s
           Config.recompile
         end
 
@@ -208,7 +208,7 @@ module Builderator
 
       ## Set a parameter back to `0` if currently defiend
       def reset(attribute)
-        return unless respond_to?(attribute) && send(attribute).is_a?(Fixnum)
+        return unless respond_to?("#{attribute}=") && send(attribute).is_a?(Fixnum)
         send("#{attribute}=", 0)
       end
 
