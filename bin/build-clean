@@ -28,13 +28,26 @@ module Builderator
                    :default => false,
                    :desc => 'Disable safety restrictions, including resource limits'
 
+      class_option 'group-by',
+                   :type => :array,
+                   :desc => 'Tags/properties by which to group resources for pruning'
+      class_option 'sort-by',
+                   :type => :string,
+                   :default => 'creation_date',
+                   :desc => 'Tag/property by which to sort grouped resources'
+      class_option :keep,
+                   :type => :numeric,
+                   :default => 5,
+                   :desc => 'Number of resources in each group to keep'
+
       def initialize(*_)
         super
 
         ## Convert array of filter key-values to a hash
         options['filters'] = Hash[*options['filter']] if options['filter'].is_a?(Array)
 
-        Config.argv(:cleaner => options) ## Load command flags
+        ## Load command flags
+        Config.argv(:cleaner => options, :aws => { :region => options['region'] })
         Config.load(File.join(ENV['HOME'], '.builderator/Buildfile'))
         Config.load(Util.relative_path('Buildfile').to_s)
 
@@ -49,17 +62,6 @@ module Builderator
       end
 
       desc 'images', 'Deregister unused images'
-      option 'group-by',
-             :type => :array,
-             :desc => 'Tags/properties to group images by for pruning'
-      option 'sort-by',
-             :type => :string,
-             :default => 'creation_date',
-             :desc => 'Tag/property to sort grouped images on'
-      option :keep,
-             :type => :numeric,
-             :default => 5,
-             :desc => 'Number of images in each group to keep'
       def images
         Control::Cleaner.images!(&method(:say_status))
       end
@@ -75,17 +77,6 @@ module Builderator
       end
 
       desc 'all', 'Cleaner volumes, launch configs, images, and snapshots in order'
-      option 'group-by',
-             :type => :array,
-             :desc => 'Tags/properties to group images by for pruning'
-      option 'sort-by',
-             :type => :string,
-             :default => 'creation_date',
-             :desc => 'Tag/property to sort grouped images on'
-      option :keep,
-             :type => :numeric,
-             :default => 5,
-             :desc => 'Number of images in each group to keep'
       def all
         volumes
         configs
