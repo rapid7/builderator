@@ -27,7 +27,7 @@ Searches for the newest SCM tag that is a valid sem-ver string and writes it to 
 
 Increment the current version by the desired step and create a new SCM tag at HEAD.
 
-If STEP is omitted, Builderator will scan messages of commits between HEAD and the current verison tag for hash-tag style annotations inticating how to increment the version, finally defaulting to a `patch` step if no annotations are found. If multiple `#STEP` annotations are detected, the largest (e.g. `#major` > `#patch`) step will be applied.
+If STEP is omitted, Builderator will scan messages of commits between HEAD and the current version tag for hash-tag style annotations indicating how to increment the version, finally defaulting to a `patch` step if no annotations are found. If multiple `#STEP` annotations are detected, the largest (e.g. `#major` > `#patch`) step will be applied.
 
 ## Configuration
 
@@ -47,7 +47,7 @@ end
 
 SCM providers must extend the `Builderator::Control::Version::SCM` module, and must implement two methods in their singleton class:
 
-* `self._history` Retrun an array of hashes with the following keys:
+* `self._history` Return an array of hashes with the following keys:
   - `:id` SCM commit identity
   - `:message` SCM commit message
   - `:tags` `nil` or an array of semver strings
