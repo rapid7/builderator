@@ -1,5 +1,6 @@
 require_relative './version/auto'
 require_relative './version/comparable'
+require_relative './version/scm'
 require_relative './version/git'
 
 module Builderator
@@ -11,7 +12,7 @@ module Builderator
     # https://github.com/RiotGamesMinions/thor-scmversion
     ##
     class Version
-      FORMAT = /(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)-?(?<prerelease>(?<prerelease_name>[A-Za-z0-9]+)\.(?<prerelease_iteration>\d+))?(\+build\.)?(?<build>\d+)?$/
+      FORMAT = /(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?<prerelease>-(?<prerelease_name>[A-Za-z0-9]+)\.(?<prerelease_iteration>\d+))?(?:\+build\.(?<build>\d+))?$/
       DEFAULT_PRERELEASE_NAME = 'alpha'.freeze
 
       ## Order of precedence for release types
@@ -29,7 +30,7 @@ module Builderator
 
       class << self
         def current
-          @current ||= tags_from_path.last
+          @current ||= SCM.tags.last
         end
 
         def set_config_version
@@ -48,41 +49,23 @@ module Builderator
           @current = current.clone
 
           current.bump(type, prerelease_name)
-          tags_from_path << current
+          SCM.tags << current
 
           current
-        end
-
-        ##
-        # Get information from SCM
-        ##
-        def tags_from_path(path = Dir.pwd)
-          provider(path).tags
-        end
-
-        def history_from_path(path = Dir.pwd)
-          provider(path).history
         end
 
         ## Parse a SemVer string into a Version
         def from_string(arg, options = {})
           matchdata = arg.match(FORMAT)
+          fail "Builderator::Control::Version.from_string: #{arg} is not a supported semver string" if matchdata.nil?
 
           new(matchdata[:major], matchdata[:minor], matchdata[:patch], matchdata[:build], options).tap do |version|
-            if matchdata[:prerelease]
-              version.is_prerelease = true
+            version.is_prerelease = !matchdata[:prerelease].nil?
+            if version.is_prerelease
               version.prerelease_name = matchdata[:prerelease_name]
               version.prerelease_iteration = matchdata[:prerelease_iteration].to_i
             end
           end
-        end
-
-        private
-
-        def provider(path)
-          return Git if File.exist?(File.join(path, '.git'))
-
-          fail 'Builderator::Control::Version: Unsupported SCM'
         end
       end
 
@@ -98,12 +81,12 @@ module Builderator
       include Auto
       include Comparable
 
-      def history_from_path
-        self.class.history_from_path
+      def history
+        SCM.history
       end
 
-      def tags_from_path
-        self.class.tags_from_path
+      def tags
+        SCM.tags
       end
 
       attr_accessor :ref
@@ -146,7 +129,7 @@ module Builderator
         ##
         # Reset lower-precendence parameters to nil/0
         ##
-        reset(:build) if type_num < RELEASE_TYPES['build']
+        self.build = nil if type_num < RELEASE_TYPES['build']
 
         ## Clear pre-release flags
         if type_num < RELEASE_TYPES['prerelease']
@@ -160,7 +143,7 @@ module Builderator
         reset(:major) if type_num < RELEASE_TYPES['major']
 
         ## Set new version's ref
-        self.ref = history_from_path.first.hash
+        self.ref = history.first.id
 
         ##
         # Increment specified parameters
