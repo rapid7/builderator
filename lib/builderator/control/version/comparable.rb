@@ -10,38 +10,65 @@ module Builderator
 
         def <=>(other)
           ## Simple version comparison
-          return 1 if major > other.major
-          return -1 if major < other.major
-
-          return 1 if minor > other.minor
-          return -1 if minor < other.minor
-
-          return 1 if patch > other.patch
-          return -1 if patch < other.patch
+          return major <=> other.major unless same?(:major, other)
+          return minor <=> other.minor unless same?(:minor, other)
+          return patch <=> other.patch unless same?(:patch, other)
 
           ## Prereleases: prerelease < non-prerelease
-          return 1 if !is_prerelease && other.is_prerelease
-          return -1 if is_prerelease && !other.is_prerelease
+          return compare(:is_prerelease, other) if one?(:is_prerelease, other)
 
-          if is_prerelease && other.is_prerelease
+          if both?(:is_prerelease, other)
             ## This is a little sketchy... We're assuming that pre-releases
             ## have a lexicological order.
-            return 1 if prerelease_name > other.prerelease_name
-            return -1 if prerelease_name < other.prerelease_name
-
-            return 1 if prerelease_iteration > other.prerelease_iteration
-            return -1 if prerelease_iteration < other.prerelease_iteration
+            return prerelease_name <=> other.prerelease_name unless same?(:prerelease_name, other)
+            return prerelease_iteration <=> other.prerelease_iteration unless same?(:prerelease_iteration, other)
           end
 
           ## Build number. With build number > without build number
-          return 1 if !build.nil? && other.build.nil?
-          return -1 if build.nil? && !other.build.nil?
+          compare(:build, other)
+        end
 
-          if !build.nil? && !other.build.nil?
-            return 1 if build > other.build
-            return -1 if build < other.build
-          end
+        private
 
+        ## this == that
+        def same?(parameter, other)
+          send(parameter) == other.send(parameter)
+        end
+
+        ## this && that
+        def both?(parameter, other)
+          send(parameter) && other.send(parameter)
+        end
+
+        ## this ^ that (XOR)
+        def one?(parameter, other)
+          (send(parameter)) ^ (other.send(parameter))
+        end
+
+        ## this || that
+        def either?(parameter, other)
+          send(parameter) || other.send(parameter)
+        end
+
+        ## !(this || that)
+        def neither?(parameter, other)
+          !either?(parameter, other)
+        end
+
+        ## Compare with support for `nil` values
+        def compare(parameter, other)
+          a = send(parameter)
+          b = other.send(parameter)
+
+          ## NilClass, TrueClass, and FalseClass' <=> operators return nil
+          return a <=> b unless a.nil? || b.nil? ||
+                                a.is_a?(TrueClass) || b.is_a?(TrueClass) ||
+                                a.is_a?(FalseClass) || b.is_a?(FalseClass)
+
+          return 1 if a && !b
+          return -1 if !a && b
+
+          ## a && b || !a && !b
           0
         end
       end
