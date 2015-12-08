@@ -3,8 +3,8 @@ require_relative '../../util'
 
 module Builderator
   module Model
+    # :nodoc:
     module Cleaner
-
       def self.launch_configs
         @launch_configs ||= LaunchConfigs.new
       end
