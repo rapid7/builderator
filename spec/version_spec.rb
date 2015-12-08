@@ -40,6 +40,67 @@ module Builderator
             expect(SCM.history).to all be_a SCM::Commit
           end
 
+          context 'parses semver strings correctly' do
+            it 'parses a.b.c versions correctly' do
+              version = Version.from_string('1.2.3')
+
+              expect(version.major).to be == 1
+              expect(version.minor).to be == 2
+              expect(version.patch).to be == 3
+
+              expect(version.is_prerelease).to be false
+              expect(version.prerelease_name).to be_nil
+              expect(version.prerelease_iteration).to be_nil
+              expect(version.build).to be_nil
+            end
+
+            it 'parses pre-release versions correctly' do
+              version = Version.from_string('1.2.3-pre.42')
+
+              expect(version.major).to be == 1
+              expect(version.minor).to be == 2
+              expect(version.patch).to be == 3
+              expect(version.is_prerelease).to be true
+              expect(version.prerelease_name).to be == 'pre'
+              expect(version.prerelease_iteration).to be == 42
+              expect(version.build).to be_nil
+            end
+
+            it 'parses build versions correctly' do
+              version = Version.from_string('1.2.3+build.9')
+
+              expect(version.major).to be == 1
+              expect(version.minor).to be == 2
+              expect(version.patch).to be == 3
+              expect(version.is_prerelease).to be false
+              expect(version.prerelease_name).to be_nil
+              expect(version.prerelease_iteration).to be_nil
+              expect(version.build).to be == 9
+            end
+
+            it 'parses the complete spec' do
+              version = Version.from_string('1.2.3-yolo.42+build.9')
+
+              expect(version.major).to be == 1
+              expect(version.minor).to be == 2
+              expect(version.patch).to be == 3
+              expect(version.is_prerelease).to be true
+              expect(version.prerelease_name).to be == 'yolo'
+              expect(version.prerelease_iteration).to be == 42
+              expect(version.build).to be == 9
+            end
+
+            it 'fails on invalid specs' do
+              expect { Version.from_string('1.2.lizard-alpha.42+build.9') }.to raise_error RuntimeError
+              expect { Version.from_string('1.2.3-alpha.42+taco.9') }.to raise_error RuntimeError
+              expect { Version.from_string('1.2.3-alpha.guacamole+build.9') }.to raise_error RuntimeError
+              expect { Version.from_string('1.2.3-alpha.42+build.beef') }.to raise_error RuntimeError
+              expect { Version.from_string('1.2.dog') }.to raise_error RuntimeError
+              expect { Version.from_string('1.cat.3') }.to raise_error RuntimeError
+              expect { Version.from_string('cow.2.3') }.to raise_error RuntimeError
+            end
+          end
+
           it 'generates Version objects from commits' do
             expect(SCM.tags).to be_a Array
             expect(SCM.tags).to_not be_empty
