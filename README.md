@@ -38,3 +38,9 @@ Builderator integrates with other tools, including [Berkshelf](http://berkshelf.
 The Packer integration generates Packer JSON and passes it to STDIN of `packer build -`.
 
     *NOTE* Currently, we assume that you're building Ubuntu images, as one of the provisioners is hard-coded to chown the Chef data directories to `ubuntu:ubuntu`
+
+## Versioning
+
+Builderator can automatically detect versions from SCM tags, increment the latest version of an SCM branch by a variety of steps, and create new SCM tags for new versions.
+
+[Additional documentation](docs/versioning.md) describes CLI commands, configuration, and detailed behavior.
