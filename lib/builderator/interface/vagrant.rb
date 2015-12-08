@@ -3,6 +3,7 @@ require_relative '../interface'
 require_relative '../util'
 
 module Builderator
+  # :nodoc:
   class Interface
     class << self
       def vagrant(profile = :default)
