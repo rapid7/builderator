@@ -3,8 +3,11 @@ require_relative './spec_helper'
 require 'json'
 require 'builderator/control/version'
 
+# rubocop:disable Metrics/ClassLength
+
 module Builderator
   module Control
+    # :nodoc:
     class Version
       ## Test stub to load from an included JSON document
       module Test
@@ -232,7 +235,7 @@ module Builderator
 
               expect(Version.current.is_prerelease).to be false
               expect(Version.current.build).to be_nil
-              expect(Version.current.patch).to be (previous.patch + 1)
+              expect(Version.current.patch).to be == (previous.patch + 1)
             end
 
             it 'creates a new minor version and resets lower-precedence parameters' do
@@ -242,14 +245,14 @@ module Builderator
 
               expect(Version.current.is_prerelease).to be true
               expect(Version.current.build).to_not be_nil
-              expect(Version.current.patch).to_not be 0
+              expect(Version.current.patch).to_not be == 0
 
               Version.bump(:minor)
 
               expect(Version.current.is_prerelease).to be false
               expect(Version.current.build).to be_nil
-              expect(Version.current.patch).to be 0
-              expect(Version.current.minor).to be (previous.minor + 1)
+              expect(Version.current.patch).to be == 0
+              expect(Version.current.minor).to be == (previous.minor + 1)
             end
 
             it 'creates a new major version and resets lower-precedence parameters' do
@@ -259,16 +262,16 @@ module Builderator
 
               expect(Version.current.is_prerelease).to be true
               expect(Version.current.build).to_not be_nil
-              expect(Version.current.patch).to_not be 0
-              expect(Version.current.minor).to_not be 0
+              expect(Version.current.patch).to_not be == 0
+              expect(Version.current.minor).to_not be == 0
 
               Version.bump(:major)
 
               expect(Version.current.is_prerelease).to be false
               expect(Version.current.build).to be_nil
-              expect(Version.current.patch).to be 0
-              expect(Version.current.minor).to be 0
-              expect(Version.current.major).to be (previous.major + 1)
+              expect(Version.current.patch).to be == 0
+              expect(Version.current.minor).to be == 0
+              expect(Version.current.major).to be == (previous.major + 1)
             end
           end
         end
@@ -276,3 +279,4 @@ module Builderator
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
