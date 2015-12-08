@@ -13,8 +13,8 @@ module Builderator
                ' have a valid `ref` value' if ref.nil?
 
           ## Get commits since self.ref (e.g. commits since this tag)
-          history_since_current = history_from_path.take_while do |commit|
-            commit.hash != ref
+          history_since_current = history.take_while do |commit|
+            commit.id != ref
           end
 
           ## Search for the highest-precedence #TAG in those commit messages
