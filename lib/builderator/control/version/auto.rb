@@ -3,6 +3,8 @@ module Builderator
     class Version
       ##
       # Search through commits since current version for #TYPE tags
+      #
+      # Included in Version
       ##
       module Auto
         DEFAULT_TYPE = 'patch'.freeze
@@ -13,7 +15,7 @@ module Builderator
                ' have a valid `ref` value' if ref.nil?
 
           ## Get commits since self.ref (e.g. commits since this tag)
-          history_since_current = history.take_while do |commit|
+          history_since_current = SCM.history.take_while do |commit|
             commit.id != ref
           end
 
