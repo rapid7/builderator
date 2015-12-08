@@ -1,46 +1,44 @@
+require_relative './scm'
+require_relative '../../util'
+
 module Builderator
   module Control
     class Version
       ##
-      # Read and update Git tags
+      # SCM implementation for Git
       ##
       module Git
-        class << self
-          COMMIT_FORMAT = /^(?<hash>[a-f0-9]+)(?:\s+\((?<tags>.+?)\))?\s+(?<message>.+)$/
-          TAG_FORMAT = /tag: ([a-zA-Z0-9\.\-\+\/_]+)/
+        extend SCM
 
-          ## Fetch and cache history for the current branch
-          def history
-            @history ||= `git log --pretty='format:%H %d %s' HEAD`.chomp
-                         .split("\n")
-                         .map { |commit| Commit.new(commit) }
-          end
+        COMMIT_FORMAT = /^(?<hash>[a-f0-9]+)(?:\s+\((?<tags>.+?)\))?\s+(?<message>.+)$/
+        TAG_FORMAT = /tag: ([a-zA-Z0-9\.\-\+\/_]+)/
 
-          ## Find all tags in the branch's history
-          def tags
-            @tags ||= history
-                      .reject { |commit| commit.tags.nil? }
-                      .map do |commit|
-                        commit.tags.map { |tag| Version.from_string(tag, :ref => commit.hash) }
-                      end.flatten.sort
-          end
+        ## Is there a .git repo in the project root?
+        def self.supported?
+          Util.relative_path('.git').exist?
+        end
 
-          ## Parse git-log outputs
-          class Commit
-            attr_reader :hash
-            attr_reader :message
-            attr_reader :tags
+        def self._history
+          `git log --pretty='format:%H %d %s' HEAD`.chomp
+            .split("\n")
+            .map { |string| string.match(COMMIT_FORMAT) }
+            .reject(&:nil?)
+            .map do |commit|
+              {
+                :id => commit[:hash],
+                :message => commit[:message]
+              }.tap do |c|
+                tag_match = commit[:tags].scan(TAG_FORMAT)
+                            .flatten
+                            .reject(&:nil?) unless commit[:tags].nil?
 
-            def initialize(string)
-              match = string.match(COMMIT_FORMAT)
-
-              @hash = match[:hash]
-              @message = match[:message]
-              @tags = match[:tags].scan(TAG_FORMAT).flatten unless match[:tags].nil?
+                c[:tags] = tag_match unless tag_match.nil? || tag_match.empty?
+              end
             end
-          end
         end
       end
+
+      SCM.register(Git)
     end
   end
 end
