@@ -6,6 +6,9 @@ require_relative '../util'
 
 module Builderator
   module Tasks
+    ##
+    # Tasks to detect and increment package versions
+    ##
     class Version < Thor
       include Thor::Actions
 

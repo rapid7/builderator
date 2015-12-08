@@ -3,6 +3,7 @@ require_relative '../../util'
 
 module Builderator
   module Control
+    # :nodoc:
     class Version
       ##
       # SCM implementation for Git
@@ -11,7 +12,7 @@ module Builderator
         extend SCM
 
         COMMIT_FORMAT = /^(?<hash>[a-f0-9]+)(?:\s+\((?<tags>.+?)\))?\s+(?<message>.+)$/
-        TAG_FORMAT = /tag: ([a-zA-Z0-9\.\-\+\/_]+)/
+        TAG_FORMAT = %r{tag: ([a-zA-Z0-9\.\-\+/_]+)}
 
         ## Is there a .git repo in the project root?
         def self.supported?
