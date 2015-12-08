@@ -3,8 +3,8 @@ require_relative '../../util'
 
 module Builderator
   module Model
+    # :nodoc:
     module Cleaner
-
       def self.images
         @images ||= Images.new
       end
@@ -45,7 +45,7 @@ module Builderator
           resources.values.map { |i| i[:snapshots] }.flatten
         end
 
-        def latest(options = {})
+        def latest
           {}.tap do |latest|
             ## Group images
             group_by = Config.cleaner.group_by

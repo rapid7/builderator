@@ -3,8 +3,8 @@ require_relative '../../util'
 
 module Builderator
   module Model
+    # :nodoc:
     module Cleaner
-
       def self.snapshots
         @snapshots ||= Snapshots.new
       end

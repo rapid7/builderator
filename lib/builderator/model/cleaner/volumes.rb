@@ -3,8 +3,8 @@ require_relative '../../util'
 
 module Builderator
   module Model
+    # :nodoc:
     module Cleaner
-
       def self.volumes
         @volumes ||= Volumes.new
       end
@@ -22,7 +22,6 @@ module Builderator
                 properties = Util.from_tags(vol.tags)
                 properties['creation_date'] = vol.create_time.to_datetime
                 PROPERTIES.each { |pp| properties[pp] = vol[pp.to_sym] }
-
 
                 v[vol.volume_id] = {
                   :id => vol.volume_id,
