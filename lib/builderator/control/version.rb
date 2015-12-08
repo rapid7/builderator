@@ -1,4 +1,5 @@
 require_relative './version/auto'
+require_relative './version/bump'
 require_relative './version/comparable'
 require_relative './version/scm'
 require_relative './version/git'
@@ -79,15 +80,8 @@ module Builderator
       end
 
       include Auto
+      include Bump
       include Comparable
-
-      def history
-        SCM.history
-      end
-
-      def tags
-        SCM.tags
-      end
 
       attr_accessor :ref
 
@@ -103,7 +97,7 @@ module Builderator
 
       ## Create or bump a new prerelease train
       def prerelease(name = nil)
-        reset(:build) ## Reset the build counter
+        self.build = nil ## Reset the build counter
 
         ## Increment current prerelease train
         if is_prerelease && (name.nil? || name == prerelease_name)
@@ -117,82 +111,6 @@ module Builderator
         self.prerelease_iteration = 0
 
         self
-      end
-
-      def bump(type = 'auto', prerelease_name = nil)
-        ## Grok commits since current for a #TYPE string
-        type, prerelease_name = auto_type if type.to_s == 'auto'
-
-        fail "Unrecognized release type #{type}" unless RELEASE_TYPES.include?(type.to_s)
-        type_num = RELEASE_TYPES[type.to_s]
-
-        ##
-        # Reset lower-precendence parameters to nil/0
-        ##
-        self.build = nil if type_num < RELEASE_TYPES['build']
-
-        ## Clear pre-release flags
-        if type_num < RELEASE_TYPES['prerelease']
-          self.is_prerelease = false
-          self.prerelease_name = nil
-          self.prerelease_iteration = nil
-        end
-
-        reset(:patch) if type_num < RELEASE_TYPES['patch']
-        reset(:minor) if type_num < RELEASE_TYPES['minor']
-        reset(:major) if type_num < RELEASE_TYPES['major']
-
-        ## Set new version's ref
-        self.ref = history.first.id
-
-        ##
-        # Increment specified parameters
-        ##
-        case type.to_s
-        when 'build'
-          if build.nil?
-            self.build = 0
-          else
-            self.build += 1
-          end
-
-        when 'prerelease'
-          ## Start a prerelease train from a new patch version
-          ## if it doesn't already exist
-          self.patch += 1 unless is_prerelease
-          prerelease(prerelease_name)
-
-        when 'release'
-          ## Remove pre-release parameters from the current patch
-          ## (already done above ^^)
-
-        when 'patch-prerelease'
-          ## Force a new pre-release train from a new patch version
-          self.patch += 1
-          prerelease(prerelease_name)
-
-        when 'patch' then self.patch += 1
-
-        when 'minor-prerelease'
-          self.minor += 1
-          prerelease(prerelease_name)
-
-        when 'minor' then self.minor += 1
-
-        when 'major-prerelease'
-          self.major += 1
-          prerelease(prerelease_name)
-
-        when 'major' then self.major += 1
-        end
-
-        self
-      end
-
-      ## Set a parameter back to `0` if currently defiend
-      def reset(attribute)
-        return unless respond_to?("#{attribute}=") && send(attribute).is_a?(Fixnum)
-        send("#{attribute}=", 0)
       end
 
       def write
