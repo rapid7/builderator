@@ -1,6 +1,7 @@
 require 'time'
 
 require_relative './attributes'
+require_relative '../control/data'
 require_relative '../util'
 
 # rubocop:disable Metrics/ClassLength
@@ -19,6 +20,10 @@ module Builderator
 
         def from_json(source, **options)
           new({}, options.merge(:type => :json, :source => source))
+        end
+
+        def lookup_cache
+          @lookup_cache ||= {}
         end
       end
 
@@ -45,6 +50,15 @@ module Builderator
         end
 
         self
+      end
+
+      ## Use the Data controller to fetch IDs from the EC2 API at compile time
+      def lookup(source, query)
+        self.class.lookup_cache[_lookup_cache_key(query)] ||= Control::Data.lookup(source, query)
+      end
+
+      def _lookup_cache_key(query)
+        query.keys.sort.map { |k| "#{k}:#{query[k]}" }.join('|')
       end
 
       attribute :build_name, :required => true
