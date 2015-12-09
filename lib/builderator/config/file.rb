@@ -30,7 +30,6 @@ module Builderator
         @date = Time.now.utc
         @type = options.fetch(:type, :code)
         @source = options.fetch(:source, nil)
-        @config = options.fetch(:config, nil)
       end
 
       def compile
