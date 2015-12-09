@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+
+require 'thor'
+
+require_relative '../lib/builderator/config'
+require_relative '../lib/builderator/control/data'
+
+module Builderator
+  module Tasks
+    ##
+    # Tasks to search AWS APIs
+    ##
+    class Data < Thor
+      def initialize(*_)
+        super
+
+        Config.load(File.join(ENV['HOME'], '.builderator/Buildfile'))
+        Config.load(Util.relative_path('Buildfile').to_s)
+
+        Config.recompile
+      end
+
+      desc 'image ', 'Search for AMIs'
+      method_option 'filter', :type => :string, :aliases => :f
+      method_option 'latest', :type => :boolean, :aliases => :l, :default => false
+      def image(*query)
+        query = Hash[*query]
+
+        ## Load a pre-defined filter
+        query['filter'] = options['filter']
+
+        result = Control::Data.image(query)
+
+        if options['latest']
+          puts result.first.image_id
+          return
+        end
+
+        puts result.map(&:image_id).join(', ')
+      end
+    end
+  end
+end
+
+Builderator::Tasks::Data.start(ARGV)
