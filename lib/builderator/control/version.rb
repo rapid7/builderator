@@ -36,7 +36,9 @@ module Builderator
 
         def set_config_version
           Config.defaults.version = current.to_s
-          Config.recompile
+
+          Config.recompile ## Update compiled version attribute
+          Config.recompile ## Pass new attribute back out to other layers
         end
 
         def write
