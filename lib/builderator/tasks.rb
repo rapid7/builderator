@@ -10,6 +10,8 @@ require_relative './tasks/berkshelf'
 require_relative './tasks/packer'
 require_relative './tasks/vagrant'
 
+require_relative './tasks/generator'
+
 module Builderator
   module Tasks
     ##
@@ -104,6 +106,12 @@ module Builderator
 
       desc 'vagrant SUBCOMMAND', 'Run Vagrant tasks'
       subcommand 'vagrant', Tasks::Vagrant
+
+      ##
+      # Generator subcommands
+      ##
+      desc 'generate SUBCOMMAND', 'Run a generator'
+      subcommand 'generate', Tasks::Generator::Types
     end
   end
 end
