@@ -14,41 +14,39 @@ module Builderator
       end
 
       def defaults
-        @defaults ||= File.new({}, :source => 'defaults', :config => self)
+        @defaults ||= File.new({}, :source => 'defaults')
       end
 
       def overrides
-        @overrides ||= File.new({}, :source => 'overrides', :config => self)
+        @overrides ||= File.new({}, :source => 'overrides')
       end
 
       def argv(options = {})
-        @argv ||= File.new(options, :source => 'argv', :config => self)
+        @argv ||= File.new(options, :source => 'argv')
       end
 
       def append(path)
-        layers << File.from_file(path, :config => self) if ::File.exist?(path)
+        layers << File.from_file(path) if ::File.exist?(path)
       end
       alias_method :load, :append
 
       def append_json(path)
-        layers << File.from_json(path, :config => self) if ::File.exist?(path)
+        layers << File.from_json(path) if ::File.exist?(path)
       end
       alias_method :load_json, :append_json
 
       def prepend(path)
-        layers.unshift(File.from_file(path, :config => self)) if ::File.exist?(path)
+        layers.unshift(File.from_file(path)) if ::File.exist?(path)
       end
 
       def prepend_json(path)
-        layers.unshift(File.from_json(path, :config => self)) if ::File.exist?(path)
+        layers.unshift(File.from_json(path)) if ::File.exist?(path)
       end
 
       def compile
         ## Merge layers from lowest to highest
         compiled_layers = ([GLOBAL_DEFAULTS, defaults] + layers + [overrides, argv])
-                          .reduce(File.new({}, :config => self)) do |file, layer|
-                            file.merge(layer.compile)
-                          end
+                          .reduce(File.new) { |a, e| a.merge(e.compile) }
 
         ## Don't auto-populate keys anymore
         compiled_layers.seal
