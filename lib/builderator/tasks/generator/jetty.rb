@@ -1,5 +1,6 @@
 require 'thor/group'
 
+require_relative './base'
 require_relative '../../patch/thor-actions'
 
 module Builderator
@@ -8,17 +9,17 @@ module Builderator
       ##
       # Create/update a Jetty project
       ##
-      class Jetty < Thor::Group
-        include Thor::Actions
-
-        def base
-          invoke Generator::Types, :base, [Config.generator.project(:jetty)], options
-        end
-
+      class Jetty < Generator::Base
         def cookbook
-          case Config.generator.project(:jetty).cookbook
+          case context.cookbook.to_sym
           when :ignore then return
           when :rm then remove_dir 'cookbook'
+          end
+        end
+
+        no_commands do
+          def context
+            Config.generator.project(:jetty)
           end
         end
       end
