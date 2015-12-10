@@ -5,6 +5,7 @@ require_relative '../util'
 require_relative '../control/cookbook'
 
 module Builderator
+  # :nodoc:
   class Interface
     class << self
       def berkshelf

@@ -1,16 +1,23 @@
-AllCops:
- Exclude:
-   - libraries/**/*
-   - spec/**/*
-   - metadata.rb
+inherit_from: .rubocop_todo.yml
+
+Metrics/AbcSize:
+  Max: 48
+Metrics/CyclomaticComplexity:
+  Max: 24
+Metrics/MethodLength:
+  Max: 48
+Metrics/PerceivedComplexity:
+  Max: 12
 
 Encoding:
- Enabled: false
+  Enabled: false
 LineLength:
- Enabled: false
+  Enabled: false
 HashSyntax:
- Enabled: false
+  Enabled: false
+FileName:
+  Enabled: false
 RescueModifier:
   Enabled: false
-MethodLength:
-  Max: 24
+SpaceInsideStringInterpolation:
+  Enabled: false

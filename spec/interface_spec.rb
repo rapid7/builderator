@@ -5,30 +5,32 @@ require 'builderator/interface/berkshelf'
 require 'builderator/interface/packer'
 require 'builderator/interface/vagrant'
 
-RSpec.describe Builderator::Interface do
-  context 'Berksfile interface' do
-    berkshelf = Builderator::Interface.berkshelf
+# :nodoc:
+module Builderator
+  RSpec.describe Interface do
+    context 'Berksfile' do
+      berkshelf = Interface.berkshelf
 
-    it 'loads from Config values' do
-      expect(berkshelf.vendor).to eq Builderator::Config.local.cookbook_path
+      it 'loads from Config values' do
+        expect(berkshelf.vendor).to eq Config.local.cookbook_path
+      end
+
+      it 'generates the correct Berksfile' do
+        expect(berkshelf.render).to eq IO.read(::File.expand_path('../data/Berksfile', __FILE__))
+      end
     end
 
-    it 'generates the correct Berksfile' do
-      expect(berkshelf.render).to eq IO.read(::File.expand_path('../data/Berksfile', __FILE__))
+    context 'Vagrantfile' do
+      vagrant = Interface.vagrant(:default)
+
+      it 'loads from Config values' do
+        expect(vagrant.build_name).to eq Config.build_name
+      end
+
+      it 'generates the correct Vagrantfile' do
+        pending "test doesn't work with absolute paths"
+        expect(vagrant.render).to eq IO.read(::File.expand_path('../data/Vagrantfile', __FILE__))
+      end
     end
-
-  end
-
-  context 'Vagrantfile interface' do
-    vagrant = Builderator::Interface.vagrant(:default)
-
-    it 'loads from Config values' do
-      expect(vagrant.build_name).to eq Builderator::Config.build_name
-    end
-
-    # it 'generates the correct Vagrantfile' do
-    #   expect(vagrant.render).to eq IO.read(::File.expand_path('../data/Vagrantfile', __FILE__))
-    # end
-
   end
 end

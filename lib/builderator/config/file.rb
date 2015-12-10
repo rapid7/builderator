@@ -3,6 +3,8 @@ require 'time'
 require_relative './attributes'
 require_relative '../util'
 
+# rubocop:disable Metrics/ClassLength
+
 module Builderator
   module Config
     ##
@@ -215,3 +217,5 @@ module Builderator
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength
