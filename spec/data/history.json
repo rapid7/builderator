@@ -1,0 +1,483 @@
+[
+  {
+    "id": "d6f0ae080a484b40687350110f15795bdcde6d7e",
+    "message": "In reset, check for the setter-method instead of the getter-method"
+  },
+  {
+    "id": "506d7d8d17c49d80c7d4e72cd7ebbe67c04d679d",
+    "message": "Add auto-version controller"
+  },
+  {
+    "id": "945beb804859749706f67268229fe991f496c41a",
+    "message": "Merge pull request #16 from rapid7/cleaner-refactor"
+  },
+  {
+    "id": "0b1b7a9fe1aa840b73fe9a0b96097967027cf6ab",
+    "message": "Fix cleaner CLI options. Pass AWS region to COnfig argv correctly"
+  },
+  {
+    "id": "a1d3dcbd91a0abff829f8f09337ddc257257e730",
+    "message": "Merge pull request #14 from rapid7/gemspec"
+  },
+  {
+    "id": "c3a0b2402ddf4084c175cc69793d592f8864daf1",
+    "message": "Add mixlib-shellout, remove mkfifo from gemspec dependencies"
+  },
+  {
+    "id": "a0213856213536f4b2ea8a75543b12e35b8cc52e",
+    "message": "Make thor-scmversion a dev dependency"
+  },
+  {
+    "id": "bc8dd9b9ceac207ef9b45613f66228aeef698dd0",
+    "message": "Add vagrant, berkshelf, and builderator state files as well as VERSION to gitignore"
+  },
+  {
+    "id": "723184617c594635c5191621e3b6a519609adcaf",
+    "message": "Merge pull request #11 from rapid7/interface"
+  },
+  {
+    "id": "560cea5ea897a2c9e6a484aa5ed95e1a0d81b9c9",
+    "message": "Add berkshelf_config parameter to berkshelf interface, and copy tags from profile to packer-builders in the packer interface"
+  },
+  {
+    "id": "89403f24e8a4a82ffa67eb941d5afefe55ced37a",
+    "message": "Fix packer build parameter name `ami_virtualization_type`"
+  },
+  {
+    "id": "91c4e2aea4f391c966fe5a2f049bed29d05783aa",
+    "message": "Don't try to template an embedded cookbook's Berksfile in berks tasks. We may handle that in cookbook tasks later on..."
+  },
+  {
+    "id": "6287a49d467a0a049a59e3a6f025373b529f0578",
+    "message": "Add node about packer assuming ubuntu user"
+  },
+  {
+    "id": "cd9b9d6738b25abb80d2256c76c9b8297f07009f",
+    "message": "Can't test Vafrantfile generator against a file with an absolute path"
+  },
+  {
+    "id": "ab703a9cfb4fdeea319a0de37c258cb803bbd5a4",
+    "message": "Rename write to render in interface/packer"
+  },
+  {
+    "id": "3f785e2f9306605d4574da8384e22e1bcd8c4c33",
+    "message": "Remove comment cruft at the bottom of interface/packer"
+  },
+  {
+    "id": "d9719348b177741a18a4e064a01767d1f7dd907f",
+    "message": "Adds a configuration parameter for a path to Berkshelf's config.json file (defaults to localtion in HOME), and removes invalid default for tags from the default packer configuration"
+  },
+  {
+    "id": "6d5778ab1b7ac7a8e73287c6e1ddb783a67ec395",
+    "message": "Ensure that Config is compiled before trying to get values from it"
+  },
+  {
+    "id": "2807c5881c4aa8f6a5beef2b5ba23e83d6a7ddf4",
+    "message": "Add a helper method to check if the project includes a cookbook"
+  },
+  {
+    "id": "1fed58c680c7cfd3bc53083d97a6346b2f0aa2a6",
+    "message": "Add a patch for Berksfiles to add gzip middleware to Faraday"
+  },
+  {
+    "id": "2fa5cb96b5fb13a4e0240dede3896c8a04079a37",
+    "message": "Add tests for Interface"
+  },
+  {
+    "id": "74e666d7d7c495eb5e837959fd681962779526dd",
+    "message": "Add creater/getters to Interface. Fix Vagrantfile template"
+  },
+  {
+    "id": "0e85b3e22da561272103435e5562ec77123ad428",
+    "message": "Document integration file changes"
+  },
+  {
+    "id": "58203268e7ea1074ba5edd637b4360349d059f66",
+    "message": "Add configuration interfaces and templates"
+  },
+  {
+    "id": "8c953123b65b53544468c43bac7fa2d6d379c1f2",
+    "message": "Merge pull request #12 from rapid7/cleaner-refactor"
+  },
+  {
+    "id": "ed1422283e31c694704ba9241066a8601f88b50d",
+    "message": "Don't tell users to re-run with --force if Config.cleaner.force is already true"
+  },
+  {
+    "id": "1a5ed1d683bce8e49a03245ec2b6f944918fa009",
+    "message": "Refactor warning messages to print limit, force, and commit warnings and stop-waits for every task"
+  },
+  {
+    "id": "5e0b2b24ba49e78699656a06c179f5088246dd61",
+    "message": "Favor fluent Config interface over hash-getters"
+  },
+  {
+    "id": "1745be5b51d85f520a8d41b15ef9df6b485aeb07",
+    "message": "Refactor model, controller, and exceptions to use Config"
+  },
+  {
+    "id": "2aeda487ec631e00701529e776633a34b97386c0",
+    "message": "Replace - with _ in keys when merging: makes loading CLI options much simpler"
+  },
+  {
+    "id": "5e3401f098653678febc41659eff15d9ca728984",
+    "message": "Add config parameters from cleaner CLI options and sane defaults"
+  },
+  {
+    "id": "662ca3dffcd50c9ddc600076feedc0d6593f221a",
+    "message": "Fix source name for argv layer"
+  },
+  {
+    "id": "9a5ecc7a57a642e12ec9279616ffb01f2a3c1011",
+    "message": "Use configuration sys-system for limits and AWS region"
+  },
+  {
+    "id": "35cd14da75b83a2162ad70610be28a886423de11",
+    "message": "Refactor clean tasks into their own CLI"
+  },
+  {
+    "id": "c926b1effd1ef30b48d7331cf62eef3d8b1ab53f",
+    "message": "Create build-clean executable and rename clean contorller to cleaner"
+  },
+  {
+    "id": "ed5c8f8460accd3db414f675893a037bb506f3e4",
+    "message": "Move module Model into Model::Cleaner"
+  },
+  {
+    "id": "880d43d45846d3f422b569b7a1f7cd769933b643",
+    "message": "Fix grammar in exception message"
+  },
+  {
+    "id": "543206c0c679671360de75761664f76a447972d9",
+    "message": "remove shadowed getter for `status`"
+  },
+  {
+    "id": "5a1d6913f1a348462f336013a7557647ef6cf4cb",
+    "message": "Merge pull request #9 from rapid7/configuration"
+  },
+  {
+    "id": "8d8b08acc05c20c8acff69eafe46914930288a54",
+    "message": "Clean up usage of method_missing and fix/dedup some getter code in attributes"
+  },
+  {
+    "id": "b04825102b97285b27b98e29a76183b54bb395b7",
+    "message": "First pass at adding RSpec tests"
+  },
+  {
+    "id": "0c14d1aa7218af12e5e6d8e0771981afd61d8747",
+    "message": "Remove data_bag and environment paths from defaults. These should be matched with a vendor config in a site or build-specific Buildfile"
+  },
+  {
+    "id": "bd6331500fcd9e0eac6983faf8628a6af5f3dc08",
+    "message": "Spelling"
+  },
+  {
+    "id": "fc19a72782b83962030b6ca1ee79da6da9ede372",
+    "message": "Adds a central configuration layer"
+  },
+  {
+    "id": "50d6d78e2c0b189380714221f56e068476ed47fc",
+    "message": "First pass at a composite configuration layer"
+  },
+  {
+    "id": "3ad70114e85745fe3fe6039d5b8d23e65b4bfde5",
+    "message": "Merge pull request #6 from rapid7/find_amazon_windows_baseami",
+    "tags": [
+      "0.3.15"
+    ]
+  },
+  {
+    "id": "13cd4aeeca1c87c607dddc654c798b4278e80818",
+    "message": "Support for finding the latest Windows AMI from Amazon (defaults to 2012 R2)"
+  },
+  {
+    "id": "560dffc6680b6ad633352b5f06a2445602c24f67",
+    "message": "Merge pull request #5 from rapid7/negative-filtering"
+  },
+  {
+    "id": "d6a6795a268531bd56df84ef49e104f950ad969e",
+    "message": "Implement negative resource filtering"
+  },
+  {
+    "id": "145f71212a2679763f0e45ac6e0bcc0dc7795146",
+    "message": "Exit the clean task with a non-zero code when errors occur to make Jenkins jobs fail."
+  },
+  {
+    "id": "0e5ab9fd83371e725614ec73b252b70b298c8eb0",
+    "message": "Merge pull request #4 from rapid7/complete-cleaner",
+    "tags": [
+      "0.3.14"
+    ]
+  },
+  {
+    "id": "29149adaa2286d35466b7a77761c8d4ab6eb5765",
+    "message": "Add API calls to delete resources"
+  },
+  {
+    "id": "19bc4022fdd8acdb8f36422d5b030e05aed7b581",
+    "message": "returned berkshelf to 3.2"
+  },
+  {
+    "id": "9100add6f6defd1e523709f63ffb30eabc905bb3",
+    "message": "revert berkshelf to 3.2"
+  },
+  {
+    "id": "94e8d1784e4215459288f343e8f1ff1319ce58f2",
+    "message": "updated berkshelf to 4.0.1"
+  },
+  {
+    "id": "a2e694f8e3954b24a8269a8957b920f2a4dea837",
+    "message": "updated berkshelf to 4.0 as berkshelf-api-clinet required to be on 2.0.0 to run"
+  },
+  {
+    "id": "3c438f6f1c3e4d6da11f19e7f9355a50170a478e",
+    "message": "Chef::Cookbook::Medata.from_json expects JSON, not a filepath",
+    "tags": [
+      "0.3.13"
+    ]
+  },
+  {
+    "id": "1e03d71f7f93861139bfc471cecd95b4c7e721da",
+    "message": "Handle Pathname obects in berks tasks",
+    "tags": [
+      "0.3.12"
+    ]
+  },
+  {
+    "id": "bf9581b0efef5585a6908c13b1d6224b56d7fc7a",
+    "message": "Merge pull request #3 from rapid7/cookbook-push",
+    "tags": [
+      "0.3.11"
+    ]
+  },
+  {
+    "id": "ea9927b2d5d4ea07deea4909a5dd13e249e11e46",
+    "message": "Require thor-scmversion in the Tasks module, not Util"
+  },
+  {
+    "id": "6be176bc0b2f7c0cb968b5ad9a331bc43bd5ee46",
+    "message": "Add build and push tasks for cookbooks"
+  },
+  {
+    "id": "8e6be1d6ac1347e6961e0a74a13ae3639414dcef",
+    "message": "Extend Chef::Cookbook::Metadata"
+  },
+  {
+    "id": "e7584e73c56aa9b32f4f57cd3ac13e6715d9bb53",
+    "message": "Bring in ignorefile"
+  },
+  {
+    "id": "e8d9dbe9962b933eac7eeb990729a17bd709ce63",
+    "message": "Add homepage to gemspec",
+    "tags": [
+      "0.3.10"
+    ]
+  },
+  {
+    "id": "31ba2630e260edc8ac0db80499bb46e2f053562a",
+    "message": "Merge pull request #2 from rapid7/fix-cookbook-path"
+  },
+  {
+    "id": "f4105a9bee4aeba116c54cc05d0e8a7643f4f775",
+    "message": "Fix cookbook path resolution"
+  },
+  {
+    "id": "9303364ba5e298271e4dde6317100fe84bcd49d6",
+    "message": "Some opinionated changes... -> Error message when executed outside of Bundler -> Name of CONSTANT that the gem path is stored in"
+  },
+  {
+    "id": "20106bebfb63163bbb899b2106f1174938c805e3",
+    "message": "Update vagrant version in config instructions"
+  },
+  {
+    "id": "bae8761a1b54bd3a26a3de2b4e013b9082684c81",
+    "message": "Add a helper to reference files relative to pwd"
+  },
+  {
+    "id": "d6075989bb7b7b7d4ef21bb0ba6134a07945b8dd",
+    "message": "Move packer helpers into Util namespace"
+  },
+  {
+    "id": "773c3cdd824d2c77bba13c2f4a8116404f589487",
+    "message": "Merge pull request #1 from rapid7/ec2-clean-tasks"
+  },
+  {
+    "id": "e4cc2f2531ccbfca956666956397ddb140c1fe5e",
+    "message": "Whelp, the launch config cleaner seemed to work..."
+  },
+  {
+    "id": "2b748d8aee8d8b2de2529a1ecceb319108bf9084",
+    "message": "Fix packer install/build paths",
+    "tags": [
+      "0.3.9"
+    ]
+  },
+  {
+    "id": "5ba1233d6b6278777a57f7920d3d139c339464f8",
+    "message": "Use AwsException in Clean controller"
+  },
+  {
+    "id": "99ca8ec34d98beca0ded33091e311a5a83fb131b",
+    "message": "Fix argument lists passed to invocations in the 'all' task"
+  },
+  {
+    "id": "4d664756ef6d13aac9fbf3f6010d5b06c9ea41df",
+    "message": "Add a wrapper exception for AWS-SDK service errors"
+  },
+  {
+    "id": "c24a83c7a0645c76c6e39dc055cf999197a62486",
+    "message": "Abstract the status method from LimitException into a generic TaskException class that cen be reused for other Thor task exceptions"
+  },
+  {
+    "id": "072dd13091ccbac2fca30302c3a6795d1043f6ad",
+    "message": "Add exception handling to the Clean controller"
+  },
+  {
+    "id": "c32f0ea60f395226b913528263acbe9281fafd41",
+    "message": "Add default to reject argument"
+  },
+  {
+    "id": "94a41faef678fbf86a459b2922185d8b264332fc",
+    "message": "Fix class header comment, override the safety LIMIT constant for several resources"
+  },
+  {
+    "id": "e241d71098c9fdca904ff2a243bd845eab38ae7f",
+    "message": "Clean up data model and logic that determines if a resource is in use"
+  },
+  {
+    "id": "bd0b2585263d25de51d6582443fc2dd5c5602dd7",
+    "message": "Starting usage docs for clean tasks"
+  },
+  {
+    "id": "861b642a63342b4d51c5535bf419f01145cb6ecb",
+    "message": "First pass at tasks to clean up abandoned EC2 resources"
+  },
+  {
+    "id": "f0b7b990ac953eaccc5725ec498be00ffb0550fe",
+    "message": "Move AWS clients into util"
+  },
+  {
+    "id": "1d9120c0621a020fac5a65b952578031e6d0340c",
+    "message": "Fix AMI ID matching logic in packer:build"
+  },
+  {
+    "id": "bfb61e34baa264a11a9022e8867e1b1755979bea",
+    "message": "Bump version",
+    "tags": [
+      "0.3.8"
+    ]
+  },
+  {
+    "id": "c6893e182bf1e56766094ae5bc515e6557c1a5a9",
+    "message": "Add option to disable version:current task"
+  },
+  {
+    "id": "f490a14a428db458be63748da544547956babb36",
+    "message": "Bump version",
+    "tags": [
+      "0.3.7"
+    ]
+  },
+  {
+    "id": "fa6883ba10217ae8347ec90c96942814f07bc28e",
+    "message": "Fix berksfile finder logic"
+  },
+  {
+    "id": "67d8551a5a3da923ef155161e90d924a48cbeb8a",
+    "message": "Bump version",
+    "tags": [
+      "0.3.6"
+    ]
+  },
+  {
+    "id": "db948f53914ca08df25adb077cee6b4bfb2e8b2d",
+    "message": "Fix packer:find_ami task"
+  },
+  {
+    "id": "e231d947bcc70d4bf0fad231f8ff2a0ce520b844",
+    "message": "Bump version",
+    "tags": [
+      "0.3.5"
+    ]
+  },
+  {
+    "id": "b3d75ec63987368009942092de38f16dbd716e82",
+    "message": "Update packer:install to use 0.8.1"
+  },
+  {
+    "id": "468e7515ad88fa61c0f59a1a599d3da69ce549ce",
+    "message": "Bump version",
+    "tags": [
+      "0.3.4"
+    ]
+  },
+  {
+    "id": "671e874ef03fa9dd35f45f264a1fd60eafad5ac1",
+    "message": "Use Dir to find bin scripts in gemspec"
+  },
+  {
+    "id": "fbab43f58cc54d5ab58bd43293360b91e4b8fc49",
+    "message": "Add output capture from Packer to find AMI ids"
+  },
+  {
+    "id": "5816a03973e2c8ba734b3aea85cfda458bcdceee",
+    "message": "Add execution checks for Bundler and Vagrant"
+  },
+  {
+    "id": "52742381f8f3cfa8f5079d55439e0fa3c4b05521",
+    "message": "Add VERSION file to git repo while this is in development",
+    "tags": [
+      "0.3.3"
+    ]
+  },
+  {
+    "id": "d33519df2a10d134c454fa05a7a91e445cae7fb4",
+    "message": "Pass options from berks upload to berks local"
+  },
+  {
+    "id": "abafd9de16c6a77f989d33a00037060a80a73f11",
+    "message": "Run Berks install before upload. Upload requires a Berksfile.lock",
+    "tags": [
+      "0.3.2"
+    ]
+  },
+  {
+    "id": "6ad2938a70d3f0b1ff9578d116c88ea3e615b7e2",
+    "message": "Fix thor-scmversion invocation in cookbook tasks",
+    "tags": [
+      "0.3.1"
+    ]
+  },
+  {
+    "id": "51aa9de31c98873b101aeaeac3b83ce99c1169d8",
+    "message": "Add more tasks to wrap berkshelf, and vagrant",
+    "tags": [
+      "0.3.0"
+    ]
+  },
+  {
+    "id": "17a514cf3eedcb143472c4351cb84ca695bbd68a",
+    "message": "Add first packer tasks, seperate shared logic from tasks, complete ami tasks",
+    "tags": [
+      "0.2.0"
+    ]
+  },
+  {
+    "id": "7b11c43da2dd90f9cfd28f1e2d12590e716f4bfe",
+    "message": "Fix handling of multiple results",
+    "tags": [
+      "0.1.1"
+    ]
+  },
+  {
+    "id": "760040713d5b59981c639dd9523b7e2d8a24c8ba",
+    "message": "Basic Ubuntu iamge lookup",
+    "tags": [
+      "0.1.0"
+    ]
+  },
+  {
+    "id": "0893bfd3477c1373e2beeb53cf5f872ee70c0a91",
+    "message": "Starting Gem"
+  }
+]
