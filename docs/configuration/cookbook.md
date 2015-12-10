@@ -2,7 +2,7 @@ cookbook
 ========
 
 * `path` The path to a local cookbook source, including a valid `metadata.rb` file.
-* `sources, type: list, singular: add_source, unique: true` Supermarket APIs to resolve cookbook dependencies from
+* `sources, type: list, singular: add_source` Supermarket APIs to resolve cookbook dependencies from
 * `metadata` Boolean. Read dependencies from local cookbook metadata.
 
 ## `depends name`
