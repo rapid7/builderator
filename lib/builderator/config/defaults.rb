@@ -89,6 +89,23 @@ module Builderator
         end
       end
 
+      generator.gemfile.vagrant do |vagrant|
+        vagrant.install true
+        vagrant.version 'v1.7.4'
+      end
+
+      generator.project :jetty do |jetty|
+        jetty.berksfile :rm
+        jetty.buildfile :sync
+        jetty.gemfile :ignore
+        jetty.gitignore :sync
+        jetty.packerfile :rm
+        jetty.vagrantfile :rm
+        jetty.thorfile :rm
+
+        jetty.cookbook :rm
+      end
+
       ## Ensure that attributes[:vendor] is a populated
       vendor {}
     end
