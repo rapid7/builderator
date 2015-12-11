@@ -1,65 +1,111 @@
 require 'thor'
-require 'thor/actions'
-require_relative './berks'
+
+require_relative '../interface/vagrant'
+require_relative '../patch/thor-actions'
 
 module Builderator
   module Tasks
+    ##
+    # Wrap vagrant commands
+    ##
     class Vagrant < Thor
       include Thor::Actions
       class_option :config, :aliases => :c, :desc => "Path to Berkshelf's config.json"
       class_option :berksfile, :aliases => :b, :desc => 'Path to the Berksfile to use'
 
-      def initialize(*_)
-        unless Gem.loaded_specs.key?('vagrant')
-          say '!!! Vagrant is not available in this bundle !!!!', [:red, :bold]
-          puts ''
-          say 'Please add the following to your Gemfile and update your bundle to use the `vagrant` command:'
-          say '  +------------------------------------------------+', :green
-          say "  | gem 'vagrant', :github => 'mitchellh/vagrant', |", :green
-          say "  |                :tag => 'v1.7.4'                |", :green
-          say '  +------------------------------------------------+', :green
+      attr_reader :config, :command
 
-          exit 1
-        end
+      def initialize(*_)
+        @command = Gem.loaded_specs.key?('vagrant') ? 'vagrant' : '/usr/bin/vagrant'
+        # unless Gem.loaded_specs.key?('vagrant')
+        #   say '!!! Vagrant is not available in this bundle !!!!', [:red, :bold]
+        #   puts ''
+        #   say 'Please add the following to your Gemfile and update your bundle to use the `vagrant` command:'
+        #   say '  +------------------------------------------------+', :green
+        #   say "  | gem 'vagrant', :github => 'mitchellh/vagrant', |", :green
+        #   say "  |                :tag => 'v1.7.4'                |", :green
+        #   say '  +------------------------------------------------+', :green
+        #
+        #   exit 1
+        # end
 
         super
       end
 
-      desc 'up ARGS', 'Start Vagrant VM(s)'
-      def up(*args)
-        command = 'ulimit -n 1024;'
-        command << ' VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true'
-        command << " vagrant up #{ args.join(' ') }"
-
-        invoke Tasks::Berks, 'local', [], options
-        run command
+      def self.exit_on_failure?
+        true
       end
 
-      desc 'provision ARGS', 'Provision Vagrant VM(s)'
-      def provision(*args)
-        command = 'ulimit -n 1024;'
-        command << ' VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true'
-        command << " vagrant provision #{ args.join(' ') }"
+      desc 'local [PROFILE [ARGS ...]]', 'Start VirtualBox VM(s)'
+      def local(profile = :default, *args)
+        @config ||= Interface.vagrant(profile)
+        config.write
 
-        invoke Tasks::Berks, 'local', [], options
-        run command
+        inside config.directory do
+          command = 'ulimit -n 1024; '
+          command << 'VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true '
+          command << "#{@command} up --provider=#{config.local.provider} #{args.join(' ')}"
+
+          run command
+        end
       end
 
-      desc 'destroy ARGS', 'Destroy Vagrant VM(s)'
-      option :force, :aliases => :f, :type => :boolean
-      def destroy(*args)
-        command = 'ulimit -n 1024;'
-        command << ' VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true'
-        command << " vagrant destroy #{ args.join(' ') }"
-        command << ' -f' if options['force']
+      desc 'ec2 [PROFILE [ARGS ...]]', 'Start EC2 instances'
+      def ec2(profile = :default, *args)
+        @config ||= Interface.vagrant(profile)
+        config.write
 
-        run command
+        inside config.directory do
+          command = 'ulimit -n 1024; '
+          command << 'VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true '
+          command << "#{@command} up --provider=#{config.ec2.provider} #{args.join(' ')}"
+
+          run command
+        end
+      end
+
+      desc 'provision [PROFILE [ARGS ...]]', 'Reprovision Vagrant VM(s)'
+      def provision(profile = :default, *args)
+        @config ||= Interface.vagrant(profile)
+
+        inside config.directory do
+          command = 'ulimit -n 1024; '
+          command << 'VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true '
+          command << "#{@command} provision #{args.join(' ')}"
+
+          run command
+        end
+      end
+
+      desc 'destroy [PROFILE [ARGS ...]]', 'Destroy Vagrant VM(s)'
+      method_option :force, :aliases => :f, :type => :boolean, :default => true
+      def destroy(profile = :default, *args)
+        @config ||= Interface.vagrant(profile)
+
+        inside config.directory do
+          command = 'ulimit -n 1024; '
+          command << 'VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true '
+          command << "#{@command} destroy #{args.join(' ')} "
+          command << '-f' if options['force']
+
+          run command
+        end
       end
 
       desc 'rebuild ARGS', 'Destroy and recreate Vagrant VM(s)'
-      def rebuild(*args)
-        invoke Tasks::Vagrant, 'destroy', args, options.merge('force' => true)
-        invoke Tasks::Vagrant, 'up', args, options
+      method_option :force, :aliases => :f, :type => :boolean, :default => true
+      def rebuild(profile = :default, *args)
+        destroy(profile, *args)
+        up(profile, *args)
+      end
+
+      desc 'clean', 'Destroy VMs and clean up local files'
+      method_option :force, :aliases => :f, :type => :boolean, :default => true
+      def clean(profile = :default)
+        destroy(profile)
+
+        remove_dir config.directory.join('.vagrant')
+        remove_file config.source
       end
     end
   end
