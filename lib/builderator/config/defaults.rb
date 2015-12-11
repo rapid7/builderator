@@ -62,12 +62,8 @@ module Builderator
             build.instance_type 'c3.large'
             build.ssh_username 'ubuntu'
             build.ami_virtualization_type 'hvm'
-
-            ## The Packer task will ensure a re-compile is performed
-            if Config.compiled?
-              build.ami_name "#{ Config.build_name }-#{ Config.version }-#{ Config.build_number }"
-              build.ami_description Config.description
-            end
+            build.ami_name [Config.build_name, Config.version, Config.build_number].reject(&:nil?).join('-')
+            build.ami_description Config.description
           end
         end
       end
@@ -96,9 +92,10 @@ module Builderator
 
       generator.project :jetty do |jetty|
         jetty.berksfile :rm
-        jetty.buildfile :sync
-        jetty.gemfile :ignore
-        jetty.gitignore :sync
+        jetty.buildfile :create
+        jetty.gemfile :create
+        jetty.gitignore :create
+        jetty.rubocop :create
         jetty.packerfile :rm
         jetty.vagrantfile :rm
         jetty.thorfile :rm
