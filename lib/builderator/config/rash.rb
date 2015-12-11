@@ -53,7 +53,7 @@ module Builderator
           k = k.gsub(/\-/, '_') if k.is_a?(String)
 
           ## Merge Arrays
-          next self[k] += v if fetch(k, nil).is_a?(Array) && v.is_a?(Array)
+          next self[k] |= v if fetch(k, nil).is_a?(Array) && v.is_a?(Array)
 
           ## Overwrite non-Hash values
           next self[k] = v unless v.is_a?(Hash)

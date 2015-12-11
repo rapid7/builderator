@@ -14,7 +14,7 @@ An externally managed resource to push to VMs and image builds, e.g. `bundle.tar
 * `destination` The absolute path on the VM or image at which the artifact should be placed
 
 ## Namespace `chef`
-* `run_list, type: list, singular: run_list_item` The Chef runlist for this profile
+* `run_list, type: list, singular: run_list_item, unique: true` The Chef runlist for this profile
 * `environment` The Chef environment to load for this
 * `node_attrs, type: hash` A hash of node attributes for this profile
 
@@ -67,5 +67,5 @@ Parameters for the provisioning EC2 nodes with Vagrant
 * `virtualization_type`
 * `instance_profile`
 * `subnet_id`
-* `security_groups, type: list, singular: security_group`
+* `security_groups, type: list, singular: security_group, unique: true`
 * `public_ip`
