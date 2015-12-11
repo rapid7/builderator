@@ -32,6 +32,22 @@ module Builderator
             'virtualization-type' => 'hvm',
             'block-device-mapping.volume-type' => 'gp2',
             'name' => '*ubuntu-trusty-daily-amd64-server-201*'
+          },
+          'windows-server2012-r2' => {
+            'owner' => OWNERS[:amazon],
+            'architecture' => 'x86_64',
+            'root-device-type' => 'ebs',
+            'virtualization-type' => 'hvm',
+            'block-device-mapping.volume-type' => 'gp2',
+            'name' => 'Windows_Server-2012-R2_RTM-English-64Bit-Base*'
+          },
+          'windows-server2012-r2-core' => {
+            'owner' => OWNERS[:amazon],
+            'architecture' => 'x86_64',
+            'root-device-type' => 'ebs',
+            'virtualization-type' => 'hvm',
+            'block-device-mapping.volume-type' => 'gp2',
+            'name' => 'Windows_Server-2012-R2_RTM-English-64Bit-Core*'
           }
         }
 
