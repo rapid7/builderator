@@ -25,7 +25,7 @@ module Builderator
         Config.load(File.join(ENV['HOME'], '.builderator/Buildfile'))
         Config.load(Util.relative_path('Buildfile').to_s)
 
-        Config.recompile
+        Config.compile
       end
 
       def self.exit_on_failure?
