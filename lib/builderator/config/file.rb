@@ -238,6 +238,7 @@ module Builderator
           attribute :vagrantfile
           attribute :readme
           attribute :cookbook
+          attribute :rubocop
         end
 
         namespace :gemfile do
