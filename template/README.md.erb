@@ -1,0 +1,61 @@
+<%= build_name %>
+=====
+
+## Usage
+
+### Install dependencies
+
+1. If you have not already done so, configure [`rbenv`](https://github.com/rbenv/rbenv#installation)
+and [`ruby-build`](https://github.com/rbenv/ruby-build#installation) on your
+workstation and [install Ruby 2.1.5](https://github.com/rbenv/rbenv#installing-ruby-versions).
+1. Ensure that a supported version of [bundler](http://bundler.io/) is installed (`">= 1.5.2", "<= 1.10.6"`):
+
+  ```bash
+  gem install bundler -v 1.10.6
+  ```
+
+1. Use `bundler` to install application-specific dependencies"
+
+  ```bash
+  bundle install
+  ```
+
+1. **Optionally**, add an alias for `build`. In `$HOME/.profile` or `$HOME/bash_profile`
+add the following, then reload your profile:
+
+  ```bash
+  alias build="bundle exec build"
+  ```
+
+  ```bash
+  . ~/.profile
+  ```
+
+  **All subsequent examples with a `build` command assume that you've created an alias
+  or are prepending `bundle exec` to the command string**
+
+### Start a local Vagrant VM, then SSH into it.
+
+```bash
+build local
+build vagrant ssh
+```
+
+To clean up VMs, run
+
+```bash
+build vagrant destroy
+```
+
+### Launch an EC2 instance
+
+```bash
+build ec2
+build vagrant ssh
+```
+
+### Clean up VMs and local generated resources
+
+```bash
+build clean
+```

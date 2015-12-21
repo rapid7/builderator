@@ -56,6 +56,16 @@ module Builderator
           end
         end
 
+        def readme
+          case context.readme.to_sym
+          when :ignore then return
+          when :rm then remove_file 'README.md'
+          when :create
+            template 'template/README.md.erb', 'README.md', :skip => true
+          when :sync then template 'template/README.md.erb', 'README.md'
+          end
+        end
+
         def rubocop
           case context.rubocop.to_sym
           when :ignore then return
