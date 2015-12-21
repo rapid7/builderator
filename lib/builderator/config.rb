@@ -56,7 +56,6 @@ module Builderator
           fail "Re-compile iteration limit of #{max_iterations} has been exceeded" if compile_iterations >= max_iterations
 
           ## Reset flags before next iteration
-          @recompile = false
           compiled.clean
 
           ## Merge layers from lowest to highest
