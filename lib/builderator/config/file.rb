@@ -282,6 +282,8 @@ module Builderator
           attribute :version
         end
 
+        attribute :version
+
         namespace :gemfile do
           namespace :vagrant do
             attribute :install

@@ -95,12 +95,10 @@ module Builderator
         vagrant.version 'v1.7.4'
       end
 
-      generator.project :jetty do |jetty|
-        jetty.build_version '~> 1.0'
-        jetty.vagrant_install true
-        jetty.vagrant_version 'v1.7.4'
+      generator.ruby.version '2.1.5'
+      generator.version '~> 1.0'
 
-        ## Task flags
+      generator.project :jetty do |jetty|
         jetty.berksfile :rm
         jetty.buildfile :create
         jetty.cookbook :rm
@@ -114,10 +112,6 @@ module Builderator
       end
 
       generator.project :legacy do |legacy|
-        legacy.build_version '~> 0.0'
-        legacy.vagrant_install true
-        legacy.vagrant_version 'v1.7.4'
-
         legacy.gemfile :sync
       end
 
