@@ -77,6 +77,33 @@ module Builderator
         end
       end
 
+      desc 'status [PROFILE [ARGS ...]]', 'Reprovision Vagrant VM(s)'
+      def status(profile = :default, *args)
+        @config ||= Interface.vagrant(profile)
+
+        inside config.directory do
+          command = 'ulimit -n 1024; '
+          command << 'VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true '
+          command << "#{@command} status #{args.join(' ')}"
+
+          run command
+        end
+      end
+
+      desc 'ssh [PROFILE [ARGS ...]]', 'SSH into Vagrant VM(s)'
+      def ssh(profile = :default, *args)
+        @config ||= Interface.vagrant(profile)
+
+        inside config.directory do
+          command = 'ulimit -n 1024; '
+          command << 'VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true '
+          command << "#{@command} ssh #{args.join(' ')}"
+
+          ## Connect to subprocesses STDIO
+          exec(command)
+        end
+      end
+
       desc 'destroy [PROFILE [ARGS ...]]', 'Destroy Vagrant VM(s)'
       method_option :force, :aliases => :f, :type => :boolean, :default => true
       def destroy(profile = :default, *args)
