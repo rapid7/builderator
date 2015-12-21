@@ -236,6 +236,7 @@ module Builderator
           attribute :packerfile
           attribute :thorfile
           attribute :vagrantfile
+          attribute :readme
           attribute :cookbook
         end
 
