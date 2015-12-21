@@ -40,8 +40,10 @@ module Builderator
             ec2.box 'dummy'
             ec2.box_url 'https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box'
 
+            ec2.region = 'us-east-1'
             ec2.instance_type 't2.micro'
-            ec2.public_ip true
+            ec2.ssh_username 'ubuntu'
+            ec2.ssh_host_attribute :public_ip_address
           end
 
           vagrant.local do |local|
@@ -59,16 +61,19 @@ module Builderator
         profile.packer do |packer|
           packer.build :default do |build|
             build.type 'amazon-ebs'
+            build.region = 'us-east-1'
             build.instance_type 'c3.large'
-            build.ssh_username 'ubuntu'
             build.ami_virtualization_type 'hvm'
+
+            build.ssh_username 'ubuntu'
+
             build.ami_name [Config.build_name, Config.version, Config.build_number].reject(&:nil?).join('-')
             build.ami_description Config.description
           end
         end
-      end
 
-      profile(:bake).extends :default
+        profile(:bake).extends :default
+      end
 
       cleaner do |cleaner|
         cleaner.commit false
@@ -91,16 +96,29 @@ module Builderator
       end
 
       generator.project :jetty do |jetty|
+        jetty.build_version '~> 1.0'
+        jetty.vagrant_install true
+        jetty.vagrant_version 'v1.7.4'
+
+        ## Task flags
         jetty.berksfile :rm
         jetty.buildfile :create
+        jetty.cookbook :rm
         jetty.gemfile :create
         jetty.gitignore :create
-        jetty.rubocop :create
         jetty.packerfile :rm
+        jetty.rubocop :create
+        jetty.readme :create
         jetty.vagrantfile :rm
         jetty.thorfile :rm
+      end
 
-        jetty.cookbook :rm
+      generator.project :legacy do |legacy|
+        legacy.build_version '~> 0.0'
+        legacy.vagrant_install true
+        legacy.vagrant_version 'v1.7.4'
+
+        legacy.gemfile :sync
       end
 
       ## Ensure that attributes[:vendor] is a populated
