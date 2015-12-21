@@ -7,7 +7,7 @@ module Builderator
   module Tasks
     module Generator
       ##
-      # Create/update a Jetty project
+      # Common steps for most projects
       ##
       class Base < Thor::Group
         include Thor::Actions
