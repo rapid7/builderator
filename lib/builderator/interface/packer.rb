@@ -58,7 +58,8 @@ module Builderator
           :builders => builders,
           :provisioners => [{
             :type => 'shell',
-            :inline => "mkdir -p #{chef.staging_directory}/cache && chown ubuntu:ubuntu -R #{chef.staging_directory}"
+            :inline => "sudo mkdir -p #{chef.staging_directory}/cache && "\
+                       "sudo chown $(whoami) -R #{chef.staging_directory}"
           }]
         }
 
