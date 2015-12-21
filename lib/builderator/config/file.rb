@@ -225,6 +225,29 @@ module Builderator
       end
 
       ##
+      # Generator Options
+      ##
+      namespace :generator do
+        collection :project do
+          attribute :berksfile
+          attribute :buildfile
+          attribute :gemfile
+          attribute :gitignore
+          attribute :packerfile
+          attribute :thorfile
+          attribute :vagrantfile
+          attribute :cookbook
+        end
+
+        namespace :gemfile do
+          namespace :vagrant do
+            attribute :install
+            attribute :version
+          end
+        end
+      end
+
+      ##
       # Option to disable cleanup of build resources
       ##
       attribute :cleanup
