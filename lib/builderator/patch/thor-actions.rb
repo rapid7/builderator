@@ -1,4 +1,3 @@
-require 'mixlib/shellout'
 require 'thor/actions'
 
 require_relative '../util'
@@ -8,14 +7,10 @@ class Thor
   # Patch some Thor actions
   ##
   module Actions
-    RUN_OPTIONS = %w(cwd domain password user group umask timeout returns
-                     live_stream live_stdout live_stderr input logger log_level
-                     log_tag environment env login)
-
     ##
-    # Replace `run` with Mixlib::Shellout to accept STDIN
+    # Replace `run` with IO::popen to accept STDIN
     ##
-    def run(command, config = {})
+    def run_with_input(command, input, config = {})
       return unless behavior == :invoke
 
       destination = relative_to_original_destination_root(destination_root, false)
@@ -29,10 +24,14 @@ class Thor
       say_status :run, desc, config.fetch(:verbose, true)
       return if options[:pretend]
 
-      shell_options = config.select { |k, _| RUN_OPTIONS.include?(k.to_s) }
-      shell_options[:live_stdout] = STDOUT
+      output = config.fetch(:stdout, STDOUT)
 
-      Mixlib::ShellOut.new(command, shell_options).run_command
+      IO.popen(command, 'r+') do |io|
+        io.write(input)
+
+        ## Stream output
+        output.write(io.readpartial(4096)) until io.eof?
+      end
     end
 
     ##
