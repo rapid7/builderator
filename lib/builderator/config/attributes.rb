@@ -102,7 +102,7 @@ module Builderator
       include Enumerable
 
       ## Delegate enumerables to underlying storage structure
-      def_delegators :@attributes, :[], :fetch, :[]=,
+      def_delegators :@attributes, :[], :fetch,
                      :keys, :values, :has?, :each,
                      :to_hash
 
