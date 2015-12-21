@@ -15,20 +15,22 @@ Vagrant.configure('2') do |config|
 
   ## EC2 Provider
   config.vm.provider '<%= ec2.provider %>' do |ec2, override|
-    ec2.subnet_id = '<%= ec2.subnet_id %>'
-    ec2.security_groups = <%= ec2.security_groups %>
-    ec2.iam_instance_profile_arn = '<%= ec2.instance_profile %>'
-
-<% unless ec2.public_ip -%>
-    ## VPN Connected VPC
-    ec2.associate_public_ip = false
-    ec2.ssh_host_attribute = :private_ip_address
-<% end -%>
-    ec2.region = '<%= ec2.region %>'
-    ec2.instance_type = '<%= ec2.instance_type %>'
-
     override.vm.box = '<%= ec2.box %>'
     override.vm.box_url = '<%= ec2.box_url %>'
+    override.ssh.username = '<%= ec2.ssh_username %>'
+
+    ec2.region = '<%= ec2.region %>'
+    ec2.subnet_id = '<%= ec2.subnet_id %>'
+
+    ## VPN Connected VPC
+    ec2.associate_public_ip = <%= ec2.associate_public_ip %>
+    ec2.ssh_host_attribute = :<%= ec2.ssh_host_attribute %>
+
+    ec2.instance_type = '<%= ec2.instance_type %>'
+    ec2.security_groups = <%= ec2.security_groups %>
+    ec2.iam_instance_profile_arn = '<%= ec2.iam_instance_profile_arn %>'
+
+    ec2.ami = '<%= ec2.source_ami %>'
   end
 
   # config.vm.network :forwarded_port, :host => 9200, :guest => 9200
@@ -49,7 +51,7 @@ Vagrant.configure('2') do |config|
                       :destination => '<%= artifact.destination %>'
 <% end -%>
 
-  config.omnibus.chef_version = 'latest'
+  config.omnibus.chef_version = '<%= chef.version %>'
   config.vm.provision :chef_solo do |chef|
     chef.log_level = :<%= log_level %>
 

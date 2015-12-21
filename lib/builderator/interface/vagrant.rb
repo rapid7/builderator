@@ -60,17 +60,30 @@ module Builderator
         attribute :box_url
 
         attribute :region
-        attribute :instance_type
-        attribute :source_ami
-        attribute :ssh_username
-        attribute :virtualization_type
-        attribute :instance_profile
+        attribute :availability_zone
         attribute :subnet_id
-        attribute :security_groups, :type => :list, :singular => :security_group
-        attribute :public_ip
+        attribute :private_ip_address
+
+        attribute :instance_type
+        attribute :security_groups, :type => :list
+        attribute :iam_instance_profile_arn
+
+        attribute :source_ami
+        attribute :user_data
+
+        attribute :ssh_username
+        attribute :keypair_name
+        attribute :private_key_path
+
+        attribute :associate_public_ip
+        attribute :ssh_host_attribute
+        attribute :instance_ready_timeout
+        attribute :instance_check_interval
       end
 
       namespace :chef do
+        attribute :version, 'latest'
+
         attribute :cookbook_path
         attribute :data_bag_path
         attribute :environment_path
