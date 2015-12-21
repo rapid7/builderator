@@ -67,6 +67,7 @@ module Builderator
         end
 
         def rubocop
+          return if context.rubocop.nil?
           case context.rubocop.to_sym
           when :ignore then return
           when :rm
