@@ -20,28 +20,17 @@ Vagrant.configure('2') do |config|
     override.ssh.username = '<%= profile.current.vagrant.ec2.ssh_username %>'
 
     ec2.region = '<%= profile.current.vagrant.ec2.region %>'
-<% if profile.current.vagrant.ec2.has?(:subnet_id) -%>
     ec2.subnet_id = '<%= profile.current.vagrant.ec2.subnet_id %>'
-<% end -%>
 
     ## VPN Connected VPC
-<% if profile.current.vagrant.ec2.has?(:associate_public_ip) -%>
     ec2.associate_public_ip = <%= profile.current.vagrant.ec2.associate_public_ip %>
-<% end -%>
     ec2.ssh_host_attribute = :<%= profile.current.vagrant.ec2.ssh_host_attribute %>
 
-<% if profile.current.vagrant.ec2.has?(:instance_type) -%>
     ec2.instance_type = '<%= profile.current.vagrant.ec2.instance_type %>'
-<% end -%>
-<% if profile.current.vagrant.ec2.has?(:security_groups) -%>
     ec2.security_groups = <%= profile.current.vagrant.ec2.security_groups %>
-<% end -%>
-<% if profile.current.vagrant.ec2.has?(:iam_instance_profile_arn) -%>
     ec2.iam_instance_profile_arn = '<%= profile.current.vagrant.ec2.iam_instance_profile_arn %>'
-<% end -%>
-<% if profile.current.vagrant.ec2.has?(:source_ami) -%>
+
     ec2.ami = '<%= profile.current.vagrant.ec2.source_ami %>'
-<% end -%>
   end
 
   # config.vm.network :forwarded_port, :host => 9200, :guest => 9200
@@ -67,19 +56,19 @@ Vagrant.configure('2') do |config|
     chef.log_level = :<%= chef.log_level %>
 
     chef.cookbooks_path = '<%= local.cookbook_path %>'
-<% if local.has?(:data_bag_path) -%>
+<% unless local.data_bag_path.nil? -%>
     chef.data_bags_path = '<%= local.data_bag_path %>'
 <% end -%>
-<% if local.has?(:environment_path) -%>
+<% unless local.environment_path.nil? -%>
     chef.environments_path = '<%= local.environment_path %>'
 <% end -%>
     chef.provisioning_path = '<%= chef.staging_directory %>'
 
     chef.run_list = <%= profile.current.chef.run_list %>
-<% if profile.current.chef.has?(:environment) -%>
+<% unless profile.current.chef.environment.nil? -%>
     chef.environment = '<%= profile.current.chef.environment %>'
 <% end -%>
-<% if profile.current.chef.has?(:node_attrs) -%>
+<% unless profile.current.chef.node_attrs.nil? -%>
     chef.json = <%= profile.current.chef.node_attrs %>
 <% end -%>
   end
