@@ -1,10 +1,10 @@
 require 'builderator/patch/berkshelf'
 
-<% sources.each do |s| -%>
+<% cookbook.sources.each do |s| -%>
 source '<%= s %>'
 <% end -%>
-<% if metadata %>metadata<% end -%>
+<% if cookbook.metadata %>metadata<% end -%>
 
-<% depends.each do |name, cookbook| -%>
+<% cookbook.depends.each do |name, cookbook| -%>
 cookbook '<%= name %>', '<%= cookbook.fetch(:version, '>= 0.0.0') %>', <%= cookbook.to_hash %>
 <% end -%>
