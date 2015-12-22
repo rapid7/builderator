@@ -6,9 +6,8 @@ module Builderator
   # :nodoc:
   class Interface
     class << self
-      def packer(profile = :default)
-        @packer ||= {}
-        @packer[profile] ||= Packer.new(profile)
+      def packer
+        @packer ||= Packer.new
       end
     end
 
@@ -16,73 +15,61 @@ module Builderator
     # Generate packer.json
     ##
     class Packer < Interface
-      def initialize(profile = :default)
+      attr_reader :packerfile
+
+      def initialize(*_)
         super
 
-        date Config.date
+        @packerfile ||= {
+          :builders => [],
+          :provisioners => []
+        }.tap do |json|
+          Config.profile.current.packer.build.each do |_, build|
+            json[:builders] << build.to_hash.tap do |b|
+              b[:tags] = Config.profile.current.tags
+            end
+          end
 
-        builders Config.profile(profile).packer.build.values
-        artifact.includes Config.profile(profile).artifact
-
-        builders.each do |builder|
-          builder[:tags] = Config.profile(profile).tags
+          ## Initialize the staging directory
+          json[:provisioners] << {
+            :type => 'shell',
+            :inline => "sudo mkdir -p #{Config.chef.staging_directory}/cache && "\
+                       "sudo chown $(whoami) -R #{Config.chef.staging_directory}"
+          }
         end
 
-        chef do |chef|
-          chef.includes Config.local
-          chef.includes Config.profile(profile).chef
-        end
-      end
-
-      attribute :date
-      attribute :builders, :type => :list, :singular => :builder
-
-      collection :artifact do
-        attribute :path
-        attribute :destination
-      end
-
-      namespace :chef do
-        attribute :cookbook_path
-        attribute :data_bag_path
-        attribute :environment_path
-        attribute :staging_directory
-
-        attribute :run_list, :type => :list, :singular => :run_list_item
-        attribute :environment
-        attribute :node_attrs
+        _artifact_provisioners
+        _chef_provisioner
       end
 
       def render
-        packer_json = {
-          :builders => builders,
-          :provisioners => [{
-            :type => 'shell',
-            :inline => "sudo mkdir -p #{chef.staging_directory}/cache && "\
-                       "sudo chown $(whoami) -R #{chef.staging_directory}"
-          }]
-        }
+        JSON.pretty_generate(packerfile)
+      end
 
-        artifact.each do |_, artifact|
-          packer_json[:provisioners] << {
+      private
+
+      ## Upload artifacts to the build container
+      def _artifact_provisioners
+        Config.profile.current.artifact.each do |_, artifact|
+          packerfile[:provisioners] << {
             :type => 'file',
             :source => artifact.path,
             :destination => artifact.destination
           }
         end
+      end
 
-        packer_json[:provisioners] << {
+      def _chef_provisioner
+        packerfile[:provisioners] << {
           :type => 'chef-solo',
-          :run_list => chef.run_list,
-          :cookbook_paths => [chef.cookbook_path],
-          :data_bags_path => chef.data_bag_path,
-          :environments_path => chef.environment_path,
-          :chef_environment => chef.environment,
-          :json => chef.node_attrs,
-          :staging_directory => chef.staging_directory
+          :run_list => Config.profile.current.chef.run_list,
+          :cookbook_paths => Config.local.cookbook_path,
+          :data_bags_path => Config.local.data_bag_path,
+          :environments_path => Config.local.environment_path,
+          :chef_environment => Config.profile.current.chef.environment,
+          :json => Config.profile.current.chef.node_attrs,
+          :staging_directory => Config.chef.staging_directory
         }
-
-        JSON.pretty_generate(packer_json)
       end
     end
   end

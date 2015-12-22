@@ -17,31 +17,18 @@ module Builderator
     # Render an updated Berksfile
     ##
     class Berkshelf < Interface
-      def initialize
-        super
-
-        includes Config.cookbook
-
-        vendor Config.local.cookbook_path
-        lockfile 'Berksfile.lock'
-      end
-
       template 'template/Berksfile.erb'
 
-      attribute :vendor
-      attribute :berkshelf_config
-      attribute :lockfile, :workspace => true
+      def vendor
+        Config.local.cookbook_path
+      end
 
-      attribute :sources, :type => :list
-      attribute :metadata
+      def lockfile
+        Util.workspace('Berksfile.lock')
+      end
 
-      collection :depends do
-        attribute :version
-        attribute :git
-        attribute :github
-        attribute :branch
-        attribute :tag
-        attribute :path
+      def berkshelf_config
+        Config.cookbook.berkshelf_config
       end
 
       def source

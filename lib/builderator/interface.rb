@@ -10,19 +10,12 @@ module Builderator
   ##
   # Base class for integration interfaces
   ##
-  class Interface < Config::Attributes
+  class Interface
     class << self
       def template(arg = nil)
         @template = arg unless arg.nil?
         @template
       end
-    end
-
-    def initialize(*_)
-      ## Ensure that Config is compiled before reading from it
-      Config.recompile
-
-      super
     end
 
     def directory
@@ -31,7 +24,11 @@ module Builderator
 
     def render
       ERB.new(Util.source_path(self.class.template).binread,
-              nil, '-', '@output_buffer').result(instance_eval('binding'))
+              nil, '-', '@output_buffer').result(Config.instance_eval('binding'))
+    end
+
+    def source
+      fail 'Interface does not provide a source!'
     end
 
     def write
