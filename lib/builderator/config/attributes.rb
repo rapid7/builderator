@@ -65,7 +65,7 @@ module Builderator
           namespace_class = Namespace.create(namespace_name, &definition)
 
           define_method(namespace_name) do |&block|
-            namespace_class.new(
+            nodes[namespace_name] ||= namespace_class.new(
               @attributes[namespace_name],
               :name => namespace_name, &block).compile
           end
@@ -89,11 +89,11 @@ module Builderator
           collection_class = Collection.create(collection_name, &definition)
 
           define_method(collection_name) do |instance_name = nil, &block|
-            collection_instance = collection_class.new(
+            nodes[collection_name] ||= collection_class.new(
               @attributes[collection_name])
 
-            return collection_instance if instance_name.nil?
-            collection_instance.fetch(instance_name, &block).compile
+            return nodes[collection_name] if instance_name.nil?
+            nodes[collection_name].fetch(instance_name, &block).compile
           end
         end
       end
@@ -117,10 +117,12 @@ module Builderator
       end
 
       attr_reader :attributes
+      attr_reader :nodes
       attr_reader :dirty
 
       def initialize(attributes = {}, &block)
         @attributes = Rash.coerce(attributes)
+        @nodes = {}
         @block = block
 
         ## Track change status for comsumers
@@ -258,6 +260,12 @@ module Builderator
 
             collection
           end
+        end
+
+        ## Allow a single instance to be selected
+        attr_reader :current
+        def use(instance_name)
+          @current = fetch(instance_name)
         end
 
         ## Enumerable methods return namespace instances
