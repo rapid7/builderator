@@ -37,13 +37,13 @@ module Builderator
         params = Config.vendor(name)
 
         if params.has?(:github)
-          say_status :vendor, "#{ name } from GitHub repository #{ params[:github] }"
+          say_status :vendor, "#{ name } from GitHub repository #{ params.github }"
           _fetch_github(path, params)
         elsif params.has?(:git)
-          say_status :vendor, "#{ name } from git repository #{ params[:git] }"
+          say_status :vendor, "#{ name } from git repository #{ params.git }"
           _fetch_git(path, params)
         elsif params.has?(:path)
-          say_status :vendor, "#{ name } from path #{ params[:path] }"
+          say_status :vendor, "#{ name } from path #{ params.path }"
           _fetch_path(path, params)
         end
       end
@@ -56,14 +56,14 @@ module Builderator
             ## Initialize new repository
             unless path.join('.git').exist?
               run 'git init'
-              run "git remote add origin #{ params[:git] }"
+              run "git remote add origin #{ params.git }"
             end
 
             run 'git fetch origin --tags --prune'
 
             ## Checkout reference
-            if params.has?(:tag) then run "git checkout #{ params[:tag] }"
-            elsif params.has?(:ref) then run "git checkout #{ params[:ref] }"
+            if params.has?(:tag) then run "git checkout #{ params.tag }"
+            elsif params.has?(:ref) then run "git checkout #{ params.ref }"
             else ## specified branch or master
               run "git checkout #{ params.fetch(:branch, 'master') }"
 
@@ -72,12 +72,12 @@ module Builderator
             end
 
             ## Apply relative subdirectory
-            run "git filter-branch --subdirectory-filter \"#{ params[:rel] }\" --force" if params.has?(:rel)
+            run "git filter-branch --subdirectory-filter \"#{ params.rel }\" --force" if params.has?(:rel)
           end
         end
 
         def _fetch_github(path, params)
-          params[:git] = "git@github.com:#{ params[:github] }.git"
+          params.git = "git@github.com:#{ params.github }.git"
           _fetch_git(path, params)
         end
 

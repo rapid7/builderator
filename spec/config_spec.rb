@@ -20,8 +20,7 @@ module Builderator
     end
 
     it 'compiles configuration layers' do
-      Config.recompile
-      expect(Config.compiled?).to be true
+      Config.compile
 
       ## Ensure that layer-order is respected
       expect(Config.aws.region).to eq 'us-east-1'

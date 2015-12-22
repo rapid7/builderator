@@ -102,8 +102,7 @@ module Builderator
       include Enumerable
 
       ## Delegate enumerables to underlying storage structure
-      def_delegators :@attributes,
-                     :[], :[]=, :fetch, :store,
+      def_delegators :@attributes, :[], :fetch,
                      :keys, :values, :has?, :each,
                      :to_hash
 
@@ -112,11 +111,25 @@ module Builderator
         self
       end
 
+      def unseal
+        attributes.unseal
+        self
+      end
+
       attr_reader :attributes
+      attr_reader :dirty
 
       def initialize(attributes = {}, &block)
         @attributes = Rash.coerce(attributes)
         @block = block
+
+        ## Track change status for comsumers
+        @dirty = false
+      end
+
+      ## Clear dirty state flag
+      def clean
+        @dirty = false
       end
 
       def compile
@@ -147,14 +160,23 @@ module Builderator
         # Input is a path relative to the workspace
         arg = Util.workspace(arg).to_s if options[:workspace]
 
+        ## Unchanged
+        return if @attributes[key] == arg
+
+        @dirty = true ## A mutation has occured
         @attributes[key] = arg
       end
 
       def append_if_valid(key, arg, default = Array, **options)
         ## TODO: define validation interface
 
-        set_or_return(key, nil, default, options).push(*arg)
-        set_or_return(key, nil, default, options).uniq! if options[:unique]
+        attribute = set_or_return(key, nil, default, options)
+        arg.reject! { |item| attribute.include?(item) }
+
+        return if arg.empty?
+
+        @dirty = true ## A mutation has occured
+        attribute.push(*arg)
       end
 
       def set_or_return(key, arg = nil, default = nil, **options)

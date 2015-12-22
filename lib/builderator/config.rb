@@ -13,6 +13,10 @@ module Builderator
         @layers ||= []
       end
 
+      def all_layers
+        ([GLOBAL_DEFAULTS, defaults] + layers + [overrides, argv])
+      end
+
       def defaults
         @defaults ||= File.new({}, :source => 'defaults')
       end
@@ -43,25 +47,35 @@ module Builderator
         layers.unshift(File.from_json(path)) if ::File.exist?(path)
       end
 
-      def compile
-        ## Merge layers from lowest to highest
-        compiled_layers = ([GLOBAL_DEFAULTS, defaults] + layers + [overrides, argv])
-                          .reduce(File.new) { |a, e| a.merge(e.compile) }
+      def compile(max_iterations = 4)
+        compiled.unseal
+        compile_iterations = 0
+
+        ## Automatically recompile while layers are dirty
+        loop do
+          fail "Re-compile iteration limit of #{max_iterations} has been exceeded" if compile_iterations >= max_iterations
+
+          ## Reset flags before next iteration
+          compiled.clean
+
+          ## Merge layers from lowest to highest
+          all_layers.each { |layer| compiled.merge(layer.compile) }
+
+          break unless dirty?
+          compile_iterations += 1
+        end
 
         ## Don't auto-populate keys anymore
-        compiled_layers.seal
+        compiled.seal
       end
+      alias_method :recompile, :compile
 
-      def recompile
-        @compiled = compile
+      def dirty?
+        all_layers.any?(&:dirty) || compiled.dirty
       end
 
       def compiled
-        @compiled ||= compile
-      end
-
-      def compiled?
-        !@compiled.nil?
+        @compiled ||= File.new
       end
 
       def fetch(key, *args)
@@ -70,7 +84,7 @@ module Builderator
       alias_method :[], :fetch
 
       def method_missing(method_name, *args)
-        return super unless compiled? && compiled.respond_to?(method_name)
+        return super unless compiled.respond_to?(method_name)
 
         compiled.send(method_name, *args)
       end

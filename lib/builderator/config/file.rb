@@ -40,6 +40,8 @@ module Builderator
       end
 
       def compile
+        clean ## Clear dirty flag before re-parsing file or block
+
         case @type
         when :file
           instance_eval(IO.read(source), source, 0)
@@ -96,7 +98,7 @@ module Builderator
         attribute :path
         attribute :berkshelf_config
 
-        attribute :sources, :type => :list, :singular => :add_source, :unique => true
+        attribute :sources, :type => :list, :singular => :add_source
         attribute :metadata
 
         collection :depends do
@@ -138,7 +140,7 @@ module Builderator
         # Chef configurations
         ##
         namespace :chef do
-          attribute :run_list, :type => :list, :singular => :run_list_item, :unique => true
+          attribute :run_list, :type => :list, :singular => :run_list_item
           attribute :environment
           attribute :node_attrs
         end
@@ -185,7 +187,7 @@ module Builderator
             attribute :virtualization_type
             attribute :instance_profile
             attribute :subnet_id
-            attribute :security_groups, :type => :list, :singular => :security_group, :unique => true
+            attribute :security_groups, :type => :list, :singular => :security_group
             attribute :public_ip
           end
         end
@@ -234,9 +236,15 @@ module Builderator
           attribute :gemfile
           attribute :gitignore
           attribute :packerfile
+          attribute :rubocop
           attribute :thorfile
           attribute :vagrantfile
           attribute :cookbook
+        end
+
+
+        namespace :ruby do
+          attribute :version
         end
 
         namespace :gemfile do
