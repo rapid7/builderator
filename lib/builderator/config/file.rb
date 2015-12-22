@@ -239,7 +239,9 @@ module Builderator
           attribute :rubocop
           attribute :thorfile
           attribute :vagrantfile
+          attribute :readme
           attribute :cookbook
+          attribute :rubocop
         end
 
 

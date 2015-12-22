@@ -99,7 +99,7 @@ module Builderator
         jetty.packerfile :rm
         jetty.vagrantfile :rm
         jetty.thorfile :rm
-
+        jetty.readme :create
         jetty.cookbook :rm
       end
 
