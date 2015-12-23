@@ -23,9 +23,10 @@ module Builderator
 
       desc 'vendor', 'Vendor a cookbook release and its dependencies'
       def vendor
+        invoke :configure, [], options
         empty_directory Interface.berkshelf.vendor
 
-        command = "berks vendor #{Interface.berkshelf.vendor} "
+        command = "#{Interface.berkshelf.command} vendor #{Interface.berkshelf.vendor} "
         command << "-c #{Interface.berkshelf.berkshelf_config} "
         command << "-b #{Interface.berkshelf.source}"
 
@@ -39,7 +40,7 @@ module Builderator
       def upload
         vendor
 
-        command = 'berks upload '
+        command = "#{Interface.berkshelf.command} upload "
         command << "-c #{Interface.berkshelf.berkshelf_config} "
         command << "-b #{Interface.berkshelf.source}"
 
