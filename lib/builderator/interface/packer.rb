@@ -1,6 +1,4 @@
-require_relative '../config'
 require_relative '../interface'
-require_relative '../util'
 
 module Builderator
   # :nodoc:
@@ -15,6 +13,7 @@ module Builderator
     # Generate packer.json
     ##
     class Packer < Interface
+      command 'packer'
       attr_reader :packerfile
 
       def initialize(*_)

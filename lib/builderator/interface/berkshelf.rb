@@ -1,8 +1,5 @@
-require_relative '../config'
 require_relative '../interface'
 require_relative '../util'
-
-require_relative '../control/cookbook'
 
 module Builderator
   # :nodoc:
@@ -17,6 +14,8 @@ module Builderator
     # Render an updated Berksfile
     ##
     class Berkshelf < Interface
+      from_gem 'berkshelf'
+      command 'berks'
       template 'template/Berksfile.erb'
 
       def vendor
