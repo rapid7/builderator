@@ -1,14 +1,16 @@
 source 'https://rubygems.org'
 
-gem 'builderator', '<%= generator.version %>'
+gem 'builderator', '<%= generator.project.current.builderator.version %>'
 
-<% if generator.gemfile.vagrant.install -%>
+<% if generator.project.current.vagrant.install -%>
 gem 'vagrant', :github => 'mitchellh/vagrant',
-               :tag => '<%= generator.gemfile.vagrant.version %>',
+               :tag => '<%= generator.project.current.vagrant.version %>',
                :group => :development
 
-group :development, :plugins do
-  gem 'vagrant-aws'
-  gem 'vagrant-omnibus'
+
+group :plugins do
+  <% generator.project.current.vagrant.plugin.each do |pname, plugin| -%>
+  gem '<%= pname %>'<% if plugin.has?(:version) %>'<%= plugin.version %>'<% end %>
+  <% end -%>
 end
 <% end -%>
