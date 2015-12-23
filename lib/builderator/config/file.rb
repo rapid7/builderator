@@ -2,7 +2,6 @@ require 'time'
 
 require_relative './attributes'
 require_relative '../control/data'
-require_relative '../util'
 
 # rubocop:disable Metrics/ClassLength
 
@@ -270,28 +269,28 @@ module Builderator
       ##
       namespace :generator do
         collection :project do
-          attribute :berksfile
-          attribute :buildfile
-          attribute :gemfile
-          attribute :gitignore
-          attribute :packerfile
-          attribute :rubocop
-          attribute :readme
-          attribute :thorfile
-          attribute :vagrantfile
-          attribute :cookbook
-        end
+          namespace :builderator do
+            attribute :version
+          end
 
-        namespace :ruby do
-          attribute :version
-        end
+          namespace :ruby do
+            attribute :version
+          end
 
-        attribute :version
-
-        namespace :gemfile do
           namespace :vagrant do
             attribute :install
             attribute :version
+
+            collection :plugin do
+              attribute :version
+            end
+          end
+
+          collection :resource do
+            attribute :path, :type => :list
+            attribute :action
+            attribute :template
+            attribute :embedded
           end
         end
       end
