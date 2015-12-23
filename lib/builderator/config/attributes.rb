@@ -37,7 +37,7 @@ module Builderator
           ## Setter
           define_method("#{attribute_name}=") do |arg|
             set_if_valid(attribute_name, arg, options)
-          end
+          end unless options[:type] == :list
         end
 
         ## Add a method the DSL
