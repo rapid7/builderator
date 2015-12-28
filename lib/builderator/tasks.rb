@@ -44,6 +44,7 @@ module Builderator
         invoke Tasks::Version, :current, [], options
         invoke Tasks::Vendor, :all, [], options
         invoke Tasks::Berkshelf, :vendor, [], options
+
         # mvn package?
         # invoke Tasks::Cookbook, :prepare, []
       end
@@ -113,10 +114,12 @@ module Builderator
       # Generator
       ##
       desc 'generate [PROJECT=default]', 'Run a generator'
+      method_option 'build-name', :type => :string
       method_option :ignore, :type => :array
       method_option :sync, :type => :array
       method_option :rm, :type => :array
       def generate(project = :default)
+        fail 'Please provide a valid build name with the `--build-name=VALUE` option!' unless Config.has?(:build_name)
         Config.generator.project.use(project)
 
         Config.generator.project.current.resource.each do |rname, resource|
@@ -125,7 +128,7 @@ module Builderator
 
           if (options['sync'] && options['sync'].include?(rname.to_s)) ||
              resource.action == :sync
-            template resource.template || resource.embedded, resource.path.first
+            template resource.template, resource.path.first
             next
           end
 
@@ -136,7 +139,7 @@ module Builderator
           end
 
           ## Create
-          template resource.template || resource.embedded, resource.path.first, :skip => true
+          template resource.template, resource.path.first, :skip => true
         end
       end
     end
