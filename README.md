@@ -47,30 +47,38 @@ Builderator can automatically detect versions from SCM tags, increment the lates
 
 ## Generators
 
-Builderator includes tasks to generate common project configurations. The `Generator::Base` class is a Group of base steps to create/remove files common to many types of projects. `Generator::Jetty` extends `Base` to manage additional files specific to Jetty/JVM projects.
+Builderator includes a task to generate common project trees from configuration definitions  and templates.
 
-Each type of project is configurable via collections in the `generator` namespace. Defaults are
+Each type of project is configurable via the project collection in the `generator` namespace:
 
 ```ruby
-      generator.project :jetty do |jetty|
-        jetty.build_version '~> 1.0'
-        jetty.vagrant_install true
-        jetty.vagrant_version 'v1.7.4'
+generator.project :default do |default|
+  default.ruby.version '2.1.5'
+  default.builderator.version '~> 1.0'
 
-        ## Task flags
-        jetty.berksfile :rm
-        jetty.buildfile :create
-        jetty.cookbook :rm
-        jetty.gemfile :create
-        jetty.gitignore :create
-        jetty.packerfile :rm
-        jetty.rubocop :create
-        jetty.readme :create
-        jetty.vagrantfile :rm
-        jetty.thorfile :rm
-      end
+  default.vagrant do |vagrant|
+    vagrant.install false
+    vagrant.version 'v1.8.0'
+
+    vagrant.plugin 'vagrant-aws'
+    vagrant.plugin 'vagrant-omnibus'
+  end
+
+  default.resource :berksfile do |berksfile|
+    berksfile.path 'Berksfile', 'Berksfile.lock'
+    berksfile.action :rm
+  end
+
+  default.resource :buildfile do |buildfile|
+    buildfile.path 'Buildfile'
+    buildfile.action :create
+    buildfile.template 'template/Buildfile.erb'
+  end
+
+  # ...
+end
 ```
 
-Valid actions for templates include `:ignore`, `:create` (update only if missing), `:sync` (create or update with prompt), and `:rm`. For some resources without templates, only the `:rm` action will have an effect.
+Valid actions for resources include `:ignore`, `:create` (update only if missing), `:sync` (create or update with prompt), and `:rm`. `:create` and `:sync` actions require a valid template source.
 
-The `generator` subcommand includes `base` and `jetty` tasks.
+By default, the `generator` subcommand includes a `default` project which removes Vagrant, Berkshelf, and Packer configurations.
