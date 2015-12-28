@@ -65,6 +65,7 @@ module Builderator
       end
 
       desc 'image [PROFILE = default]', 'Build an AMI of PROFILE'
+      method_option :debug, :type => :boolean
       def image(profile = :default)
         prepare
         invoke Tasks::Packer, :build, [profile], options

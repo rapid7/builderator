@@ -44,3 +44,33 @@ The Packer integration generates Packer JSON and passes it to STDIN of `packer b
 Builderator can automatically detect versions from SCM tags, increment the latest version of an SCM branch by a variety of steps, and create new SCM tags for new versions.
 
 [Additional documentation](docs/versioning.md) describes CLI commands, configuration, and detailed behavior.
+
+## Generators
+
+Builderator includes tasks to generate common project configurations. The `Generator::Base` class is a Group of base steps to create/remove files common to many types of projects. `Generator::Jetty` extends `Base` to manage additional files specific to Jetty/JVM projects.
+
+Each type of project is configurable via collections in the `generator` namespace. Defaults are
+
+```ruby
+      generator.project :jetty do |jetty|
+        jetty.build_version '~> 1.0'
+        jetty.vagrant_install true
+        jetty.vagrant_version 'v1.7.4'
+
+        ## Task flags
+        jetty.berksfile :rm
+        jetty.buildfile :create
+        jetty.cookbook :rm
+        jetty.gemfile :create
+        jetty.gitignore :create
+        jetty.packerfile :rm
+        jetty.rubocop :create
+        jetty.readme :create
+        jetty.vagrantfile :rm
+        jetty.thorfile :rm
+      end
+```
+
+Valid actions for templates include `:ignore`, `:create` (update only if missing), `:sync` (create or update with prompt), and `:rm`. For some resources without templates, only the `:rm` action will have an effect.
+
+The `generator` subcommand includes `base` and `jetty` tasks.

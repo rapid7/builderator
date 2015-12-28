@@ -17,11 +17,12 @@ module Builderator
         true
       end
 
-      desc 'build ARGS', 'Run a build with the installed version of packer'
+      desc 'build [PROFILE=default *ARGS]', 'Run a build with the installed version of packer'
       def build(profile = :default, *args)
         @config ||= Interface.packer(profile)
 
-        run "packer build - #{ args.join('') }", :input => config.render
+        puts Interface.packer(profile).render if options['debug']
+        run_with_input "packer build - #{ args.join('') }", config.render
       end
     end
   end

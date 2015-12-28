@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'builderator'
+gem 'builderator', '<%= generator.version %>'
 
 <% if generator.gemfile.vagrant.install -%>
 gem 'vagrant', :github => 'mitchellh/vagrant',

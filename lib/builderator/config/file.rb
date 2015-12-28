@@ -147,19 +147,42 @@ module Builderator
 
         ##
         # Packerfile
+        #
+        # This currently supports the AWS/EC2 builder.
         ##
         namespace :packer do
           collection :build do
             attribute :type
-            attribute :instance_type
-            attribute :source_ami
-            attribute :ssh_username
-            attribute :ami_virtualization_type
 
-            ## TODO: Share accounts
+            ## EC2 Placement and Virtualization parameters
+            attribute :region
+            attribute :availability_zone
+            attribute :vpc_id
+            attribute :subnet_id
+
+            attribute :instance_type
+            attribute :ami_virtualization_type
+            attribute :enhanced_networking
+            attribute :security_group_ids, :type => :list, :singular => :security_group_id
+            attribute :iam_instance_profile
+
+            attribute :source_ami
+            attribute :user_data
+            attribute :user_data_file
+
+            attribute :windows_password_timeout
+
+            ## Access parameters
+            attribute :ssh_username
+            attribute :ssh_keypair_name
+            attribute :ssh_private_key_file
+            attribute :ssh_private_ip
+            attribute :temporary_key_pair_name
 
             attribute :ami_name
             attribute :ami_description
+            attribute :ami_users, :type => :list
+            attribute :ami_regions, :type => :list
           end
         end
 
@@ -181,14 +204,26 @@ module Builderator
             attribute :box
             attribute :box_url
 
-            attribute :instance_type
-            attribute :source_ami
-            attribute :ssh_username
-            attribute :virtualization_type
-            attribute :instance_profile
+            attribute :region
+            attribute :availability_zone
             attribute :subnet_id
-            attribute :security_groups, :type => :list, :singular => :security_group
-            attribute :public_ip
+            attribute :private_ip_address
+
+            attribute :instance_type
+            attribute :security_groups, :type => :list
+            attribute :iam_instance_profile_arn
+
+            attribute :source_ami
+            attribute :user_data
+
+            attribute :ssh_username
+            attribute :keypair_name
+            attribute :private_key_path
+
+            attribute :associate_public_ip
+            attribute :ssh_host_attribute
+            attribute :instance_ready_timeout
+            attribute :instance_check_interval
           end
         end
       end
@@ -237,15 +272,17 @@ module Builderator
           attribute :gitignore
           attribute :packerfile
           attribute :rubocop
+          attribute :readme
           attribute :thorfile
           attribute :vagrantfile
           attribute :cookbook
         end
 
-
         namespace :ruby do
           attribute :version
         end
+
+        attribute :version
 
         namespace :gemfile do
           namespace :vagrant do
