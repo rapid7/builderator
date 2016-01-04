@@ -12,9 +12,6 @@ module Builderator
       version '0.0.0'
       build_number 0
 
-      ## Ensure that attributes[:vendor] is a populated
-      vendor() {}
-
       autoversion do |autoversion|
         autoversion.create_tags false
         autoversion.search_tags true
