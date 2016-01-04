@@ -237,12 +237,6 @@ module Builderator
           @block.call(self) if @block
           self
         end
-
-        ## Copy attributes from another instance in the same collection
-        def extends(instance_name)
-          return unless collection.is_a?(Collection)
-          merge(collection[instance_name])
-        end
       end
 
       ##
