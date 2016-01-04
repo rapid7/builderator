@@ -11,6 +11,9 @@ module Builderator
       version '0.0.0'
       build_number 0
 
+      ## Ensure that attributes[:vendor] is a populated
+      vendor() {}
+
       autoversion do |autoversion|
         autoversion.create_tags true
         autoversion.search_tags true
@@ -95,33 +98,74 @@ module Builderator
         end
       end
 
-      generator.gemfile.vagrant do |vagrant|
-        vagrant.install true
-        vagrant.version 'v1.8.0'
+      generator.project :default do |base|
+        base.builderator.version '~> 1.0'
+
+        base.vagrant do |vagrant|
+          vagrant.install false
+          vagrant.version 'v1.8.0'
+
+          vagrant.plugin 'vagrant-aws'
+          vagrant.plugin 'vagrant-omnibus'
+        end
+
+        base.resource :berksfile do |berksfile|
+          berksfile.path 'Berksfile', 'Berksfile.lock'
+          berksfile.action :rm
+        end
+
+        base.resource :buildfile do |buildfile|
+          buildfile.path 'Buildfile'
+          buildfile.action :create
+          buildfile.embedded 'template/Buildfile.erb'
+        end
+
+        base.resource :cookbook do |cookbook|
+          cookbook.path 'cookbook'
+          cookbook.action :rm
+        end
+
+        base.resource :gemfile do |gemfile|
+          gemfile.path 'Gemfile'
+          gemfile.action :create
+          gemfile.embedded 'template/Gemfile.erb'
+        end
+
+        base.resource :gitignore do |gitignore|
+          gitignore.path '.gitignore'
+          gitignore.action :create
+          gitignore.embedded 'template/gitignore.erb'
+        end
+
+        base.resource :packerfile do |packerfile|
+          packerfile.path 'packer.json', 'packer'
+          packerfile.action :rm
+        end
+
+        base.resource :rubocop do |rubocop|
+          rubocop.path '.rubocop.yml'
+          rubocop.action :create
+          rubocop.embedded 'template/rubocop.erb'
+        end
+
+        base.resource :readme do |readme|
+          readme.path 'README.md'
+          readme.action :create
+          readme.embedded 'template/README.md.erb'
+        end
+
+        base.resource :thorfile do |thorfile|
+          thorfile.path 'Thorfile'
+          thorfile.action :rm
+        end
+
+        base.resource :vagrantfile do |vagrantfile|
+          vagrantfile.path 'Vagrantfile'
+          vagrantfile.action :rm
+        end
       end
 
-      generator.ruby.version '2.1.5'
-      generator.version '~> 1.0'
-
-      generator.project :jetty do |jetty|
-        jetty.berksfile :rm
-        jetty.buildfile :create
-        jetty.cookbook :rm
-        jetty.gemfile :create
-        jetty.gitignore :create
-        jetty.packerfile :rm
-        jetty.rubocop :create
-        jetty.readme :create
-        jetty.vagrantfile :rm
-        jetty.thorfile :rm
-      end
-
-      generator.project :legacy do |legacy|
-        legacy.gemfile :sync
-      end
-
-      ## Ensure that attributes[:vendor] is a populated
-      vendor {}
+      generator.project(:jetty).extends(:default)
     end
   end
 end

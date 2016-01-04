@@ -1,6 +1,7 @@
 require 'thor'
 
 require_relative './config'
+require_relative './patch/thor-actions'
 
 # require_relative './tasks/cookbook'
 require_relative './tasks/vendor'
@@ -10,14 +11,14 @@ require_relative './tasks/berkshelf'
 require_relative './tasks/packer'
 require_relative './tasks/vagrant'
 
-require_relative './tasks/generator'
-
 module Builderator
   module Tasks
     ##
     # Top-level command line tasks
     ##
     class CLI < Thor
+      include Thor::Actions
+
       def initialize(*_)
         super
 
@@ -43,6 +44,7 @@ module Builderator
         invoke Tasks::Version, :current, [], options
         invoke Tasks::Vendor, :all, [], options
         invoke Tasks::Berkshelf, :vendor, [], options
+
         # mvn package?
         # invoke Tasks::Cookbook, :prepare, []
       end
@@ -109,10 +111,37 @@ module Builderator
       subcommand 'vagrant', Tasks::Vagrant
 
       ##
-      # Generator subcommands
+      # Generator
       ##
-      desc 'generate SUBCOMMAND', 'Run a generator'
-      subcommand 'generate', Tasks::Generator::Types
+      desc 'generate [PROJECT=default]', 'Run a generator'
+      method_option 'build-name', :type => :string
+      method_option :ignore, :type => :array
+      method_option :sync, :type => :array
+      method_option :rm, :type => :array
+      def generate(project = :default)
+        fail 'Please provide a valid build name with the `--build-name=VALUE` option!' unless Config.has?(:build_name)
+        Config.generator.project.use(project)
+
+        Config.generator.project.current.resource.each do |rname, resource|
+          next if (options['ignore'] && options['ignore'].include?(rname.to_s)) ||
+                  resource.action == :ignore
+
+          if (options['sync'] && options['sync'].include?(rname.to_s)) ||
+             resource.action == :sync
+            template resource.template, resource.path.first
+            next
+          end
+
+          if (options['rm'] && options['rm'].include?(rname.to_s)) ||
+             resource.action == :rm
+            resource.path.each { |rm| remove_file rm }
+            next
+          end
+
+          ## Create
+          template resource.template, resource.path.first, :skip => true
+        end
+      end
     end
   end
 end
