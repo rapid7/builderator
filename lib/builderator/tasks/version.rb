@@ -20,7 +20,7 @@ module Builderator
       def current
         unless Config.autoversion.search_tags
           say_status :disabled, 'Automatically detecting version informantion '\
-                                'from SCM tags is disabled', :white
+                                'from SCM tags is disabled', :red
           return
         end
 
@@ -31,23 +31,25 @@ module Builderator
 
       desc 'bump TYPE [PRERELEASE_NAME]', 'Increment the package version, optionally with a named prerelease'
       def bump(type = :auto, prerelease_name = nil)
-        unless Config.autoversion.search_tags
-          say_status :disabled, 'Automatically detecting version informantion '\
-                                'from SCM tags is disabled', :white
+        ## Guard: Don't try to create a new version if `create_tags` is explicitly disabled
+        ## or `search_tags` is disabled as we won't have a valud current version to increment
+        unless Config.autoversion.create_tags && Config.autoversion.search_tags
+          say_status :disabled, 'Tag creation is disabled for this build. Not '\
+          'creating new SCM tags!', :red
+
+          ## Try to read the current version anyway, incase `search_tags == true`
+          current
+
           return
         end
 
         say_status :bump, "by #{type} version"
-        say_status :version, "#{Control::Version.bump(type, prerelease_name)} (#{Control::Version.current.ref})"
+        Control::Version.bump(type, prerelease_name)
 
-        Util.relative_path('VERSION').write(Control::Version.current.to_s)
+        ## Print the new version and write out a VERSION file
+        current
 
-        unless Config.autoversion.create_tags
-          say_status :disabled, 'Tag creation is disabled for this build. Not '\
-                                'creating new SCM tags!', :white
-          return
-        end
-
+        ## Try to create and push a tag
         run "git tag #{Control::Version.current}"
         run 'git push --tags'
       end
