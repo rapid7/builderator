@@ -99,7 +99,6 @@ module Builderator
       end
 
       generator.project :default do |base|
-        base.ruby.version '2.1.5'
         base.builderator.version '~> 1.0'
 
         base.vagrant do |vagrant|
