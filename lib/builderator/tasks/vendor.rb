@@ -26,14 +26,14 @@ module Builderator
         ## Clean up all vendors
         return Config.vendor.each { |n, _| clean(n) } if name.nil?
 
-        remove_dir ::File.join(Config.local.vendor_path, name.to_s)
+        remove_dir Util.vendor(name)
       end
 
       desc 'fatch NAME', 'Fetch vendor NAME from its source'
       def fetch(name = :default)
-        empty_directory Config.local.vendor_path
+        empty_directory Util::VENDOR
 
-        path = Pathname.new(Config.local.vendor_path).join(name.to_s)
+        path = Util.vendor(name)
         params = Config.vendor(name)
 
         if params.has?(:github)
@@ -46,6 +46,9 @@ module Builderator
           say_status :vendor, "#{ name } from path #{ params.path }"
           _fetch_path(path, params)
         end
+
+        ## Include any policies embedded in this vendor
+        Config.recompile
       end
 
       no_commands do
@@ -82,8 +85,8 @@ module Builderator
         end
 
         def _fetch_path(path, params)
-          return if path.exist?
-          create_link path.to_s, Util.relative_path(params[:path])
+          remove_dir path.to_s if path.exist?
+          create_link path.to_s, params.path.to_s
         end
       end
     end
