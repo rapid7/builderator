@@ -54,9 +54,8 @@ module Builderator
           vagrant.local do |local|
             local.provider :virtualbox
 
-            local.box 'ubuntu-14.04-x86_64'
-            local.box_url 'https://cloud-images.ubuntu.com/vagrant/trusty/'\
-                          'current/trusty-server-cloudimg-amd64-vagrant-disk1.box'
+            ## Atlas metadata for Ubuntu cloud-images: https://atlas.hashicorp.com/ubuntu/boxes/trusty64
+            local.box 'ubuntu/trusty64'
 
             local.memory 1024
             local.cpus 2
