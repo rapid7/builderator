@@ -10,41 +10,25 @@ module Builderator
     ##
     class Vagrant < Thor
       include Thor::Actions
-      class_option :config, :aliases => :c, :desc => "Path to Berkshelf's config.json"
-      class_option :berksfile, :aliases => :b, :desc => 'Path to the Berksfile to use'
-
-      attr_reader :config, :command
-
-      def initialize(*_)
-        @command = Gem.loaded_specs.key?('vagrant') ? 'vagrant' : '/usr/bin/vagrant'
-        # unless Gem.loaded_specs.key?('vagrant')
-        #   say '!!! Vagrant is not available in this bundle !!!!', [:red, :bold]
-        #   puts ''
-        #   say 'Please add the following to your Gemfile and update your bundle to use the `vagrant` command:'
-        #   say '  +------------------------------------------------+', :green
-        #   say "  | gem 'vagrant', :github => 'mitchellh/vagrant', |", :green
-        #   say "  |                :tag => 'v1.7.4'                |", :green
-        #   say '  +------------------------------------------------+', :green
-        #
-        #   exit 1
-        # end
-
-        super
-      end
 
       def self.exit_on_failure?
         true
       end
 
+      desc 'configure [PROFILE]', 'Write a Vagrantfile into the project workspace'
+      def configure(profile = :default)
+        Config.profile.use(profile)
+        Interface.vagrant.write
+      end
+
       desc 'local [PROFILE [ARGS ...]]', 'Start VirtualBox VM(s)'
       def local(profile = :default, *args)
-        @config ||= Interface.vagrant(profile)
-        config.write
+        invoke :configure, [profile], options
 
-        inside config.directory do
-          command = 'ulimit -n 1024; '
-          command << 'VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true '
-          command << "#{@command} up --provider=#{config.local.provider} #{args.join(' ')}"
+        inside Interface.vagrant.directory do
+          command = Interface.vagrant.command
+          command << " up --provider=#{Config.profile.current.vagrant.local.provider} "
+          command << args.join(' ')
 
           run command
         end
@@ -52,13 +36,12 @@ module Builderator
 
       desc 'ec2 [PROFILE [ARGS ...]]', 'Start EC2 instances'
       def ec2(profile = :default, *args)
-        @config ||= Interface.vagrant(profile)
-        config.write
+        invoke :configure, [profile], options
 
-        inside config.directory do
-          command = 'ulimit -n 1024; '
-          command << 'VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true '
-          command << "#{@command} up --provider=#{config.ec2.provider} #{args.join(' ')}"
+        inside Interface.vagrant.directory do
+          command = Interface.vagrant.command
+          command << " up --provider=#{Config.profile.current.vagrant.ec2.provider} "
+          command << args.join(' ')
 
           run command
         end
@@ -66,12 +49,11 @@ module Builderator
 
       desc 'provision [PROFILE [ARGS ...]]', 'Reprovision Vagrant VM(s)'
       def provision(profile = :default, *args)
-        @config ||= Interface.vagrant(profile)
+        invoke :configure, [profile], options
 
-        inside config.directory do
-          command = 'ulimit -n 1024; '
-          command << 'VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true '
-          command << "#{@command} provision #{args.join(' ')}"
+        inside Interface.vagrant.directory do
+          command = Interface.vagrant.command
+          command << " provision #{args.join(' ')}"
 
           run command
         end
@@ -79,12 +61,11 @@ module Builderator
 
       desc 'status [PROFILE [ARGS ...]]', 'Reprovision Vagrant VM(s)'
       def status(profile = :default, *args)
-        @config ||= Interface.vagrant(profile)
+        invoke :configure, [profile], options
 
-        inside config.directory do
-          command = 'ulimit -n 1024; '
-          command << 'VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true '
-          command << "#{@command} status #{args.join(' ')}"
+        inside Interface.vagrant.directory do
+          command = Interface.vagrant.command
+          command << " status #{args.join(' ')}"
 
           run command
         end
@@ -92,12 +73,11 @@ module Builderator
 
       desc 'ssh [PROFILE [ARGS ...]]', 'SSH into Vagrant VM(s)'
       def ssh(profile = :default, *args)
-        @config ||= Interface.vagrant(profile)
+        invoke :configure, [profile], options
 
-        inside config.directory do
-          command = 'ulimit -n 1024; '
-          command << 'VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true '
-          command << "#{@command} ssh #{args.join(' ')}"
+        inside Interface.vagrant.directory do
+          command = Interface.vagrant.command
+          command << " ssh #{args.join(' ')}"
 
           ## Connect to subprocesses STDIO
           exec(command)
@@ -107,13 +87,12 @@ module Builderator
       desc 'destroy [PROFILE [ARGS ...]]', 'Destroy Vagrant VM(s)'
       method_option :force, :aliases => :f, :type => :boolean, :default => true
       def destroy(profile = :default, *args)
-        @config ||= Interface.vagrant(profile)
+        invoke :configure, [profile], options
 
-        inside config.directory do
-          command = 'ulimit -n 1024; '
-          command << 'VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true '
-          command << "#{@command} destroy #{args.join(' ')} "
-          command << '-f' if options['force']
+        inside Interface.vagrant.directory do
+          command = Interface.vagrant.command
+          command << " destroy #{args.join(' ')}"
+          command << ' -f' if options['force']
 
           run command
         end
@@ -131,8 +110,25 @@ module Builderator
       def clean(profile = :default)
         destroy(profile)
 
-        remove_dir config.directory.join('.vagrant')
-        remove_file config.source
+        remove_dir Interface.vagrant.directory.join('.vagrant')
+        remove_file Interface.vagrant.source
+      end
+
+      desc 'plugins [PROJECT=default]', 'Install plugins required for PROJECT'
+      def plugins(project = :default)
+        if Interface.vagrant.bundled?
+          say 'Vagrant is already bundled. Required plugins are already part of the bundle as well'
+          return
+        end
+
+        Config.generator.project.use(project)
+        Config.generator.project.current.vagrant.plugin.each do |pname, plugin|
+          command = Interface.vagrant.command
+          command << " plugin install #{ pname }"
+          command << " --plugin-version #{ plugin.version }" if plugin.has?(:version)
+
+          run command
+        end
       end
     end
   end

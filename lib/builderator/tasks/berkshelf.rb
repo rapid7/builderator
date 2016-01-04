@@ -11,27 +11,27 @@ module Builderator
     class Berkshelf < Thor
       include Thor::Actions
 
-      attr_reader :config
-
-      def initialize(*_)
-        super
-        @config = Interface.berkshelf.write
-      end
 
       def self.exit_on_failure?
         true
       end
 
+      desc 'configure', 'Write a Berksfile into the project workspace'
+      def configure
+        Interface.berkshelf.write
+      end
+
       desc 'vendor', 'Vendor a cookbook release and its dependencies'
       def vendor
-        empty_directory config.vendor
+        invoke :configure, [], options
+        empty_directory Interface.berkshelf.vendor
 
-        command = "berks vendor #{config.vendor} "
-        command << "-c #{config.berkshelf_config} "
-        command << "-b #{config.source}"
+        command = "#{Interface.berkshelf.command} vendor #{Interface.berkshelf.vendor} "
+        command << "-c #{Interface.berkshelf.berkshelf_config} "
+        command << "-b #{Interface.berkshelf.source}"
 
-        inside config.directory do
-          remove_file config.lockfile
+        inside Interface.berkshelf.directory do
+          remove_file Interface.berkshelf.lockfile
           run command
         end
       end
@@ -40,9 +40,9 @@ module Builderator
       def upload
         vendor
 
-        command = 'berks upload '
-        command << "-c #{config.berkshelf_config} "
-        command << "-b #{config.source}"
+        command = "#{Interface.berkshelf.command} upload "
+        command << "-c #{Interface.berkshelf.berkshelf_config} "
+        command << "-b #{Interface.berkshelf.source}"
 
         run command
       end
@@ -55,8 +55,8 @@ module Builderator
       desc 'clean', 'Remove a local vendor directory'
       def clean
         remove_dir Interface.berkshelf.vendor
-        remove_file config.source
-        remove_file config.lockfile
+        remove_file Interface.berkshelf.source
+        remove_file Interface.berkshelf.lockfile
       end
     end
   end

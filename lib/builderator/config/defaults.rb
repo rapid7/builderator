@@ -19,7 +19,12 @@ module Builderator
       local do |local|
         local.vendor_path 'vendor'
         local.cookbook_path 'cookbooks'
-        local.staging_directory '/var/chef'
+      end
+
+      chef do |chef|
+        chef.log_level :info
+        chef.staging_directory '/var/chef'
+        chef.version = '12.5.1'
       end
 
       cookbook do |cookbook|
@@ -92,7 +97,7 @@ module Builderator
 
       generator.gemfile.vagrant do |vagrant|
         vagrant.install true
-        vagrant.version 'v1.7.4'
+        vagrant.version 'v1.8.0'
       end
 
       generator.ruby.version '2.1.5'

@@ -87,8 +87,12 @@ module Builderator
 
         attribute :data_bag_path, :workspace => true
         attribute :environment_path, :workspace => true
+      end
 
+      namespace :chef do
+        attribute :log_level
         attribute :staging_directory
+        attribute :version
       end
 
       ##
