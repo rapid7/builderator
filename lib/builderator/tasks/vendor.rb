@@ -29,7 +29,7 @@ module Builderator
         remove_dir Util.vendor(name)
       end
 
-      desc 'fatch NAME', 'Fetch vendor NAME from its source'
+      desc 'fetch NAME', 'Fetch vendor NAME from its source'
       def fetch(name = :default)
         empty_directory Util::VENDOR
 
