@@ -2,6 +2,7 @@ require 'time'
 
 require_relative './attributes'
 require_relative '../control/data'
+require_relative '../util'
 
 # rubocop:disable Metrics/ClassLength
 
@@ -50,16 +51,36 @@ module Builderator
           instance_eval(&@block) if @block
         end
 
+        ## Overlay policies
+        policy.each do |_, policy|
+          if policy.has?(:path)
+            next unless ::File.exist?(policy.path)
+            merge(self.class.from_file(policy.path).compile)
+          end
+
+          if policy.has?(:json)
+            next unless ::File.exist?(policy.json)
+            merge(self.class.from_json(policy.json).compile)
+          end
+        end
+
         self
       end
 
       ## Use the Data controller to fetch IDs from the EC2 API at compile time
       def lookup(source, query)
-        self.class.lookup_cache[_lookup_cache_key(query)] ||= Control::Data.lookup(source, query)
+        self.class.lookup_cache[cache_key(query)] ||= Control::Data.lookup(source, query)
       end
 
-      def _lookup_cache_key(query)
-        query.keys.sort.map { |k| "#{k}:#{query[k]}" }.join('|')
+      ## Helper to resolve paths to vendored files
+      def vendored(name, *path)
+        Util.vendor(name, *path)
+      end
+
+      ## Helper to resolve absolute paths relative to this `File`.
+      ## Only works for `File`s with valid filesystem source attributes!
+      def relative(*path)
+        Pathname.new(source).join(*(['..', path].flatten)).expand_path
       end
 
       attribute :build_name, :required => true
@@ -68,6 +89,11 @@ module Builderator
 
       attribute :description
       attribute :version
+
+      collection :policy do
+        attribute :path, :relative => true
+        attribute :json, :relative => true
+      end
 
       ##
       # Enable/disable auto-versioning features
@@ -81,11 +107,9 @@ module Builderator
       # Local resource paths
       ##
       namespace :local do
-        attribute :vendor_path, :workspace => true
-        attribute :cookbook_path, :workspace => true
-
-        attribute :data_bag_path, :workspace => true
-        attribute :environment_path, :workspace => true
+        attribute :cookbook_path
+        attribute :data_bag_path
+        attribute :environment_path
       end
 
       namespace :chef do
@@ -235,7 +259,7 @@ module Builderator
       # Configure resources that must be fetched for a build
       ##
       collection :vendor do
-        attribute :path
+        attribute :path, :relative => true
 
         attribute :git
         attribute :github
@@ -290,7 +314,6 @@ module Builderator
             attribute :path, :type => :list
             attribute :action
             attribute :template
-            attribute :embedded
           end
         end
       end
@@ -299,6 +322,13 @@ module Builderator
       # Option to disable cleanup of build resources
       ##
       attribute :cleanup
+
+      private
+
+      ## Helper to generate unique, predictable keys for caching
+      def cache_key(query)
+        query.keys.sort.map { |k| "#{k}:#{query[k]}" }.join('|')
+      end
     end
   end
 end

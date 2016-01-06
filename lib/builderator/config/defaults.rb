@@ -1,4 +1,5 @@
 require_relative './file'
+require_relative '../util'
 
 module Builderator
   # :nodoc
@@ -11,17 +12,13 @@ module Builderator
       version '0.0.0'
       build_number 0
 
-      ## Ensure that attributes[:vendor] is a populated
-      vendor() {}
-
       autoversion do |autoversion|
-        autoversion.create_tags true
+        autoversion.create_tags false
         autoversion.search_tags true
       end
 
       local do |local|
-        local.vendor_path 'vendor'
-        local.cookbook_path 'cookbooks'
+        local.cookbook_path Util.workspace('cookbooks')
       end
 
       chef do |chef|
@@ -57,9 +54,8 @@ module Builderator
           vagrant.local do |local|
             local.provider :virtualbox
 
-            local.box 'ubuntu-14.04-x86_64'
-            local.box_url 'https://cloud-images.ubuntu.com/vagrant/trusty/'\
-                          'current/trusty-server-cloudimg-amd64-vagrant-disk1.box'
+            ## Atlas metadata for Ubuntu cloud-images: https://atlas.hashicorp.com/ubuntu/boxes/trusty64
+            local.box 'ubuntu/trusty64'
 
             local.memory 1024
             local.cpus 2
@@ -79,8 +75,6 @@ module Builderator
             build.ami_description Config.description
           end
         end
-
-        profile(:bake).extends :default
       end
 
       cleaner do |cleaner|
@@ -98,10 +92,10 @@ module Builderator
         end
       end
 
-      generator.project :default do |base|
-        base.builderator.version '~> 1.0'
+      generator.project :default do |default|
+        default.builderator.version '~> 1.0'
 
-        base.vagrant do |vagrant|
+        default.vagrant do |vagrant|
           vagrant.install false
           vagrant.version 'v1.8.0'
 
@@ -109,63 +103,61 @@ module Builderator
           vagrant.plugin 'vagrant-omnibus'
         end
 
-        base.resource :berksfile do |berksfile|
+        default.resource :berksfile do |berksfile|
           berksfile.path 'Berksfile', 'Berksfile.lock'
           berksfile.action :rm
         end
 
-        base.resource :buildfile do |buildfile|
+        default.resource :buildfile do |buildfile|
           buildfile.path 'Buildfile'
           buildfile.action :create
-          buildfile.embedded 'template/Buildfile.erb'
+          buildfile.template 'template/Buildfile.erb'
         end
 
-        base.resource :cookbook do |cookbook|
+        default.resource :cookbook do |cookbook|
           cookbook.path 'cookbook'
           cookbook.action :rm
         end
 
-        base.resource :gemfile do |gemfile|
+        default.resource :gemfile do |gemfile|
           gemfile.path 'Gemfile'
           gemfile.action :create
-          gemfile.embedded 'template/Gemfile.erb'
+          gemfile.template 'template/Gemfile.erb'
         end
 
-        base.resource :gitignore do |gitignore|
+        default.resource :gitignore do |gitignore|
           gitignore.path '.gitignore'
           gitignore.action :create
-          gitignore.embedded 'template/gitignore.erb'
+          gitignore.template 'template/gitignore.erb'
         end
 
-        base.resource :packerfile do |packerfile|
+        default.resource :packerfile do |packerfile|
           packerfile.path 'packer.json', 'packer'
           packerfile.action :rm
         end
 
-        base.resource :rubocop do |rubocop|
+        default.resource :rubocop do |rubocop|
           rubocop.path '.rubocop.yml'
           rubocop.action :create
-          rubocop.embedded 'template/rubocop.erb'
+          rubocop.template 'template/rubocop.erb'
         end
 
-        base.resource :readme do |readme|
+        default.resource :readme do |readme|
           readme.path 'README.md'
           readme.action :create
-          readme.embedded 'template/README.md.erb'
+          readme.template 'template/README.md.erb'
         end
 
-        base.resource :thorfile do |thorfile|
+        default.resource :thorfile do |thorfile|
           thorfile.path 'Thorfile'
           thorfile.action :rm
         end
 
-        base.resource :vagrantfile do |vagrantfile|
+        default.resource :vagrantfile do |vagrantfile|
           vagrantfile.path 'Vagrantfile'
           vagrantfile.action :rm
         end
       end
-
-      generator.project(:jetty).extends(:default)
     end
   end
 end

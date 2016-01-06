@@ -7,6 +7,7 @@ module Builderator
   module Util
     GEM_PATH = Pathname.new(__FILE__).join('../../..').expand_path
     WORKSPACE = '.builderator'.freeze
+    VENDOR = 'vendor'.freeze
 
     class << self
       ##
@@ -24,15 +25,19 @@ module Builderator
       # Relative path from working directory
       ##
       def relative_path(*relative)
-        Pathname.pwd.join(*relative).expand_path
+        Pathname.pwd.join(*(relative.flatten.map(&:to_s))).expand_path
       end
 
       def workspace(*relative)
-        relative_path.join(WORKSPACE).join(*relative)
+        relative_path(WORKSPACE, relative)
+      end
+
+      def vendor(*relative)
+        workspace(VENDOR, relative)
       end
 
       def source_path(*relative)
-        GEM_PATH.join(*relative).expand_path
+        GEM_PATH.join(*(relative.flatten.map(&:to_s))).expand_path
       end
 
       ##
