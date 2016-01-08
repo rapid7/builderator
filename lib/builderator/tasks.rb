@@ -41,8 +41,8 @@ module Builderator
       ##
       desc 'prepare', 'Common preparation tasks for Vagrant and Packer'
       def prepare
-        invoke Tasks::Version, :current, [], options
         invoke Tasks::Vendor, :all, [], options
+        invoke Tasks::Version, :current, [], options
         invoke Tasks::Berkshelf, :vendor, [], options
 
         # mvn package?
