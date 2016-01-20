@@ -31,9 +31,11 @@ class Thor
 
         ## Stream output
         loop do
+          break if io.eof?
+
           output.write(io.readpartial(4096))
           output.flush
-        end until io.eof?
+        end
       end
     end
 
