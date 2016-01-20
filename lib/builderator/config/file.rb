@@ -30,13 +30,16 @@ module Builderator
       attr_reader :date ## Provide an authoritative, UTC-based date for any consumers
       attr_reader :source ## Where the instance was defined
       attr_reader :type ## How compile should populate attributes
+      attr_reader :policies
 
       def initialize(attributes = {}, options = {}, &block)
-        super(attributes, &block)
+        @policies = {}
 
         @date = Time.now.utc
         @type = options.fetch(:type, :code)
         @source = options.fetch(:source, nil)
+
+        super(attributes, &block)
       end
 
       def compile
@@ -46,22 +49,29 @@ module Builderator
         when :file
           instance_eval(IO.read(source), source, 0)
         when :json
-          @attributes = Rash.coerce(JSON.parse(IO.read(source)))
+          update = Rash.coerce(JSON.parse(IO.read(source)))
+
+          unless @attributes == update
+            @dirty |= true
+            @attributes = update
+          end
         else
           instance_eval(&@block) if @block
         end
 
         ## Overlay policies
-        policy.each do |_, policy|
+        policy.each do |name, policy|
           if policy.has?(:path)
             next unless ::File.exist?(policy.path)
-            merge(self.class.from_file(policy.path).compile)
+            policies[name] ||= self.class.from_file(policy.path)
+
+          elsif policy.has?(:json)
+            next unless ::File.exist?(policy.json)
+            policies[name] ||= self.class.from_json(policy.json)
           end
 
-          if policy.has?(:json)
-            next unless ::File.exist?(policy.json)
-            merge(self.class.from_json(policy.json).compile)
-          end
+          policies[name].compile
+          self.dirty |= policies[name].dirty
         end
 
         self
