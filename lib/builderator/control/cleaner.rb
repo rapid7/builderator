@@ -90,11 +90,11 @@ module Builderator
         end
 
         def commit?
-          @commit && !@abort
+          Config.cleaner.commit && !@abort
         end
 
         def aborted?
-          @commit && @abort
+          Config.cleaner.commit && @abort
         end
 
         def exceptions
