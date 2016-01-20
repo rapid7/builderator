@@ -160,11 +160,7 @@ module Builderator
         self.dirty |= attributes.merge!(other.attributes)
         self
       end
-
-      def includes(other)
-        self.dirty |= merge(other)
-        self
-      end
+      alias_method :includes, :merge
 
       def to_json(*_)
         JSON.pretty_generate(to_hash)
