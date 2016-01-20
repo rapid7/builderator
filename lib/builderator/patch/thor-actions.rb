@@ -30,7 +30,10 @@ class Thor
         io.write(input)
 
         ## Stream output
-        output.write(io.readpartial(4096)) until io.eof?
+        loop do
+          output.write(io.readpartial(4096))
+          output.flush
+        end until io.eof?
       end
     end
 
