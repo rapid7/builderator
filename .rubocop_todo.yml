@@ -11,3 +11,4 @@
 AllCops:
   Exclude:
     - 'lib/builderator/model/cookbook.rb'
+    - 'lib/builderator/tasks/cookbook.rb'

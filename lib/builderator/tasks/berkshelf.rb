@@ -11,7 +11,6 @@ module Builderator
     class Berkshelf < Thor
       include Thor::Actions
 
-
       def self.exit_on_failure?
         true
       end
