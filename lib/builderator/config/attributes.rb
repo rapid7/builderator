@@ -67,7 +67,8 @@ module Builderator
           define_method(namespace_name) do |&block|
             nodes[namespace_name] ||= namespace_class.new(
               @attributes[namespace_name],
-              :name => namespace_name, &block).compile
+              :name => namespace_name,
+              :parent => self, &block).compile
           end
         end
 
@@ -116,22 +117,38 @@ module Builderator
         self
       end
 
+      ## All dirty state should aggregate at the root node
+      def dirty
+        return @dirty if parent == self
+        parent.dirty
+      end
+
+      def dirty=(set)
+        return @dirty = set if parent == self
+        parent.dirty = set
+      end
+
+      def ==(other)
+        attributes == other.attributes
+      end
+
       attr_reader :attributes
       attr_reader :nodes
-      attr_reader :dirty
+      attr_reader :parent
 
-      def initialize(attributes = {}, &block)
+      def initialize(attributes = {}, options = {}, &block)
         @attributes = Rash.coerce(attributes)
         @nodes = {}
         @block = block
 
-        ## Track change status for comsumers
-        @dirty = false
+        ## Track change status for consumers
+        @parent = options.fetch(:parent, self)
+        self.dirty = false if parent == self
       end
 
       ## Clear dirty state flag
       def clean
-        @dirty = false
+        self.dirty = false
       end
 
       def compile
@@ -140,7 +157,7 @@ module Builderator
       end
 
       def merge(other)
-        attributes.merge!(other.attributes)
+        self.dirty |= attributes.merge!(other.attributes)
         self
       end
       alias_method :includes, :merge
@@ -165,7 +182,7 @@ module Builderator
         ## Unchanged
         return if @attributes[key] == arg
 
-        @dirty = true ## A mutation has occured
+        self.dirty |= true ## A mutation has occured
         @attributes[key] = arg
       end
 
@@ -177,7 +194,7 @@ module Builderator
 
         return if arg.empty?
 
-        @dirty = true ## A mutation has occured
+        @dirty |= true ## A mutation has occured
         attribute.push(*arg)
       end
 
@@ -227,7 +244,7 @@ module Builderator
         attr_reader :collection
 
         def initialize(attributes, options = {}, &block)
-          super(attributes, &block)
+          super(attributes, options, &block)
 
           @name = options.fetch(:name, self.class.name)
           @collection = options[:collection]
@@ -278,7 +295,8 @@ module Builderator
           self.class.namespace_class.new(
             attributes[instance_name],
             :collection => self,
-            :name => instance_name, &block)
+            :name => instance_name,
+            :parent => self, &block)
         end
         alias_method :[], :fetch
       end

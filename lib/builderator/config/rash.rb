@@ -47,23 +47,36 @@ module Builderator
       def merge!(other)
         fail TypeError, 'Argument other of  `Rash#merge!(other)` must be a Hash.'\
                         " Recieved #{other.class}" unless other.is_a?(Hash)
+        dirty = false
 
         other.each do |k, v|
           ## Replace `-`s with `_`s in in String keys
           k = k.gsub(/\-/, '_') if k.is_a?(String)
 
+          next if self[k] == v
+
           ## Merge Arrays
-          next self[k] |= v if fetch(k, nil).is_a?(Array) && v.is_a?(Array)
+          if fetch(k, nil).is_a?(Array) && v.is_a?(Array)
+            next if (self[k] | v) == self[k]
+
+            dirty |= true
+            next self[k] |= v
+          end
 
           ## Overwrite non-Hash values
-          next self[k] = v unless v.is_a?(Hash)
+          unless v.is_a?(Hash)
+            dirty |= true
+            next self[k] = v
+          end
 
           ## Replace `self[k]` with a new Rash unless it already is one
           self[k] = self.class.new unless fetch(k, nil).is_a?(self.class)
 
           ## Merge recursivly coerces `v` to a Rash
-          self[k].merge!(v)
+          dirty |= self[k].merge!(v)
         end
+
+        dirty
       end
 
       def to_hash

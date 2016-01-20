@@ -14,7 +14,7 @@ module Builderator
       end
 
       def all_layers
-        ([GLOBAL_DEFAULTS, defaults] + layers + [overrides, argv])
+        ([defaults] + layers + [overrides, argv])
       end
 
       def defaults
@@ -47,9 +47,12 @@ module Builderator
         layers.unshift(File.from_json(path)) if ::File.exist?(path)
       end
 
-      def compile(max_iterations = 4)
+      def compile(max_iterations = 6)
         compiled.unseal
         compile_iterations = 0
+
+        ## Initialize with global defaults
+        compiled.merge(GLOBAL_DEFAULTS.compile)
 
         ## Automatically recompile while layers are dirty
         loop do
@@ -58,8 +61,13 @@ module Builderator
           ## Reset flags before next iteration
           compiled.clean
 
-          ## Merge layers from lowest to highest
-          all_layers.each { |layer| compiled.merge(layer.compile) }
+          ## Merge layers from lowest to highest. Compile, then merge.
+          all_layers.each(&:compile)
+          all_layers.each do |layer|
+            compiled.merge(layer)
+
+            layer.policies.each { |_, policy| compiled.merge(policy) }
+          end
 
           break unless dirty?
           compile_iterations += 1
@@ -75,7 +83,7 @@ module Builderator
       end
 
       def compiled
-        @compiled ||= File.new
+        @compiled ||= File.new({}, :source => 'compiled')
       end
 
       def fetch(key, *args)
