@@ -67,7 +67,8 @@ module Builderator
           :environments_path => Config.local.environment_path,
           :chef_environment => Config.profile.current.chef.environment,
           :json => Config.profile.current.chef.node_attrs,
-          :staging_directory => Config.chef.staging_directory
+          :staging_directory => Config.chef.staging_directory,
+          :install_command => "curl -L https://www.chef.io/chef/install.sh | sudo bash -s -- -v #{Config.chef.version}"
         }
       end
     end
