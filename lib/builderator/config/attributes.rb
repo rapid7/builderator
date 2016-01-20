@@ -117,7 +117,7 @@ module Builderator
         self
       end
 
-      ## All cdirty state should aggregate at the root node
+      ## All dirty state should aggregate at the root node
       def dirty
         return @dirty if parent == self
         parent.dirty
