@@ -1,17 +1,4 @@
 #!/usr/bin/env ruby
-unless ENV.include?('BUNDLE_GEMFILE')
-  puts ''
-  puts '   / \\'
-  puts '  | ^ |'
-  puts "  ಠ _ ಠ  It looks like you're trying to run Builderator outside of Bundler!"
-  puts '  || ||  This is aggressively discouraged! Please re-run your command'
-  puts '  || ||  prepended with `bundle exec`'
-  puts '  || ||'
-  puts '  |  |   See http://bundler.io/ for help setting up Bundler and creating a Gemfile'
-  puts '   \\/'
-  puts ''
-  exit 1
-end
 
 require_relative '../lib/builderator/tasks'
 Builderator::Tasks::CLI.start(ARGV)

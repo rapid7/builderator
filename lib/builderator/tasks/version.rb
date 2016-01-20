@@ -32,7 +32,7 @@ module Builderator
       desc 'bump TYPE [PRERELEASE_NAME]', 'Increment the package version, optionally with a named prerelease'
       def bump(type = :auto, prerelease_name = nil)
         ## Guard: Don't try to create a new version if `create_tags` is explicitly disabled
-        ## or `search_tags` is disabled as we won't have a valud current version to increment
+        ## or `search_tags` is disabled as we won't have a valid current version to increment
         unless Config.autoversion.create_tags && Config.autoversion.search_tags
           say_status :disabled, 'Tag creation is disabled for this build. Not '\
           'creating new SCM tags!', :red
