@@ -24,7 +24,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'thor-scmversion', '1.7.0'
 
   spec.add_dependency 'aws-sdk', '~> 2.0'
-  spec.add_dependency 'bundler', '~> 1.7.0'
   spec.add_dependency 'berkshelf', '~> 3.2'
   spec.add_dependency 'chef', '~> 12.0'
   spec.add_dependency 'faraday_middleware', '~> 0.10.0'
