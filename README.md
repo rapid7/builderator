@@ -4,6 +4,8 @@ Orchestration and configuration of the code development life-cycle.
 
 ## Commands
 
+Run `build help` for a complete enumeration of Builderator's commands.
+
 ### `local [PROFILE = default]`
 
 Provision a local VM using Vagrant and, by default, VirtualBox. Uses Berkshelf to fetch cookbooks, and Chef to provision the VM.
@@ -12,9 +14,9 @@ Provision a local VM using Vagrant and, by default, VirtualBox. Uses Berkshelf t
 
 Provision an EC2 VM using Vagrant. Same workflow as `local` using the `vagrant-aws` plugin.
 
-### `release [PROFILE = default]`
+### `image [PROFILE = default]`
 
-Perform release tasks and execute Packer builds with released artifacts.
+Use [Packer](packer.io) to build an image(s) for the specified profile.
 
 ## Configuration
 
@@ -35,9 +37,17 @@ Builderator integrates with other tools, including [Berkshelf](http://berkshelf.
 
 ### Packer
 
-The Packer integration generates Packer JSON and passes it to STDIN of `packer build -`.
+The Packer integration generates a Packer JSON configuration and passes it to STDIN of `packer build -`.
 
-    *NOTE* Currently, we assume that you're building Ubuntu images, as one of the provisioners is hard-coded to chown the Chef data directories to `ubuntu:ubuntu`
+### Vagrant
+
+Builderator shells out to Vagrant to provision VMs on demand. Run
+
+```sh
+build vagrant plugins
+```
+
+to install required plugins for Builderator.
 
 ## Versioning
 
@@ -82,3 +92,27 @@ end
 Valid actions for resources include `:ignore`, `:create` (update only if missing), `:sync` (create or update with prompt), and `:rm`. `:create` and `:sync` actions require a valid template source.
 
 By default, the `generator` subcommand includes a `default` project which removes Vagrant, Berkshelf, and Packer configurations.
+
+## Utilities
+
+Builderator includes two utilities to search for and clean up EC2 resources.
+
+### `build-clean`
+
+The `build-clean` command prunes old EC2 resources in a region. The cleaner utility has [configurable](docs/configuration.md#namespace-cleaner) limits. For complete usage, run `build-clean help`.
+
+### `build-data`
+
+The `build-data` utility is a command line interface for Builderator's internal resource lookup API. It has a limited query interface that allows filters to be constructed from a trailing list of argument:
+
+```sh
+build-data image architecture x86_64 virtualization-type hvm ...
+```
+
+Pre-defined filters can also be applied with the `-f FILTER` flag. These currently include
+
+* `ubuntu-14.04-daily`
+* `windows-server2012-r2`
+* `windows-server2012-r2-core`
+
+Run `build-data help` for a complete listing of commands and arguments.
