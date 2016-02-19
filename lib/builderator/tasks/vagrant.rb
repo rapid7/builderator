@@ -98,13 +98,6 @@ module Builderator
         end
       end
 
-      desc 'rebuild ARGS', 'Destroy and recreate Vagrant VM(s)'
-      method_option :force, :aliases => :f, :type => :boolean, :default => true
-      def rebuild(profile = :default, *args)
-        destroy(profile, *args)
-        up(profile, *args)
-      end
-
       desc 'clean', 'Destroy VMs and clean up local files'
       method_option :force, :aliases => :f, :type => :boolean, :default => true
       def clean(profile = :default)
