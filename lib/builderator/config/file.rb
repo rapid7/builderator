@@ -39,7 +39,7 @@ module Builderator
         @type = options.fetch(:type, :code)
         @source = options.fetch(:source, nil)
 
-        super(attributes, &block)
+        super(attributes, options, &block)
       end
 
       def compile
@@ -48,15 +48,19 @@ module Builderator
         case @type
         when :file
           instance_eval(IO.read(source), source, 0)
+          super(false)
+
         when :json
           update = Rash.coerce(JSON.parse(IO.read(source)))
 
           unless @attributes == update
-            @dirty |= true
+            dirty(true)
             @attributes = update
           end
         else
           instance_eval(&@block) if @block
+          super(false)
+
         end
 
         ## Overlay policies
@@ -71,7 +75,7 @@ module Builderator
           end
 
           policies[name].compile
-          self.dirty |= policies[name].dirty
+          dirty(policies[name].dirty)
         end
 
         self
@@ -177,7 +181,7 @@ module Builderator
         # Chef configurations
         ##
         namespace :chef do
-          attribute :run_list, :type => :list, :singular => :run_list_item
+          attribute :run_list
           attribute :environment
           attribute :node_attrs
         end

@@ -39,6 +39,20 @@ In the example above, the same collection is accessed twice. The final result lo
 }
 ```
 
+## Extending collection items
+
+_**BETA** This feature may result in un-compilable configurations when list-type attributes need to be overridden. We need to improve the interface for setting vs. appending to a list._
+
+A collection item can extend another item using a hash-notation:
+
+```ruby
+profile :bake => Config.profile(:default) do |bake|
+  ...
+end
+```
+
+The `bake` profile will now be pre-populated with all of the values in the `default` profile, which can be overridden.
+
 ## Helper Methods
 
 * `lookup(source, query)` - Query an external data-source for a value inline.

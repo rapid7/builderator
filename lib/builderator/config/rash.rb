@@ -26,6 +26,10 @@ module Builderator
         merge!(from) ## Clone a Rash or coerce a Hash to a new Rash
       end
 
+      def clone
+        self.class.new(self, sealed)
+      end
+
       def seal(action = true)
         @sealed = action
         each_value { |v| v.seal(action) if v.is_a?(self.class) }
@@ -59,21 +63,19 @@ module Builderator
           if fetch(k, nil).is_a?(Array) && v.is_a?(Array)
             next if (self[k] | v) == self[k]
 
-            dirty |= true
+            dirty = true
             next self[k] |= v
           end
 
           ## Overwrite non-Hash values
           unless v.is_a?(Hash)
-            dirty |= true
+            dirty = true
             next self[k] = v
           end
 
-          ## Replace `self[k]` with a new Rash unless it already is one
-          self[k] = self.class.new unless fetch(k, nil).is_a?(self.class)
-
           ## Merge recursivly coerces `v` to a Rash
-          dirty |= self[k].merge!(v)
+          self[k] = self.class.coerce(self[k])
+          dirty = self[k].merge!(v) || dirty
         end
 
         dirty
