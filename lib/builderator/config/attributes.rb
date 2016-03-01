@@ -69,8 +69,6 @@ module Builderator
               @attributes[namespace_name],
               :name => namespace_name,
               :parent => self, &block)
-
-            nodes[namespace_name]
           end
         end
 
