@@ -105,9 +105,9 @@ Fetch remote artifacts for builds
   * `git` Fetch a git repository
   * `github` Fetch a git repository from a GitHub URI (e.g. `OWNER/REPO`) using the SSH protocol. You must have a valid SSH key configuration for public GitHub.
 * Git-specific parameters:
-  * `branch`
-  * `tag`
-  * `ref`
+  * `remote` - The name of the remote repository at `git` or `github`. Defaults to `origin`
+  * `branch` - The SCM branch to check out. Defaults to `master`
+  * `tag` or `ref` - A SHA-ish or SCM tag to check out. Overrides `branch`.
   * `rel` Checkout a sub-directory of a git repository
 
 ## Namespace `cleaner`

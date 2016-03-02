@@ -273,6 +273,7 @@ module Builderator
 
         attribute :git
         attribute :github
+        attribute :remote
         attribute :branch
         attribute :tag
         attribute :ref
