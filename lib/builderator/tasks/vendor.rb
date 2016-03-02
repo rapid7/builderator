@@ -53,16 +53,20 @@ module Builderator
 
       no_commands do
         def _fetch_git(path, params)
-          empty_directory path
+          ## Ensure that there isn't already something there
+          unless path.join('.git').exist?
+            remove_dir path
+            empty_directory path
+          end
 
           inside path do
             ## Initialize new repository
             unless path.join('.git').exist?
               run 'git init'
-              run "git remote add origin #{ params.git }"
+              run "git remote add #{ params.fetch(:remote, 'origin') } #{ params.git }"
             end
 
-            run 'git fetch origin --tags --prune'
+            run "git fetch #{ params.fetch(:remote, 'origin') } --tags --prune"
 
             ## Checkout reference
             if params.has?(:tag) then run "git checkout #{ params.tag }"
@@ -71,7 +75,7 @@ module Builderator
               run "git checkout #{ params.fetch(:branch, 'master') }"
 
               ## Only pull if a tracking branch is checked out
-              run 'git pull'
+              run "git pull #{ params.fetch(:remote, 'origin') } #{ params.fetch(:branch, 'master') }"
             end
 
             ## Apply relative subdirectory
