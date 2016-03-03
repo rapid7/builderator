@@ -2,8 +2,6 @@ require 'erb'
 require 'fileutils'
 require 'securerandom'
 
-require_relative './config/attributes'
-require_relative './config/rash'
 require_relative './util'
 
 module Builderator
