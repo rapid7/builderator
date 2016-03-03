@@ -6,7 +6,7 @@ module Builderator
     # A self-populating sparse Hash by Rapid7 ([R]apid7 h[ASH]). Definetly
     # not a Mash or Smash...
     ##
-    class Rash < Hash
+    class Tree < Hash
       class << self
         def coerce(somehting)
           return somehting if somehting.is_a?(self)
@@ -25,7 +25,7 @@ module Builderator
           self[k] = self.class.new unless sealed
         end
 
-        merge!(from) ## Clone a Rash or coerce a Hash to a new Rash
+        merge!(from) ## Clone a Tree or coerce a Hash to a new Tree
       end
 
       def clone
@@ -53,7 +53,7 @@ module Builderator
       end
 
       def merge!(other)
-        fail TypeError, 'Argument other of  `Rash#merge!(other)` must be a Hash.'\
+        fail TypeError, 'Argument other of  `Tree#merge!(other)` must be a Hash.'\
                         " Recieved #{other.class}" unless other.is_a?(Hash)
 
         other.each_with_object({}) do |(k, v), diff|
@@ -79,7 +79,7 @@ module Builderator
             next
           end
 
-          ## Merge recursivly coerces `v` to a Rash
+          ## Merge recursivly coerces `v` to a Tree
           self[k] = self.class.coerce(self[k])
           diff[k] = self[k].merge!(v)
         end

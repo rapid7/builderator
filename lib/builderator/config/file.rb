@@ -51,7 +51,7 @@ module Builderator
           super(false)
 
         when :json
-          update = Rash.coerce(JSON.parse(IO.read(source)))
+          update = Config::Tree.coerce(JSON.parse(IO.read(source)))
 
           unless @attributes == update
             dirty(true)

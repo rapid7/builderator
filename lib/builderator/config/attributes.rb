@@ -1,7 +1,7 @@
 require 'forwardable'
 require 'json'
 
-require_relative './rash'
+require_relative './tree'
 require_relative './list'
 
 module Builderator
@@ -20,7 +20,7 @@ module Builderator
           ##
           if options[:type] == :list
             define_method(attribute_name) do |*arg, **run_options|
-              ## Instantiate List if it doesn't exist yet. `||=` will always return a new Rash.
+              ## Instantiate List if it doesn't exist yet. `||=` will always return a new Tree.
               @attributes[attribute_name] = Config::List.new(run_options) unless @attributes.has?(attribute_name, Config::List)
 
               @attributes[attribute_name].set(*arg.flatten) unless arg.empty?
@@ -176,7 +176,7 @@ module Builderator
       attr_reader :extends
 
       def initialize(attributes = {}, options = {}, &block)
-        @attributes = Rash.coerce(attributes)
+        @attributes = Config::Tree.coerce(attributes)
         @nodes = {}
         @block = block
 
