@@ -69,3 +69,4 @@ Parameters for the provisioning EC2 nodes with Vagrant
 * `subnet_id`
 * `security_groups, type: list, singular: security_group, unique: true`
 * `public_ip`
+* `ssh_host_attribute` One of: `[:public_ip_address, :dns_name, :private_ip_address]`, Default `:private_ip_address`
