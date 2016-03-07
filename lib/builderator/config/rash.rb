@@ -1,3 +1,5 @@
+require_relative './list'
+
 module Builderator
   module Config
     ##
@@ -26,6 +28,10 @@ module Builderator
         merge!(from) ## Clone a Rash or coerce a Hash to a new Rash
       end
 
+      def clone
+        self.class.new(self, sealed)
+      end
+
       def seal(action = true)
         @sealed = action
         each_value { |v| v.seal(action) if v.is_a?(self.class) }
@@ -35,7 +41,9 @@ module Builderator
         seal(false)
       end
 
-      alias_method :has?, :include?
+      def has?(key, klass = BasicObject)
+        include?(key) && fetch(key).is_a?(klass)
+      end
 
       ## Symbolize keys
       [:include?, :[], :fetch, :[]=, :store].each do |m|
@@ -56,24 +64,21 @@ module Builderator
           next if self[k] == v
 
           ## Merge Arrays
-          if fetch(k, nil).is_a?(Array) && v.is_a?(Array)
-            next if (self[k] | v) == self[k]
-
-            dirty |= true
-            next self[k] |= v
+          if v.is_a?(Array)
+            self[k] = has?(k) ? Config::List.coerce(self[k]) : Config::List.new
+            dirty = self[k].merge!(v) || dirty
+            next
           end
 
           ## Overwrite non-Hash values
           unless v.is_a?(Hash)
-            dirty |= true
+            dirty = true
             next self[k] = v
           end
 
-          ## Replace `self[k]` with a new Rash unless it already is one
-          self[k] = self.class.new unless fetch(k, nil).is_a?(self.class)
-
           ## Merge recursivly coerces `v` to a Rash
-          dirty |= self[k].merge!(v)
+          self[k] = self.class.coerce(self[k])
+          dirty = self[k].merge!(v) || dirty
         end
 
         dirty

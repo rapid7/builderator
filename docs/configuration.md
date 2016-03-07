@@ -1,9 +1,9 @@
 Configuration DSL
 =================
 
-The configuration DSL is made up of key-value pairs, called `attributes`, which are grouped into `namespaces` and `collections`.
+Builderator's configuration language is a Ruby DSL, composed of `attributes`,  which are grouped into `namespaces`. A `namespace` may be singular, or it may be part of a `collection`, in which case more than one named entry may be defined with the same `namespace`.
 
-Namespaces can accessed with blocks, or with a fluent interface:
+Namespaces and collections can accessed with blocks, or with a fluent interface:
 
 ```ruby
 aws do |a|
@@ -14,25 +14,118 @@ end
 aws.region = 'us-west-1'
 ```
 
-Collections are named sets. Like namespaces, they can be accessed with blocks, or a fluent interface:
+Collections are sets of named items. Like namespaces, they can be accessed with blocks, or a fluent interface:
 
 ```ruby
 profile :default do |default_profile|
-  default_profile.chef.run_list 'apt:default', 'redis:server'
+  default_profile.chef.run_list 'apt:default', 'redis:server', 'app::server'
 end
 
 profile(:default).chef.environment 'development'
+profile(:prod).chef.environment 'production'
 ```
 
-In the example above, the same collection is accessed twice. The final result looks like:
+In the example above, the same collection item is accessed twice. A second item is also defined in the same collection. The final result looks like:
 
 ```json
 {
   "profile": {
     "default": {
       "chef": {
-        "run_list": ["apt:default", "redis:server"],
+        "run_list": ["apt:default", "redis:server", "app::server"],
         "environment": "development"
+      }
+    },
+    "prod": {
+      "chef": {
+        "environment": "production"
+      }
+    }
+  }
+}
+```
+
+Collections and namespaces may be nested indefinitely.
+
+## Extending Collection Items
+
+A collection item can extend another item using a hash-notation:
+
+```ruby
+profile :prod => Config.profile(:default) do |prod|
+  prod.chef.environment = 'production'
+end
+```
+
+Following the example, above, the `prod` profile will now be pre-populated with all of the values in the `default` profile, which can be overridden:
+
+```json
+{
+  "profile": {
+    "default": {
+      "chef": {
+        "run_list": ["apt:default", "redis:server", "app::server"],
+        "environment": "development"
+      }
+    },
+    "prod": {
+      "chef": {
+        "run_list": ["apt:default", "redis:server", "app::server"],
+        "environment": "production"
+      }
+    }
+  }
+}
+```
+
+## List-type Attributes
+
+Some configuration attributes are actually ordered sets of values. These are referred to as `list-type` attributes, and have some additional options:
+
+```ruby
+chef.run_list 'apt:default', :mode => :override
+```
+
+The `:mode` parameter tells the configuration manager how how to compile a list-type attribute that is defined in two or more layers, or is modified in an extended collection item. Currently, two modes are implemented:
+
+* `:override` - Instructs the compiler to discard any elements that have been loaded from lower layers. This does not have any effect upon the behavior of the same attribute in higher layers, meaning that the current layer's override may be appended to or overridden by future layers, according to their `mode` parameter.
+* `:union` - Default behavior. Instructs the compiler to perform a set-union between the current layer's elements and the current set of elements compiled from lower layers.
+
+List-type attributes may also have an `appender method`, which allows elements to be appended to the current set _in that layer_. **List-type attributes do not have an `=` setter.**
+
+Because `chef.run_list` is a list-type attribute, we can tell Builderator to override the `default` profile's `run_list`:
+
+```ruby
+profile :prod => Config.profile(:default) do |prod|
+  prod.chef.environment = 'production'
+  prod.chef.run_list 'apt:default', 'redis:server', 'app::server', 'app::tls', :mode => :override
+end
+```
+
+We could also append to `default`'s `run_list` without modifying `default`:
+
+```ruby
+profile :prod => Config.profile(:default) do |prod|
+  prod.chef.environment = 'production'
+  prod.chef.run_list_item 'app::tls'
+end
+```
+
+Both of the above will result in the same compiled configuration:
+
+```json
+{
+  "profile": {
+    "default": {
+      "chef": {
+        "run_list": ["apt:default", "redis:server", "app::server"],
+        "environment": "development"
+      }
+    },
+    "prod": {
+      "chef": {
+        "run_list": ["apt:default", "redis:server", "app::server", "app::tls"],
+        "environment": "production"
       }
     }
   }
@@ -46,9 +139,9 @@ In the example above, the same collection is accessed twice. The final result lo
 
 * `vendored(name, path)` - Return the absolute path to `path` in the named vendor resource. _ Hint: Use this helper to reference Builderator policy files and Chef data_bag and environment sources in an external repository._
 
-## Configuration File DSL
+* `relative(path)` - Return the absolute path to `path` relative to the calling Buildfile _Hint: Use this helper to reference templates included with a vendored policy._
 
-Collections and namespaces may be nested indefinitely.
+## Configuration Parameters
 
 * [Namespace `cookbook`](configuration/cookbook.md)
 * [Collection `profile`](configuration/profile.md)
@@ -60,14 +153,12 @@ Collections and namespaces may be nested indefinitely.
 * `version` The version of this release of the build. Auto-populated by `autoversion` by default
 * `cleanup` Enable post-build cleanup tasks. Default `true`
 
-* `relative(path)` - Return the absolute path to `path` relative to the calling Buildfile _Hint: Use this helper to reference templates included with a vendored policy._
-
-## Namespace `autoversion`
+### Namespace `autoversion`
 
 * `create_tags` During a release, automatically create and push new SCM tags
 * `search_tags` Use SCM tags to determine the current version of the build
 
-## Namespace `chef`
+### Namespace `chef`
 
 Global configurations for chef provisioners in Vagrant and Packer
 
@@ -75,28 +166,28 @@ Global configurations for chef provisioners in Vagrant and Packer
 * `staging_directory` the path in VMs and images that Chef artifacts should be mounted/copied to. Defaults to `/var/chef`
 * `version` The version of chef to install with Omnibus
 
-## Namespace `local`
+### Namespace `local`
 
 Local paths used for build tasks
 
 * `cookbook_path` Path at which to vendor cookbooks. Default `.builderator/cookbooks`
 * `data_bag_path` and `environment_path` Paths that Chef providers should load data-bag and environment documents from.
 
-## Collection `policy`
+### Collection `policy`
 
 Load additional attributes into the parent file from a relative path
 
 * `path` Load a DSL file, relative => true
 * `json` Load a JSON file relative => true
 
-## Namespace `aws`
+### Namespace `aws`
 
 AWS API configurations. _Hint: Configure these in `$HOME/.builderator/Buildfile`, or use a built-in credential source, e.g. ~/.aws/config!_
 
 * `region` The default AWS region to use
 * `access_key` and `secret_key` A valid IAM key-pair
 
-## Collection `vendor`
+### Collection `vendor`
 
 Fetch remote artifacts for builds
 
@@ -110,11 +201,11 @@ Fetch remote artifacts for builds
   * `tag` or `ref` - A SHA-ish or SCM tag to check out. Overrides `branch`.
   * `rel` Checkout a sub-directory of a git repository
 
-## Namespace `cleaner`
+### Namespace `cleaner`
 
 Configuration parameters for `build-clean` tasks
 
-### Namespace `limits`
+#### Namespace `limits`
 
 Maximum number of resources to remove without manual override
 
@@ -123,25 +214,25 @@ Maximum number of resources to remove without manual override
 * `snapshots`
 * `volumes`
 
-## Namespace `generator`
+### Namespace `generator`
 
 Configurations for the `generator` task
 
-### Collection `project`
+#### Collection `project`
 
 * `builderator.version` The version of Builderator to install with Bundler
 * `ruby.version` The version of ruby to require for Bundler and `rbenv`/`rvm`
 
-#### Namespace `vagrant`
+##### Namespace `vagrant`
 
 * `install` Boolean, include the vagrant gem from GitHub `mitchellh/vagrant`
 * `version` The version of Vagrant to use from GitHub, if `install` is true
 
-##### Collection `plugin`
+###### Collection `plugin`
 
 Vagrant plugins to install, either with the `build vagrant plugin` command, for a system-wide installation of Vagrant, or in the generated Gemfile if `install` is true
 
-#### Collection `resource`
+##### Collection `resource`
 
 Add a managed file to the project definition
 

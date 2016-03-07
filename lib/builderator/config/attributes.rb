@@ -2,6 +2,7 @@ require 'forwardable'
 require 'json'
 
 require_relative './rash'
+require_relative './list'
 
 module Builderator
   module Config
@@ -18,31 +19,30 @@ module Builderator
           # Helpers for Array-type attributes
           ##
           if options[:type] == :list
-            default = Array
+            define_method(attribute_name) do |*arg, **run_options|
+              ## Instantiate List if it doesn't exist yet. `||=` will always return a new Rash.
+              @attributes[attribute_name] = Config::List.new(run_options) unless @attributes.has?(attribute_name, Config::List)
 
-            ## Add an appender DSL method
-            define_method(options[:singular]) do |*args|
-              append_if_valid(attribute_name, args.flatten, default, options)
+              @attributes[attribute_name].set(*arg.flatten) unless arg.empty?
+              @attributes[attribute_name]
+            end
+
+            define_method(options[:singular]) do |*arg, **run_options|
+              send(attribute_name, run_options).push(*arg.flatten)
             end if options.include?(:singular)
+
+            return
           end
 
           ## Getter/Setter
           define_method(attribute_name) do |*arg|
-            arg.flatten!
-            arg = arg.first unless options[:type] == :list
-
-            set_or_return(attribute_name, arg, default, options)
+            set_or_return(attribute_name, arg.first, default, options)
           end
 
           ## Setter
           define_method("#{attribute_name}=") do |arg|
             set_if_valid(attribute_name, arg, options)
-          end unless options[:type] == :list
-        end
-
-        ## Add a method the DSL
-        def define(method_name, &block)
-          define_method(method_name, &block)
+          end
         end
 
         ##
@@ -58,7 +58,7 @@ module Builderator
         # end
         # ```
         #
-        # Multiple calls to the DSL method will are safe and will
+        # Multiple calls to the DSL method are safe and will
         # update the same sub-node.
         ##
         def namespace(namespace_name, &definition)
@@ -68,7 +68,7 @@ module Builderator
             nodes[namespace_name] ||= namespace_class.new(
               @attributes[namespace_name],
               :name => namespace_name,
-              :parent => self, &block).compile
+              :parent => self, &block)
           end
         end
 
@@ -85,16 +85,29 @@ module Builderator
         # Multiple entities can be added to the collection by calling the DSL method
         # with unique `name` arguments. Multiple calls to the DSL method with the
         # same name argument will update the existing entity in place
+        #
+        # An entry can be defined as an extension of another node by passing a hash
+        # as the instance name: `name => Config.node(:name)`. This will use the values
+        # defined in `Config.node(:name)` as defaults for the new entry
         ##
         def collection(collection_name, &definition)
           collection_class = Collection.create(collection_name, &definition)
 
           define_method(collection_name) do |instance_name = nil, &block|
+            extension_base = nil
+
+            ## Allow extension to be defined as a key-value
+            if instance_name.is_a?(Hash)
+              extension_base = instance_name.first.last
+              instance_name = instance_name.first.first
+            end
+
             nodes[collection_name] ||= collection_class.new(
-              @attributes[collection_name])
+              @attributes[collection_name],
+              :parent => self)
 
             return nodes[collection_name] if instance_name.nil?
-            nodes[collection_name].fetch(instance_name, &block).compile
+            nodes[collection_name].fetch(instance_name, :extends => extension_base, &block)
           end
         end
       end
@@ -118,14 +131,10 @@ module Builderator
       end
 
       ## All dirty state should aggregate at the root node
-      def dirty
-        return @dirty if parent == self
-        parent.dirty
-      end
+      def dirty(update = false)
+        return @dirty ||= update if parent == self
 
-      def dirty=(set)
-        return @dirty = set if parent == self
-        parent.dirty = set
+        parent.dirty(update)
       end
 
       def ==(other)
@@ -135,6 +144,7 @@ module Builderator
       attr_reader :attributes
       attr_reader :nodes
       attr_reader :parent
+      attr_reader :extends
 
       def initialize(attributes = {}, options = {}, &block)
         @attributes = Rash.coerce(attributes)
@@ -143,24 +153,35 @@ module Builderator
 
         ## Track change status for consumers
         @parent = options.fetch(:parent, self)
-        self.dirty = false if parent == self
+        @extends = options[:extends]
+        @dirty = false
       end
 
       ## Clear dirty state flag
       def clean
-        self.dirty = false
+        @dirty = false
       end
 
-      def compile
-        instance_eval(&@block) if @block
+      def compile(evaluate = true)
+        ## Compile this node and its children
+        @block.call(self) if @block && evaluate
+        nodes.each { |_, node| node.compile }
+
+        ## Underlay base values if present
+        if extends.is_a?(Attributes)
+          merged_atributes = extends.attributes.clone
+          merged_atributes.merge!(attributes)
+
+          attributes.merge!(merged_atributes)
+        end
+
         self
       end
 
       def merge(other)
-        self.dirty |= attributes.merge!(other.attributes)
+        dirty(attributes.merge!(other.attributes))
         self
       end
-      alias_method :includes, :merge
 
       def to_json(*_)
         JSON.pretty_generate(to_hash)
@@ -182,24 +203,12 @@ module Builderator
         ## Unchanged
         return if @attributes[key] == arg
 
-        self.dirty |= true ## A mutation has occured
+        dirty(true) ## A mutation has occured
         @attributes[key] = arg
       end
 
-      def append_if_valid(key, arg, default = Array, **options)
-        ## TODO: define validation interface
-
-        attribute = set_or_return(key, nil, default, options)
-        arg.reject! { |item| attribute.include?(item) }
-
-        return if arg.empty?
-
-        @dirty |= true ## A mutation has occured
-        attribute.push(*arg)
-      end
-
       def set_or_return(key, arg = nil, default = nil, **options)
-        if arg.nil? || (arg.is_a?(Array) && arg.empty?)
+        if arg.nil?
           return @attributes[key] if @attributes.has?(key)
 
           ## Default
@@ -249,11 +258,6 @@ module Builderator
           @name = options.fetch(:name, self.class.name)
           @collection = options[:collection]
         end
-
-        def compile
-          @block.call(self) if @block
-          self
-        end
       end
 
       ##
@@ -291,12 +295,13 @@ module Builderator
         end
 
         ## Get namespace instances
-        def fetch(instance_name, &block)
-          self.class.namespace_class.new(
+        def fetch(instance_name, **options, &block)
+          nodes[instance_name] ||= self.class.namespace_class.new(
             attributes[instance_name],
             :collection => self,
             :name => instance_name,
-            :parent => self, &block)
+            :parent => self,
+            :extends => options[:extends], &block)
         end
         alias_method :[], :fetch
       end

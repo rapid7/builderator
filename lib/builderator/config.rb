@@ -14,7 +14,7 @@ module Builderator
       end
 
       def all_layers
-        ([defaults] + layers + [overrides, argv])
+        ([GLOBAL_DEFAULTS, defaults] + layers + [overrides, argv])
       end
 
       def defaults
@@ -51,22 +51,23 @@ module Builderator
         compiled.unseal
         compile_iterations = 0
 
-        ## Initialize with global defaults
+        ## Inject GLOBAL_DEFAULTS before starting compile
         compiled.merge(GLOBAL_DEFAULTS.compile)
 
         ## Automatically recompile while layers are dirty
         loop do
           fail "Re-compile iteration limit of #{max_iterations} has been exceeded" if compile_iterations >= max_iterations
 
-          ## Reset flags before next iteration
-          compiled.clean
-
           ## Merge layers from lowest to highest. Compile, then merge.
-          all_layers.each(&:compile)
           all_layers.each do |layer|
-            compiled.merge(layer)
+            layer.compile
+          end
 
+          all_layers.each do |layer|
             layer.policies.each { |_, policy| compiled.merge(policy) }
+
+            ## Merge layer after its policy documents to allow overides
+            compiled.merge(layer)
           end
 
           break unless dirty?
@@ -79,7 +80,7 @@ module Builderator
       alias_method :recompile, :compile
 
       def dirty?
-        all_layers.any?(&:dirty) || compiled.dirty
+        all_layers.any?(&:dirty)
       end
 
       def compiled
