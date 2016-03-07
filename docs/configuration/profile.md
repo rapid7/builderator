@@ -65,7 +65,7 @@ Parameters for the provisioning EC2 nodes with Vagrant
 * `source_ami`
 * `ssh_username`
 * `virtualization_type`
-* `instance_profile`
+* `iam_instance_profile_arn`
 * `subnet_id`
 * `security_groups, type: list, singular: security_group, unique: true`
 * `public_ip`
