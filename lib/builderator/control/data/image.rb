@@ -1,4 +1,4 @@
-require 'aws-sdk'
+require 'aws-sdk-core'
 require 'date'
 
 require_relative '../../util'
