@@ -37,23 +37,12 @@ Vagrant.configure('2') do |config|
 
   # config.vm.network :forwarded_port, :host => 9200, :guest => 9200
 
-  $script = %q{
-  grep -q vagrant /etc/passwd
-  if [ $? == "0" ]; then
-    mkdir -p <%= chef.staging_directory %>/cache && chown vagrant:vagrant -R <%= chef.staging_directory %>
-  fi
-
-  OWNER=$(stat -c %U /var/chef/cache)
-  if [ $OWNER == "root" ]; then
-    chmod 0777 -R <%= chef.staging_directory %>/cache
-  fi
-  }
-
   ##
   # Use the standard data directory for Chef
   ##
   config.vm.provision :shell,
-                      :inline => $script,
+                      :inline => "sudo mkdir -p #{Config.chef.staging_directory}/cache && "\
+                                 "sudo chown $(whoami) -R #{Config.chef.staging_directory}",
                       :privileged => true
 
   ##
