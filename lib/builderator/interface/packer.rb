@@ -24,9 +24,16 @@ module Builderator
           :provisioners => []
         }.tap do |json|
           Config.profile.current.packer.build.each do |_, build|
-            json[:builders] << build.to_hash.tap do |b|
+            build_hash << build.to_hash.tap do |b|
               b[:tags] = Config.profile.current.tags
             end
+
+            ## Support is missing for several regions in some versions of Packer
+            # Moving this functionality into a task until we can confirm that Packer
+            # has full support again.
+            build_hash.delete(:ami_regions)
+
+            json[:builders] << build_hash
           end
 
           ## Initialize the staging directory
