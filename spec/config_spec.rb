@@ -27,4 +27,11 @@ module Builderator
       expect(Config.build_name).to eq 'builderator'
     end
   end
+
+  RSpec.describe Config, '#compile' do
+    it 'compiles vendored policy' do
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-vendored-policy1', __FILE__))
+      expect { Config.compile }.not_to raise_error(RuntimeError, /Re-compile iteration limit of \d+ has been exceeded/)
+    end
+  end
 end
