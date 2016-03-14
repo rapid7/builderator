@@ -9,6 +9,7 @@ module Builderator
   module Util
     class << self
       def relative_path(*relative)
+        relative = relative.flatten.map { |r| r.to_s }
         Pathname.new(__FILE__).join('../resource').join(*relative).expand_path
       end
     end
