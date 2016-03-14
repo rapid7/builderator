@@ -3,6 +3,14 @@ require_relative './spec_helper'
 # :nodoc:
 module Builderator
   RSpec.describe Config, '#load' do
+    before(:example) do
+      Config.load(::File.expand_path('../resource/Buildfile', __FILE__))
+    end
+
+    after(:example) do
+      Config.instance_variable_set(:@layers, [])
+    end
+
     it 'loads a DSL file' do
       expect(Config.layers.length).to eq 1
     end
@@ -30,6 +38,10 @@ module Builderator
   end
 
   RSpec.describe Config, '#compile' do
+    after(:example) do
+      Config.instance_variable_set(:@layers, [])
+    end
+
     10.times do |itr|
       it "#{itr}: compiles vendored policy" do
         Builderator::Config.load(::File.expand_path('../resource/Buildfile-vendored-policy1', __FILE__))
