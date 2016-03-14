@@ -1,0 +1,3 @@
+build_name 'builderator-testing'
+
+policy(:test).path vendored(:test_policies, 'Buildfile-local-overrides')

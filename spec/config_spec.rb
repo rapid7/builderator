@@ -31,7 +31,13 @@ module Builderator
   RSpec.describe Config, '#compile' do
     it 'compiles vendored policy' do
       Builderator::Config.load(::File.expand_path('../resource/Buildfile-vendored-policy1', __FILE__))
-      expect { Config.compile }.not_to raise_error(RuntimeError, /Re-compile iteration limit of \d+ has been exceeded/)
+      expect { Config.compile }.not_to raise_error
+    end
+
+    it 'compiles local vendored polices' do
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-local-overrides', __FILE__))
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-local-vendored-policy1', __FILE__))
+      expect { Config.compile }.not_to raise_error
     end
   end
 end

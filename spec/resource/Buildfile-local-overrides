@@ -1,0 +1,16 @@
+policy(:test).path vendored(:test_policies, 'Buildfile-policy1')
+
+profile :default do |default|
+  default.vagrant.ec2.ssh_host_attribute :public_ip_address
+  default.vagrant.ec2.source_ami = 'my-source-ami'
+  default.vagrant.ec2.subnet_id ['my-subnet-1', 'subnet-2', 'subnet-3', 'subnet-4'].shuffle.first
+  default.vagrant.ec2.security_groups 'my-sg-id', :mode => :override
+  default.vagrant.ec2.iam_instance_profile_arn 'arn:aws:iam::xxxxxxxxxx:instance-profile/iam_profile_name'
+  default.vagrant.local do |vagrant_virtualbox|
+    vagrant_virtualbox.memory 2048
+  end
+end
+
+vendor :test_policies do |vendor|
+  vendor.path '.'
+end
