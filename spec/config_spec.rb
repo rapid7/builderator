@@ -39,5 +39,11 @@ module Builderator
       Builderator::Config.load(::File.expand_path('../resource/Buildfile-local-vendored-policy1', __FILE__))
       expect { Config.compile }.not_to raise_error
     end
+
+    it 'compiles product polices' do
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-local-overrides', __FILE__))
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-overrides-in-product', __FILE__))
+      expect { Config.compile }.not_to raise_error
+    end
   end
 end
