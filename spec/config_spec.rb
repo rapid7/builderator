@@ -30,21 +30,27 @@ module Builderator
   end
 
   RSpec.describe Config, '#compile' do
-    it 'compiles vendored policy' do
-      Builderator::Config.load(::File.expand_path('../resource/Buildfile-vendored-policy1', __FILE__))
-      expect { Config.compile }.not_to raise_error
+    10.times do |itr|
+      it "#{itr}: compiles vendored policy" do
+        Builderator::Config.load(::File.expand_path('../resource/Buildfile-vendored-policy1', __FILE__))
+        expect { Config.compile }.not_to raise_error
+      end
     end
 
-    it 'compiles local vendored polices' do
-      Builderator::Config.load(::File.expand_path('../resource/Buildfile-local-overrides', __FILE__))
-      Builderator::Config.load(::File.expand_path('../resource/Buildfile-local-vendored-policy1', __FILE__))
-      expect { Config.compile }.not_to raise_error
+    10.times do |itr|
+      it "#{itr}: compiles local vendored polices" do
+        Builderator::Config.load(::File.expand_path('../resource/Buildfile-local-overrides', __FILE__))
+        Builderator::Config.load(::File.expand_path('../resource/Buildfile-local-vendored-policy1', __FILE__))
+        expect { Config.compile }.not_to raise_error
+      end
     end
 
-    it 'compiles product polices' do
-      Builderator::Config.load(::File.expand_path('../resource/Buildfile-local-overrides', __FILE__))
-      Builderator::Config.load(::File.expand_path('../resource/Buildfile-overrides-in-product', __FILE__))
-      expect { Config.compile }.not_to raise_error
+    10.times do |itr|
+      it "#{itr}: compiles product polices" do
+        Builderator::Config.load(::File.expand_path('../resource/Buildfile-local-overrides', __FILE__))
+        Builderator::Config.load(::File.expand_path('../resource/Buildfile-overrides-in-product', __FILE__))
+        expect { Config.compile }.not_to raise_error
+      end
     end
   end
 end
