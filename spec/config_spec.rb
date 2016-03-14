@@ -20,6 +20,7 @@ module Builderator
     end
 
     it 'compiles configuration layers' do
+      skip
       Config.compile
 
       ## Ensure that layer-order is respected
