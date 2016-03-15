@@ -34,6 +34,21 @@ module Builderator
             return
           end
 
+          ##
+          # Helpers for Hash-type attributes
+          ##
+          if options[:type] == :hash
+            define_method(attribute_name) do |arg = nil|
+              ## Instantiate List if it doesn't exist yet. `||=` will always return a new Rash.
+              @attributes[attribute_name] = Config::Rash.new unless @attributes.has?(attribute_name, Config::Rash)
+
+              dirty(@attributes[attribute_name].merge!(arg)) unless arg.nil?
+              @attributes[attribute_name]
+            end
+
+            return
+          end
+
           ## Getter/Setter
           define_method(attribute_name) do |*arg|
             set_or_return(attribute_name, arg.first, default, options)
