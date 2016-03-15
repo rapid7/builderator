@@ -162,6 +162,12 @@ module Builderator
         @dirty = false
       end
 
+      def reset!
+        @attributes = Rash.coerce(attributes)
+        @nodes = {}
+        @dirty = false
+      end
+
       def compile(evaluate = true)
         ## Compile this node and its children
         @block.call(self) if @block && evaluate

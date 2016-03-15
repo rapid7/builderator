@@ -7,14 +7,6 @@ module Builderator
   ##
   module Config
     class << self
-      def reset!
-        @layers = nil
-        @defaults = nil
-        @overrides = nil
-        @argv = nil
-        @compiled = nil
-      end
-
       ## GLOBAL_DEFAULTS is the lowest-precedence layer, followed by dynamically
       ## defined instance-defaults.
       def layers
@@ -64,7 +56,8 @@ module Builderator
 
         ## Automatically recompile while layers are dirty
         loop do
-          fail "Re-compile iteration limit of #{max_iterations} has been exceeded" if compile_iterations >= max_iterations
+          fail "Re-compile iteration limit of #{max_iterations} has been exceeded. "\
+               "#{all_layers.select(&:dirty).map(&:source).join(', ')} are dirty." if compile_iterations >= max_iterations
 
           ## Merge layers from lowest to highest. Compile, then merge.
           all_layers.each do |layer|
@@ -95,12 +88,12 @@ module Builderator
         @compiled ||= File.new({}, :source => 'compiled')
       end
 
-      def reset
+      def reset!
         @layers = []
 
         @defaults = File.new({}, :source => 'defaults')
         @overrides = File.new({}, :source => 'overrides')
-        @argv = File.new(options, :source => 'argv')
+        @argv = File.new({}, :source => 'argv')
 
         @compiled = File.new({}, :source => 'compiled')
       end
