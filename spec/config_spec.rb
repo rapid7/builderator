@@ -4,11 +4,8 @@ require_relative './spec_helper'
 module Builderator
   RSpec.describe Config, '#load' do
     before(:example) do
+      Config.reset!
       Config.load(::File.expand_path('../resource/Buildfile', __FILE__))
-    end
-
-    after(:example) do
-      Config.instance_variable_set(:@layers, [])
     end
 
     it 'loads a DSL file' do
@@ -38,8 +35,8 @@ module Builderator
   end
 
   RSpec.describe Config, '#compile' do
-    after(:example) do
-      Config.reset
+    before(:example) do
+      Config.reset!
     end
 
     10.times do |itr|
