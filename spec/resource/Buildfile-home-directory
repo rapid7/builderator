@@ -1,4 +1,7 @@
-policy(:test).path vendored(:test_policies, 'Buildfile-policy1')
+##
+# This test file simulates a Buildfile in a user's home directory
+##
+policy(:test).path './Buildfile-policy-organization'
 
 profile :default do |default|
   default.vagrant.ec2.ssh_host_attribute :public_ip_address
@@ -6,6 +9,7 @@ profile :default do |default|
   default.vagrant.ec2.subnet_id 'my-subnet-1'
   default.vagrant.ec2.security_groups 'my-sg-id', :mode => :override
   default.vagrant.ec2.iam_instance_profile_arn 'arn:aws:iam::xxxxxxxxxx:instance-profile/iam_profile_name'
+
   default.vagrant.local do |vagrant_virtualbox|
     vagrant_virtualbox.memory 2048
   end

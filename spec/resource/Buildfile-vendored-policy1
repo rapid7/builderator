@@ -1,7 +1,0 @@
-build_name 'builderator-testing'
-
-policy(:test).path vendored(:test_policies, 'Buildfile-policy1')
-
-vendor :test_policies do |vendor|
-  vendor.path '.'
-end

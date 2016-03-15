@@ -1,3 +1,6 @@
+##
+# This test file simulates a policy Buildfile for an organization's CI environment
+##
 cookbook do |cb|
   cb.add_source 'https://supermarket.chef.io'
 end

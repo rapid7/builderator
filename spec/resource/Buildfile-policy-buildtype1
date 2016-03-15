@@ -1,0 +1,34 @@
+##
+# This test file simulates a policy Buildfile for a common type of build in an
+# organization's CI environment
+##
+cookbook.depends 'shared-recipes' do |cookbook|
+  cookbook.version '~> 2.0'
+end
+
+profile :default do |default|
+  default.chef do |chef|
+    chef.run_list 'shared-recipes::default'
+    chef.environment = 'non-default'
+  end
+
+  ## Upload the generated code artifact to the image/VM
+  default.artifact :code_bundle do |bundle|
+    bundle.path 'target/bundle.tar.gz'
+    bundle.destination ::File.join(Config.chef.staging_directory,
+                                   'cache/code-bundle.tar.gz')
+  end
+end
+
+profile :bake => Config.profile(:default) do |bake|
+  bake.chef.run_list 'shared-recipes::ami-bake', :mode => :override
+
+  bake.packer do |packer|
+    packer.build :default do |build|
+
+      # build.ami_regions 'eu-central-1' - Packer doesn't support eu-central-1
+      build.ami_users '0123456789'
+    end
+  end
+
+end
