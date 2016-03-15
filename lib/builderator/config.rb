@@ -87,6 +87,16 @@ module Builderator
         @compiled ||= File.new({}, :source => 'compiled')
       end
 
+      def reset
+        @layers = []
+
+        @defaults = File.new({}, :source => 'defaults')
+        @overrides = File.new({}, :source => 'overrides')
+        @argv = File.new(options, :source => 'argv')
+
+        @compiled = File.new({}, :source => 'compiled')
+      end
+
       def fetch(key, *args)
         compiled.send(key, *args)
       end

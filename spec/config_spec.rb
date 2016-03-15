@@ -39,7 +39,7 @@ module Builderator
 
   RSpec.describe Config, '#compile' do
     after(:example) do
-      Config.instance_variable_set(:@layers, [])
+      Config.reset
     end
 
     10.times do |itr|
