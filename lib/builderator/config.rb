@@ -7,6 +7,14 @@ module Builderator
   ##
   module Config
     class << self
+      def reset!
+        @layers = nil
+        @defaults = nil
+        @overrides = nil
+        @argv = nil
+        @compiled = nil
+      end
+
       ## GLOBAL_DEFAULTS is the lowest-precedence layer, followed by dynamically
       ## defined instance-defaults.
       def layers
