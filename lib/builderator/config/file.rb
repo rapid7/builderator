@@ -183,7 +183,7 @@ module Builderator
         namespace :chef do
           attribute :run_list, :type => :list, :singular => :run_list_item
           attribute :environment
-          attribute :node_attrs
+          attribute :node_attrs, :type => :hash
         end
 
         ##

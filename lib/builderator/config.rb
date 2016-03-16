@@ -56,7 +56,8 @@ module Builderator
 
         ## Automatically recompile while layers are dirty
         loop do
-          fail "Re-compile iteration limit of #{max_iterations} has been exceeded" if compile_iterations >= max_iterations
+          fail "Re-compile iteration limit of #{max_iterations} has been exceeded. "\
+               "#{all_layers.select(&:dirty).map(&:source).join(', ')} are dirty." if compile_iterations >= max_iterations
 
           ## Merge layers from lowest to highest. Compile, then merge.
           all_layers.each do |layer|
@@ -85,6 +86,16 @@ module Builderator
 
       def compiled
         @compiled ||= File.new({}, :source => 'compiled')
+      end
+
+      def reset!
+        @layers = []
+
+        @defaults = File.new({}, :source => 'defaults')
+        @overrides = File.new({}, :source => 'overrides')
+        @argv = File.new({}, :source => 'argv')
+
+        @compiled = File.new({}, :source => 'compiled')
       end
 
       def fetch(key, *args)

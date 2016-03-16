@@ -1,0 +1,31 @@
+##
+# This test file simulates a policy Buildfile for an organization's CI environment
+##
+cookbook do |cb|
+  cb.add_source 'https://supermarket.chef.io'
+end
+
+local do |local|
+  local.data_bag_path relative('data_bags')
+  local.environment_path relative('environments')
+end
+
+profile(:default) do |default|
+
+  default.vagrant.ec2 do |ec2|
+    ## VPN-attached VPC resources
+    ec2.subnet_id 'my-subnet-id'
+    ec2.security_groups 'my-sg-id'
+
+    ec2.associate_public_ip false
+    ec2.ssh_host_attribute :private_ip_address
+  end
+
+  default.packer.build(:default) do |build|
+    build.ami_name [Config.build_name, Config.version, Config.build_number].reject(&:nil?).join('-')
+  end
+end
+
+generator.project :default do |default|
+  default.ruby.version '2.1.5'
+end

@@ -9,6 +9,7 @@ module Builderator
   module Util
     class << self
       def relative_path(*relative)
+        relative = relative.flatten.map { |r| r.to_s }
         Pathname.new(__FILE__).join('../resource').join(*relative).expand_path
       end
     end
@@ -16,8 +17,6 @@ module Builderator
 end
 
 RSpec.configure do |config|
-  Builderator::Config.load(::File.expand_path('../resource/Buildfile', __FILE__))
-
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.

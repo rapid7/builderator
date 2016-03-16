@@ -1,0 +1,5 @@
+##
+# This test file simulates a Buildfile in a project's working directory
+# without any cookbooks
+##
+build_name 'builderator-simple-test'

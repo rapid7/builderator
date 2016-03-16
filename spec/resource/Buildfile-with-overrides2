@@ -1,0 +1,17 @@
+##
+# This test file simulates a Buildfile in a project's working directory
+# without any cookbooks
+##
+build_name 'builderator-with-overrides'
+
+policy(:test).path './Buildfile-policy-buildtype2'
+
+profile :default do |default|
+  default.chef do |chef|
+    chef.run_list ['rapid7-test::default']
+  end
+end
+
+profile :bake => Config.profile(:default) do |bake|
+  bake.chef.run_list ['rapid7-test::override']
+end

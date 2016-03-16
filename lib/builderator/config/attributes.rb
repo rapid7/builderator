@@ -34,6 +34,21 @@ module Builderator
             return
           end
 
+          ##
+          # Helpers for Hash-type attributes
+          ##
+          if options[:type] == :hash
+            define_method(attribute_name) do |arg = nil|
+              ## Instantiate List if it doesn't exist yet. `||=` will always return a new Rash.
+              @attributes[attribute_name] = Config::Rash.new unless @attributes.has?(attribute_name, Config::Rash)
+
+              dirty(@attributes[attribute_name].merge!(arg).any?) unless arg.nil?
+              @attributes[attribute_name]
+            end
+
+            return
+          end
+
           ## Getter/Setter
           define_method(attribute_name) do |*arg|
             set_or_return(attribute_name, arg.first, default, options)
@@ -130,11 +145,25 @@ module Builderator
         self
       end
 
+      ## Get the root Attributes object
+      def root
+        return self if root?
+
+        parent.root
+      end
+
+      def root?
+        parent == self
+      end
+
       ## All dirty state should aggregate at the root node
       def dirty(update = false)
-        return @dirty ||= update if parent == self
+        return @dirty ||= update if root?
+        root.dirty(update)
+      end
 
-        parent.dirty(update)
+      def dirty!(set)
+        @dirty = set
       end
 
       def ==(other)
@@ -162,24 +191,37 @@ module Builderator
         @dirty = false
       end
 
+      def reset!
+        @attributes = Config::Rash.new
+        @nodes = {}
+        @dirty = false
+      end
+
       def compile(evaluate = true)
+        ## Underlay base values if present
+        if extends.is_a?(Attributes)
+          previous_state = attributes
+          dirty_state = dirty
+
+          attributes.merge!(extends.attributes)
+
+          @block.call(self) if @block && evaluate
+          nodes.each { |_, node| node.compile }
+
+          root.dirty!(dirty_state || previous_state.diff(attributes).any?)
+
+          return self
+        end
+
         ## Compile this node and its children
         @block.call(self) if @block && evaluate
         nodes.each { |_, node| node.compile }
-
-        ## Underlay base values if present
-        if extends.is_a?(Attributes)
-          merged_atributes = extends.attributes.clone
-          merged_atributes.merge!(attributes)
-
-          attributes.merge!(merged_atributes)
-        end
 
         self
       end
 
       def merge(other)
-        dirty(attributes.merge!(other.attributes))
+        dirty(attributes.merge!(other.attributes).any?)
         self
       end
 

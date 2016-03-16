@@ -1,0 +1,10 @@
+##
+# This test file simulates a Buildfile in a cookbook project's working directory
+##
+build_name 'builderator-testing'
+
+policy(:test).path './Buildfile-policy1'
+
+vendor :test_policies do |vendor|
+  vendor.path '.'
+end
