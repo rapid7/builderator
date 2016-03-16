@@ -55,33 +55,68 @@ module Builderator
       def merge!(other)
         fail TypeError, 'Argument other of  `Rash#merge!(other)` must be a Hash.'\
                         " Recieved #{other.class}" unless other.is_a?(Hash)
-        dirty = false
 
-        other.each do |k, v|
+        other.each_with_object([]) do |(k, v), diff|
           ## Replace `-`s with `_`s in in String keys
           k = k.gsub(/\-/, '_') if k.is_a?(String)
 
-          next if self[k] == v
+          next if has?(k) && self[k] == v
 
           ## Merge Arrays
           if v.is_a?(Array)
             self[k] = has?(k) ? Config::List.coerce(self[k]) : Config::List.new
-            dirty = self[k].merge!(v) || dirty
+            self[k].merge!(v)
+
+            diff << k
             next
           end
 
           ## Overwrite non-Hash values
           unless v.is_a?(Hash)
-            dirty = true
-            next self[k] = v
+            self[k] = v
+            diff << k
+
+            next
           end
 
           ## Merge recursivly coerces `v` to a Rash
           self[k] = self.class.coerce(self[k])
-          dirty = self[k].merge!(v) || dirty
+          diff << self[k].merge!(v)
         end
+      end
 
-        dirty
+      def diff(other)
+        fail TypeError, 'Argument other of `Rash#diff(other)` must be a Hash.'\
+                        " Recieved #{other.class}" unless other.is_a?(Hash)
+
+        other.each_with_object({}) do |(k, v), diff|
+          next if has?(k) && self[k] == v
+
+          ## Merge Arrays
+          if v.is_a?(Array)
+            a = has?(k) ? Config::List.coerce(self[k]) : Config::List.new
+            b = Config::List.coerce(v)
+
+            diff[k] = {
+              :+ => b - a,
+              :- => a - b
+            }
+
+            next
+          end
+
+          ## Overwrite non-Hash values
+          unless v.is_a?(Hash)
+            diff[k] = {
+              :+ => v,
+              :- => fetch(k, nil)
+            }
+
+            next
+          end
+
+          diff[k] = self.class.coerce(fetch(k, {})).diff(self.class.coerce(v))
+        end
       end
 
       def to_hash

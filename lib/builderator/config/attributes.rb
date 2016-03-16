@@ -42,7 +42,7 @@ module Builderator
               ## Instantiate List if it doesn't exist yet. `||=` will always return a new Rash.
               @attributes[attribute_name] = Config::Rash.new unless @attributes.has?(attribute_name, Config::Rash)
 
-              dirty(@attributes[attribute_name].merge!(arg)) unless arg.nil?
+              dirty(@attributes[attribute_name].merge!(arg).any?) unless arg.nil?
               @attributes[attribute_name]
             end
 
@@ -208,7 +208,7 @@ module Builderator
           @block.call(self) if @block && evaluate
           nodes.each { |_, node| node.compile }
 
-          root.dirty!(dirty_state || previous_state.diff(attributes))
+          root.dirty!(dirty_state || previous_state.diff(attributes).any?)
 
           return self
         end
@@ -221,7 +221,7 @@ module Builderator
       end
 
       def merge(other)
-        dirty(attributes.merge!(other.attributes))
+        dirty(attributes.merge!(other.attributes).any?)
         self
       end
 
