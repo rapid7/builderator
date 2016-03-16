@@ -40,56 +40,48 @@ module Builderator
       Builderator::Config.reset!
     end
 
-    10.times do |itr|
-      it "#{itr}: compiles simple build" do
-        expect(Builderator::Config.layers).to be_empty
+    it 'compiles a trivial build configuration' do
+      expect(Builderator::Config.layers).to be_empty
 
-        Builderator::Config.load(::File.expand_path('../resource/Buildfile-home-directory', __FILE__))
-        Builderator::Config.load(::File.expand_path('../resource/Buildfile-simple', __FILE__))
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-home-directory', __FILE__))
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-simple', __FILE__))
 
-        expect(Builderator::Config.all_layers.any?(&:dirty)).to be false
+      expect(Builderator::Config.all_layers.any?(&:dirty)).to be false
 
-        expect { Config.compile }.not_to raise_error
-      end
+      expect { Config.compile }.not_to raise_error
     end
 
-    10.times do |itr|
-      it "#{itr}: compiles build with builttype policy" do
-        expect(Builderator::Config.layers).to be_empty
+    it 'compiles a build with a build-type policy' do
+      expect(Builderator::Config.layers).to be_empty
 
-        Builderator::Config.load(::File.expand_path('../resource/Buildfile-home-directory', __FILE__))
-        Builderator::Config.load(::File.expand_path('../resource/Buildfile-with-policy', __FILE__))
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-home-directory', __FILE__))
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-with-policy', __FILE__))
 
-        expect(Builderator::Config.all_layers.any?(&:dirty)).to be false
+      expect(Builderator::Config.all_layers.any?(&:dirty)).to be false
 
-        expect { Config.compile }.not_to raise_error
-      end
+      expect { Config.compile }.not_to raise_error
     end
 
-    10.times do |itr|
-      it "#{itr}: compiles build with builttype policy and overrides" do
-        expect(Builderator::Config.layers).to be_empty
+    it 'compiles a build with a build-type policy and overrides' do
+      expect(Builderator::Config.layers).to be_empty
 
-        Builderator::Config.load(::File.expand_path('../resource/Buildfile-home-directory', __FILE__))
-        Builderator::Config.load(::File.expand_path('../resource/Buildfile-with-overrides', __FILE__))
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-home-directory', __FILE__))
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-with-overrides', __FILE__))
 
-        expect(Builderator::Config.all_layers.any?(&:dirty)).to be false
+      expect(Builderator::Config.all_layers.any?(&:dirty)).to be false
 
-        expect { Config.compile }.not_to raise_error
-      end
+      expect { Config.compile }.not_to raise_error
     end
 
-    10.times do |itr|
-      it "#{itr}: compiles build with builttype policy and overrides, with hash values" do
-        expect(Builderator::Config.layers).to be_empty
+    it 'compiles a build with a build-type policy and overrides, and an extended collection item with hash values' do
+      expect(Builderator::Config.layers).to be_empty
 
-        Builderator::Config.load(::File.expand_path('../resource/Buildfile-home-directory', __FILE__))
-        Builderator::Config.load(::File.expand_path('../resource/Buildfile-with-overrides2', __FILE__))
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-home-directory', __FILE__))
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-with-overrides2', __FILE__))
 
-        expect(Builderator::Config.all_layers.any?(&:dirty)).to be false
+      expect(Builderator::Config.all_layers.any?(&:dirty)).to be false
 
-        expect { Config.compile }.not_to raise_error
-      end
+      expect { Config.compile }.not_to raise_error
     end
   end
 end
