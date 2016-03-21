@@ -24,7 +24,7 @@ module Builderator
           :provisioners => []
         }.tap do |json|
           Config.profile.current.packer.build.each do |_, build|
-            build_hash << build.to_hash.tap do |b|
+            build_hash = build.to_hash.tap do |b|
               b[:tags] = Config.profile.current.tags
             end
 
