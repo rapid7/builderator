@@ -42,7 +42,7 @@ module Builderator
               ## Instantiate List if it doesn't exist yet. `||=` will always return a new Rash.
               @attributes[attribute_name] = Config::Rash.new unless @attributes.has?(attribute_name, Config::Rash)
 
-              dirty(@attributes[attribute_name].merge!(arg).any?) unless arg.nil?
+              dirty(@attributes[attribute_name].merge!(Config::Rash.coerce(arg)).any?) unless arg.nil?
               @attributes[attribute_name]
             end
 

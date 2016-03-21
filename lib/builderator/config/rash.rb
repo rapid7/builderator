@@ -56,9 +56,9 @@ module Builderator
         fail TypeError, 'Argument other of  `Rash#merge!(other)` must be a Hash.'\
                         " Recieved #{other.class}" unless other.is_a?(Hash)
 
-        other.each_with_object([]) do |(k, v), diff|
+        other.each_with_object({}) do |(k, v), diff|
           ## Replace `-`s with `_`s in in String keys
-          k = k.gsub(/\-/, '_') if k.is_a?(String)
+          k = k.gsub(/\-/, '_').to_sym if k.is_a?(String)
 
           next if has?(k) && self[k] == v
 
@@ -67,21 +67,21 @@ module Builderator
             self[k] = has?(k) ? Config::List.coerce(self[k]) : Config::List.new
             self[k].merge!(v)
 
-            diff << k
+            diff[k] = true
             next
           end
 
           ## Overwrite non-Hash values
           unless v.is_a?(Hash)
             self[k] = v
-            diff << k
 
+            diff[k] = true
             next
           end
 
           ## Merge recursivly coerces `v` to a Rash
           self[k] = self.class.coerce(self[k])
-          diff << self[k].merge!(v)
+          diff[k] = self[k].merge!(v)
         end
       end
 
