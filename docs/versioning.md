@@ -53,7 +53,7 @@ SCM providers must extend the `Builderator::Control::Version::SCM` module, and m
   - `:tags` `nil` or an array of semver strings
 * `self.supported?` Return `true` if the provider supports the build environment (e.g. the `Git` provider checks that `pwd` is a git repository), else return `false`.
 
-To enable a provider module, pass it to `SCM.register`. See [blob/auto-version/lib/builderator/control/version/git.rb] for an example.
+To enable a provider module, pass it to `SCM.register`. See [Builderator::Control::Version::Git](blob/auto-version/lib/builderator/control/version/git.rb) for an example.
 
 ## This looks like `thor-scmversion`
 
