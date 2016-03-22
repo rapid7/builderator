@@ -60,24 +60,19 @@ module Builderator
       ##
       # AWS Clients
       ##
-      def ec2
-        @ec2 ||= Aws::EC2::Client.new(:region => Config.aws.region)
+      def ec2(region = Config.aws.region)
+        clients["ec2-#{region}"] ||= Aws::EC2::Client.new(:region => region)
       end
 
-      def ec2_region(region)
-        _regional_clients["ec2-#{region}"] ||= Aws::EC2::Client.new(:region => region)
-      end
-
-      def asg
-        @asg ||= Aws::AutoScaling::Client.new(:region => Config.aws.region)
+      def asg(region = Config.aws.region)
+        clients["asg-#{region}"] ||= Aws::AutoScaling::Client.new(:region => region)
       end
 
       private
 
-      def _regional_clients
-        @_region_clients ||= {}
+      def clients
+        @clients ||= {}
       end
-
 
       def _filter_reduce(resource, filters)
         filters.reduce(true) do |memo, (k, v)|
