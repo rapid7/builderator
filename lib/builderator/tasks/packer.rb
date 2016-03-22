@@ -46,16 +46,16 @@ module Builderator
           }
 
           build.ami_regions.each do |region|
-            say_status :copy, "AMI #{image_name} (#{image.image_id}) from #{Config.aws.region} to #{region}"
-            Util.ec2_region(region).copy_image(parameters)
+            say_status :copy, "image #{image_name} (#{image.image_id}) from #{Config.aws.region} to #{region}"
+            Util.ec2(region).copy_image(parameters)
           end
         end
 
-        invoke :tag, [profile], options
         invoke :wait, [profile], options
+        invoke :tag, [profile], options
       end
 
-      desc 'tag PROFILE', 'Tag AMIs other regions'
+      desc 'tag PROFILE', 'Tag AMIs in other regions'
       def tag(profile)
         invoke :configure, [profile], options
 
@@ -65,12 +65,21 @@ module Builderator
             :values => [image_name]
           }]
 
+          ## Add some additional tags about the regional source
+          image.tags << {
+            :key => 'source_region',
+            :value => Config.aws.region
+          }
+          image.tags << {
+            :key => 'source_ami',
+            :value => image.image_id
+          }
+
           build.ami_regions.each do |region|
-            regional_image = Util.ec2_region(region)
-                                 .describe_images(:filters => filters).images.first
+            regional_image = Util.ec2(region).describe_images(:filters => filters).images.first
 
             say_status :tag, "AMI #{image_name} (#{regional_image.image_id}) in #{region}"
-            Util.ec2_region(region).create_tags(:resources => [regional_image.image_id], :tags => image.tags)
+            Util.ec2(region).create_tags(:resources => [regional_image.image_id], :tags => image.tags)
           end
         end
       end
@@ -81,8 +90,11 @@ module Builderator
 
         waiting = true
 
+        images.each do |image_name, (image, build)|
+          say_status :wait, "for #{image.image_id} (#{image_name}) to be available in #{build.ami_regions.join(', ')}", :yellow
+        end
+
         while waiting
-          say_status :wait, 'for coppied images to be available', :yellow
           waiting = false
 
           images.each do |image_name, (image, build)|
@@ -92,22 +104,25 @@ module Builderator
             }]
 
             build.ami_regions.each do |region|
-              regional_image = Util.ec2_region(region)
-                                   .describe_images(:filters => filters).images.first
+              regional_image = Util.ec2(region).describe_images(:filters => filters).images.first
 
-              status_color = case regional_image.state
-                             when 'pending' then :yellow
+              ## It takes a few seconds for the new AMI to show up in the `describe_images` response-set
+              state = regional_image.nil? ? 'unknown' : regional_image.state
+              image_id = regional_image.nil? ? 'unknown' : regional_image.image_id
+
+              waiting = (state != 'available') || waiting
+              status_color = case state
+                             when 'pending', 'unknown' then :yellow
                              when 'available' then :green
                              else :red
                              end
 
-              say_status :image, "#{regional_image.image_id} (#{regional_image.name}) is #{regional_image.state}", status_color
-              waiting = (regional_image.state == 'pending') || waiting
+              say_status :image, "#{image_id} (#{image.name}) is #{state} in #{region}", status_color
             end
           end
 
           ## If waiting == false, loop immediately to break
-          sleep(5) if waiting
+          sleep(10) if waiting
         end
 
         say_status :complete, 'All coppied images are available'
