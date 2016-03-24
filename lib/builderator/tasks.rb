@@ -86,8 +86,10 @@ module Builderator
       # Helper/utility commands
       ##
       desc 'config', 'Print compiled configuration'
-      def config
+      def config(key = nil)
         invoke Tasks::Version, :current, [], options
+
+        return puts Config.compiled.send(key).to_json unless key.nil?
         puts Config.compiled.to_json
       end
 
