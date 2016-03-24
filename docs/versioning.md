@@ -33,12 +33,12 @@ If STEP is omitted, Builderator will scan messages of commits between HEAD and t
 
 The `autoversion` namespace has two attributes:
 
-* `create_tags BOOLEAN` enables auto-generation of SCM tags after `bump` tasks. Default `true`.
+* `create_tags BOOLEAN` enables auto-generation of SCM tags after `bump` tasks. Default `false`.
 * `search_tags` enables detection of the current version from SCM tags. Default `true`.
 
 ```ruby
 autoversion do |version|
-  version.create_tags true
+  version.create_tags false
   version.search_tags true
 end
 ```
