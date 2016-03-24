@@ -84,7 +84,7 @@ module Builderator
         end
       end
 
-      desc 'wait PROFILE', 'Wait for coppied AMIs to become available in another region'
+      desc 'wait PROFILE', 'Wait for copied AMIs to become available in another region'
       def wait(profile)
         invoke :configure, [profile], options
 
@@ -125,7 +125,7 @@ module Builderator
           sleep(10) if waiting
         end
 
-        say_status :complete, 'All coppied images are available'
+        say_status :complete, 'All copied images are available'
       end
 
       private
