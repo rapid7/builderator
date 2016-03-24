@@ -18,6 +18,8 @@ module Builderator
       desc 'configure [PROFILE]', 'Write a Vagrantfile into the project workspace'
       def configure(profile = :default)
         Config.profile.use(profile)
+        invoke Tasks::Version, :current, [], options
+
         Interface.vagrant.write
       end
 
