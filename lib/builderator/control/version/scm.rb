@@ -14,6 +14,7 @@ module Builderator
         def tags
           @tags ||= _tags
                     .map { |tag, ref| Version.from_string(tag, :ref => ref) }
+                    .compact
                     .sort
         end
 

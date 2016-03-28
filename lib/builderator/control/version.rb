@@ -58,7 +58,7 @@ module Builderator
         ## Parse a SemVer string into a Version
         def from_string(arg, options = {})
           matchdata = arg.match(FORMAT)
-          fail "Builderator::Control::Version.from_string: #{arg} is not a supported semver string" if matchdata.nil?
+          return nil if matchdata.nil?
 
           new(matchdata[:major], matchdata[:minor], matchdata[:patch], matchdata[:build], options).tap do |version|
             version.is_prerelease = !matchdata[:prerelease].nil?
