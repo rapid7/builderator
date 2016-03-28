@@ -93,14 +93,14 @@ module Builderator
               expect(version.build).to be == 9
             end
 
-            it 'fails on invalid specs' do
-              expect { Version.from_string('1.2.lizard-alpha.42+build.9') }.to raise_error RuntimeError
-              expect { Version.from_string('1.2.3-alpha.42+taco.9') }.to raise_error RuntimeError
-              expect { Version.from_string('1.2.3-alpha.guacamole+build.9') }.to raise_error RuntimeError
-              expect { Version.from_string('1.2.3-alpha.42+build.beef') }.to raise_error RuntimeError
-              expect { Version.from_string('1.2.dog') }.to raise_error RuntimeError
-              expect { Version.from_string('1.cat.3') }.to raise_error RuntimeError
-              expect { Version.from_string('cow.2.3') }.to raise_error RuntimeError
+            it 'does not fail on invalid specs' do
+              expect(Version.from_string('1.2.lizard-alpha.42+build.9')).to be_nil
+              expect(Version.from_string('1.2.3-alpha.42+taco.9')).to be_nil
+              expect(Version.from_string('1.2.3-alpha.guacamole+build.9')).to be_nil
+              expect(Version.from_string('1.2.3-alpha.42+build.beef')).to be_nil
+              expect(Version.from_string('1.2.dog')).to be_nil
+              expect(Version.from_string('1.cat.3')).to be_nil
+              expect(Version.from_string('cow.2.3')).to be_nil
             end
           end
 
