@@ -1,7 +1,10 @@
 [
   {
     "id": "d6f0ae080a484b40687350110f15795bdcde6d7e",
-    "message": "In reset, check for the setter-method instead of the getter-method"
+    "message": "In reset, check for the setter-method instead of the getter-method",
+    "tags": [
+      "help"
+    ]
   },
   {
     "id": "506d7d8d17c49d80c7d4e72cd7ebbe67c04d679d",
@@ -17,7 +20,10 @@
   },
   {
     "id": "a1d3dcbd91a0abff829f8f09337ddc257257e730",
-    "message": "Merge pull request #14 from rapid7/gemspec"
+    "message": "Merge pull request #14 from rapid7/gemspec",
+    "tags": [
+      "not.the.tag.you.are.looking.for"
+    ]
   },
   {
     "id": "c3a0b2402ddf4084c175cc69793d592f8864daf1",
@@ -37,7 +43,10 @@
   },
   {
     "id": "560cea5ea897a2c9e6a484aa5ed95e1a0d81b9c9",
-    "message": "Add berkshelf_config parameter to berkshelf interface, and copy tags from profile to packer-builders in the packer interface"
+    "message": "Add berkshelf_config parameter to berkshelf interface, and copy tags from profile to packer-builders in the packer interface",
+    "tags": [
+      "not_the_tag_you_are_looking_for"
+    ]
   },
   {
     "id": "89403f24e8a4a82ffa67eb941d5afefe55ced37a",
