@@ -43,7 +43,9 @@ module Builderator
         command << "-c #{Interface.berkshelf.berkshelf_config} "
         command << "-b #{Interface.berkshelf.source}"
 
-        run command
+        inside Interface.berkshelf.directory do
+          run command
+        end
       end
 
       desc 'uncache', 'Delete the Berkshelf cache'
