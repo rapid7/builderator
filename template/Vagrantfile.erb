@@ -43,7 +43,7 @@ Vagrant.configure('2') do |config|
   config.vm.provision :shell,
                       :inline => "sudo mkdir -p <%= chef.staging_directory %>/cache && "\
                                  "sudo chown $(whoami) -R <%= chef.staging_directory %>",
-                      :privileged => true
+                      :privileged => false
 
   ##
   # Sync build artifacts to the VM
