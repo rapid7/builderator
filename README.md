@@ -16,7 +16,7 @@ Provision an EC2 VM using Vagrant. Same workflow as `local` using the `vagrant-a
 
 ### `image [PROFILE = default]`
 
-Use [Packer](https://www.packer.io) to build an image(s) for the specified profile.
+Use [Packer](https://www.packer.io) to build an image(s) for the specified profile. Supply the `--no-copy` flag to keep the new image from being automatically copied to its configured regions.
 
 ## Configuration
 
