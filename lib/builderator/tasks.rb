@@ -70,7 +70,9 @@ module Builderator
       method_option :debug, :type => :boolean
       def image(profile = :default)
         prepare
+
         invoke Tasks::Packer, :build, [profile], options
+        invoke Tasks::Packer, :copy, [profile], options
       end
 
       # desc 'cookbook SUBCOMMAND', 'Cookbook tasks'
