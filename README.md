@@ -18,6 +18,8 @@ Provision an EC2 VM using Vagrant. Same workflow as `local` using the `vagrant-a
 
 Use [Packer](https://www.packer.io) to build an image(s) for the specified profile.
 
+By default, the generated images are copied to their respective `ami_regions` and tagged.  Supply the `--no-copy` flag to keep the new image from being automatically copied to its configured regions.
+
 ## Configuration
 
 Configuration can be loaded from DSL files as well as JSON and command line arguments. By default, Builderator searches in your home directory (`$HOME/.builderator/Buildfile`) and the working directory (`./Builderator`) for DSL files. Configuration sources are layered and flattened into a single DSL in the following order:
