@@ -2,6 +2,8 @@
 # vi: set ft=ruby :
 
 Vagrant.configure('2') do |config|
+  config.berkshelf.enabled = false if Vagrant.has_plugin? 'vagrant-berkshelf'
+
   config.vm.hostname = 'builderator-<%= build_name %>'
 
   ## Local Provider
