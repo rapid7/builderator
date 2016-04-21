@@ -17,3 +17,11 @@ Collection of declared cookbook dependencies. Options are passed to [Berkshelf](
 * `ref` A comittish reference from which to fetch the cookbook
 * `rel` The sub-directory of a git repository to check out as a cookbook
 * `path` The path to a local cookbook, relative to the build workspace.
+
+## Tasks
+
+* `berks metadata COOKBOOK` Generates a `metadata.json` file from a local cookbook's `metadata.rb` file. The specified `COOKBOOK` must be in the `cookbook.depends` collection with a valid `path` attribute.
+* `berks vendor` Resolve and fetch cookbooks for the `cookbook.depends` collection and store in `$VENDOR_PATH/cookbooks`
+* `berks upload` Upload the resolved dependency set for `cookbook.depends` to the Chef Server configured in Berkshelf's configuration (default `$HOME/.berkshelf/config.json`)
+* `berks clean` Removes the project's cookbook vendor cache.
+* `berks uncache` is a helper to clear Berkshelf's host-cache, in `$HOME/.berkshelf/cookbooks` by default.
