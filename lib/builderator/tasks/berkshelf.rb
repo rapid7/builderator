@@ -26,8 +26,6 @@ module Builderator
         fail "Cookbook #{ cookbook } does not have a path!" unless Config.cookbook.depends.has?(cookbook) &&
                                                                    !Config.cookbook.depends[cookbook].path.nil?
 
-        invoke Tasks::Version, :current, [], options
-
         cookbook_path = Config.cookbook.depends[cookbook].path
         metadata_rb = Chef::Cookbook::Metadata.new
 
