@@ -1,3 +1,4 @@
+require 'chef/cookbook/metadata'
 require 'thor'
 
 require_relative '../interface/berkshelf'
@@ -18,6 +19,22 @@ module Builderator
       desc 'configure', 'Write a Berksfile into the project workspace'
       def configure
         Interface.berkshelf.write
+      end
+
+      desc 'metadata COOKBOOK', 'Generate metadata.json from metadata.rb for a COOKBOOK that has a path'
+      def metadata(cookbook)
+        fail "Cookbook #{ cookbook } does not have a path!" unless Config.cookbook.depends.has?(cookbook) &&
+                                                                   !Config.cookbook.depends[cookbook].path.nil?
+
+        invoke Tasks::Version, :current, [], options
+
+        cookbook_path = Config.cookbook.depends[cookbook].path
+        metadata_rb = Chef::Cookbook::Metadata.new
+
+        metadata_rb.from_file(::File.join(cookbook_path, 'metadata.rb'))
+
+        say_status :metadata, "for cookbook #{ metadata_rb.name }@#{ metadata_rb.version }"
+        create_file ::File.join(cookbook_path, 'metadata.json'), metadata_rb.to_json, :force => true
       end
 
       desc 'vendor', 'Vendor a cookbook release and its dependencies'

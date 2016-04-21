@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'aws-sdk', '~> 2.0'
   spec.add_dependency 'berkshelf', '~> 4.3'
   spec.add_dependency 'dep_selector', '~> 1.0'
-  # spec.add_dependency 'chef', '~> 12.5'
+  spec.add_dependency 'chef', '~> 12.5'
   spec.add_dependency 'faraday_middleware', '~> 0.10.0'
   spec.add_dependency 'ignorefile'
   spec.add_dependency 'thor', '~> 0.19.0'
