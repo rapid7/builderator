@@ -41,7 +41,7 @@ module Builderator
         empty_directory Interface.berkshelf.vendor
 
         command = "#{Interface.berkshelf.command} vendor #{Interface.berkshelf.vendor} "
-        command << "-c #{Interface.berkshelf.berkshelf_config} "
+        command << "-c #{Interface.berkshelf.berkshelf_config} " unless Interface.berkshelf.berkshelf_config.nil?
         command << "-b #{Interface.berkshelf.source}"
 
         inside Interface.berkshelf.directory do
@@ -55,7 +55,7 @@ module Builderator
         vendor
 
         command = "#{Interface.berkshelf.command} upload "
-        command << "-c #{Interface.berkshelf.berkshelf_config} "
+        command << "-c #{Interface.berkshelf.berkshelf_config} " unless Interface.berkshelf.berkshelf_config.nil?
         command << "-b #{Interface.berkshelf.source}"
 
         inside Interface.berkshelf.directory do
