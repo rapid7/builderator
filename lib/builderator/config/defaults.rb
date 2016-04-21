@@ -29,7 +29,6 @@ module Builderator
 
       cookbook do |cookbook|
         cookbook.path = '.'
-        cookbook.berkshelf_config = ::File.join(ENV['HOME'], '.berkshelf/config.json')
         cookbook.add_source 'https://supermarket.chef.io'
       end
 
