@@ -23,7 +23,7 @@ module Builderator
       end
 
       def lockfile
-        Util.workspace('Berksfile.lock')
+        directory.join('Berksfile.lock')
       end
 
       def berkshelf_config
