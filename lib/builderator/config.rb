@@ -47,9 +47,27 @@ module Builderator
         layers.unshift(File.from_json(path)) if ::File.exist?(path)
       end
 
+      ##
+      # The compile method renders a single File instance from all of the configured
+      # input layers. It follows the following algorithm:
+      #
+      # => `DIRTY` is defined as the logical OR of the dirty state of each layer.
+      #    Layers are responsible for detecting changes to their own properties
+      #    while being compiled.
+      #
+      # => LOOP unitl not DIRTY plus 1 iteration
+      #     1. Call each layer's own compile method.
+      #     2. For each layer, merge it into the COMPILED output.
+      #     FAIL if ITERATIONS > LIMIT
+      #
+      # => The additional iteration after DIRTY becomes false is to ensure that
+      #    any changes to the compiled output during the final merge are passed
+      #    back through each layer's compile.
+      ##
       def compile(max_iterations = 6)
         compiled.unseal
         compile_iterations = 0
+        break_break = false
 
         ## Inject GLOBAL_DEFAULTS before starting compile
         compiled.merge(GLOBAL_DEFAULTS.compile)
@@ -71,7 +89,9 @@ module Builderator
             compiled.merge(layer)
           end
 
-          break unless dirty?
+          break if break_break && !dirty?
+
+          break_break = !dirty?
           compile_iterations += 1
         end
 

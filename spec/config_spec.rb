@@ -83,5 +83,20 @@ module Builderator
 
       expect { Config.compile }.not_to raise_error
     end
+
+    it 'compiles a change after an initial compilation' do
+      expect(Builderator::Config.layers).to be_empty
+
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-home-directory', __FILE__))
+      Builderator::Config.load(::File.expand_path('../resource/Buildfile-with-overrides2', __FILE__))
+      expect(Builderator::Config.all_layers.any?(&:dirty)).to be false
+      expect { Config.compile }.not_to raise_error
+
+      Builderator::Config.defaults.version '1.2.3'
+      Builderator::Config.defaults.build_number = '4'
+      expect { Config.compile }.not_to raise_error
+
+      expect(Builderator::Config.profile('default').tags['version']).to eq '1.2.3-4'
+    end
   end
 end
