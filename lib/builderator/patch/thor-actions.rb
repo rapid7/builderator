@@ -40,6 +40,39 @@ class Thor
     end
 
     ##
+    # Run an external command without bundler's injected environment variables
+    # (e.g. keep vagrant happy in it's own little vendor full of unicorns)
+    ##
+    def run_without_bundler(command, config = {})
+      env = ENV.clone
+      env.delete('RUBYOPT')
+      env.delete('RUBYLIB')
+
+      destination = relative_to_original_destination_root(destination_root, false)
+      desc = "#{command} from #{destination.inspect}"
+
+      if config[:with]
+        desc = "#{File.basename(config[:with].to_s)} #{desc}"
+        command = "#{config[:with]} #{command}"
+      end
+
+      say_status :run, desc, config.fetch(:verbose, true)
+      return if options[:pretend]
+
+      output = config.fetch(:stdout, STDOUT)
+
+      IO.popen(env, command, 'r+') do |io|
+        ## Stream output
+        loop do
+          break if io.eof?
+
+          output.write(io.readpartial(4096))
+          output.flush
+        end
+      end
+    end
+
+    ##
     # Make `template` load from a sane path and render in the context of Config
     ##
     def template(source, destination, config = {})

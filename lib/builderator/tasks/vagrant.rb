@@ -32,7 +32,7 @@ module Builderator
           command << " up --provider=#{Config.profile.current.vagrant.local.provider} "
           command << args.join(' ')
 
-          run command
+          run_without_bundler command
         end
       end
 
@@ -45,7 +45,7 @@ module Builderator
           command << " up --provider=#{Config.profile.current.vagrant.ec2.provider} "
           command << args.join(' ')
 
-          run command
+          run_without_bundler command
         end
       end
 
@@ -57,7 +57,7 @@ module Builderator
           command = Interface.vagrant.command
           command << " provision #{args.join(' ')}"
 
-          run command
+          run_without_bundler command
         end
       end
 
@@ -69,7 +69,7 @@ module Builderator
           command = Interface.vagrant.command
           command << " status #{args.join(' ')}"
 
-          run command
+          run_without_bundler command
         end
       end
 
@@ -82,7 +82,7 @@ module Builderator
           command << " ssh #{args.join(' ')}"
 
           ## Connect to subprocesses STDIO
-          exec(command)
+          run_without_bundler command
         end
       end
 
@@ -96,7 +96,7 @@ module Builderator
           command << " destroy #{args.join(' ')}"
           command << ' -f' if options['force']
 
-          run command
+          run_without_bundler command
         end
       end
 
@@ -122,7 +122,7 @@ module Builderator
           command << " plugin install #{ pname }"
           command << " --plugin-version #{ plugin.version }" if plugin.has?(:version)
 
-          run command
+          run_without_bundler command
         end
       end
     end
