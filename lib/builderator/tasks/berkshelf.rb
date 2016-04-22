@@ -44,8 +44,8 @@ module Builderator
         command << "-c #{Interface.berkshelf.berkshelf_config} " unless Interface.berkshelf.berkshelf_config.nil?
         command << "-b #{Interface.berkshelf.source}"
 
+        remove_file Interface.berkshelf.lockfile
         inside Interface.berkshelf.directory do
-          remove_file Interface.berkshelf.lockfile
           run command
         end
       end
