@@ -22,7 +22,7 @@ module Builderator
             Util.ec2.describe_images(:filters => [
               {
                 :name => 'state',
-                :values => %w(available)
+                :values => %w(available pending)
               }
             ], :owners => %w(self)).each do |page|
               page.images.each do |image|
