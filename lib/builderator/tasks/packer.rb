@@ -148,8 +148,13 @@ module Builderator
 
           build.ami_users.each do |account|
             role_arn = "arn:aws:iam::#{account}:role/#{build.tagging_role}"
-            response = sts_client.assume_role( role_arn: role_arn, role_session_name: "tag-new-ami")
-            raise "Could not assume role [#{role_arn}]" unless response.successful?
+            begin
+              response = sts_client.assume_role( role_arn: role_arn, role_session_name: "tag-new-ami")
+              raise "Could not assume role [#{role_arn}].  Perhaps it does not exist?" unless response.successful?
+            rescue => e
+              puts "=> Got error when trying to assume role:#{e.message} - continuing."
+              next
+            end
 
             role_credentials = response.credentials
             creds_hash = role_credentials.to_h.reject! { |k,v| !@allowed_cred_keys.include?(k.to_s) }
