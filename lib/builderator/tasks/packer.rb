@@ -132,10 +132,6 @@ module Builderator
       def remote_tag(profile)
         invoke :configure, [profile], options
 
-        if build.tagging_role.nil?
-          puts "No remote tagging to be performed as no IAM role is defined"
-        end
-
         sts_client = Aws::STS::Client.new(region: Config.aws.region)
         @allowed_cred_keys ||= %w(access_key_id secret_access_key session_token)
 
@@ -144,6 +140,11 @@ module Builderator
             :name => 'name',
             :values => [image_name]
           }]
+
+          if build.tagging_role.nil?
+            puts "No remote tagging to be performed as no IAM role is defined"
+            return
+          end
 
           build.ami_users.each do |account|
             role_arn = "arn:aws:iam::#{account}:role/#{build.tagging_role}"
