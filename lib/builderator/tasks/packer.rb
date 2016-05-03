@@ -133,7 +133,7 @@ module Builderator
         invoke :configure, [profile], options
 
         sts_client = Aws::STS::Client.new(region: Config.aws.region)
-        @allowed_cred_keys ||= %w(access_key_id secret_access_key session_token)
+        allowed_cred_keys = %w(access_key_id secret_access_key session_token)
 
         images.each do |image_name, (image, build)|
           filters = [{
@@ -156,13 +156,10 @@ module Builderator
               next
             end
 
-            role_credentials = response.credentials
-            creds_hash = role_credentials.to_h.reject! { |k,v| !@allowed_cred_keys.include?(k.to_s) }
-
-            cli = Util.ec2(Config.aws.region, creds_hash)
+            creds_hash = response.credentials.to_h.reject! { |k,v| !allowed_cred_keys.include?(k.to_s) }
 
             say_status :remote_tag, "AMI #{image_name} (#{image.image_id}) in account #{account}"
-            resp = cli.create_tags(:dry_run => false, :resources => [image.image_id], :tags => image.tags)
+            Util.ec2(Config.aws.region, creds_hash).create_tags(:dry_run => false, :resources => [image.image_id], :tags => image.tags)
           end
         end
       end
