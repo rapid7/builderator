@@ -128,6 +128,39 @@ module Builderator
         say_status :complete, 'All copied images are available'
       end
 
+      desc 'remote_tag PROFILE', 'Apply existing tags to the AMI in remote AWS accounts'
+      def remote_tag(profile)
+        invoke :configure, [profile], options
+
+        if build.tagging_role.nil?
+          puts "No remote tagging to be performed as no IAM role is defined"
+        end
+
+        sts_client = Aws::STS::Client.new(region: Config.aws.region)
+        @allowed_cred_keys ||= %w(access_key_id secret_access_key session_token)
+
+        images.each do |image_name, (image, build)|
+          filters = [{
+            :name => 'name',
+            :values => [image_name]
+          }]
+
+          build.ami_users.each do |account|
+            role_arn = "arn:aws:iam::#{account}:role/#{build.tagging_role}"
+            response = sts_client.assume_role( role_arn: role_arn, role_session_name: "tag-new-ami")
+            raise "Could not assume role [#{role_arn}]" unless response.successful?
+
+            role_credentials = response.credentials
+            creds_hash = role_credentials.to_h.reject! { |k,v| !@allowed_cred_keys.include?(k.to_s) }
+
+            cli = Util.ec2(Config.aws.region, creds_hash)
+
+            say_status :remote_tag, "AMI #{image_name} (#{image.image_id}) in account #{account}"
+            resp = cli.create_tags(:dry_run => false, :resources => [image.image_id], :tags => image.tags)
+          end
+        end
+      end
+
       private
 
       ## Find details for generated images in current region
