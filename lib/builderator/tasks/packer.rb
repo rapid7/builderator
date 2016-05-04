@@ -53,6 +53,7 @@ module Builderator
 
         invoke :wait, [profile], options
         invoke :tag, [profile], options
+        invoke :share, [profile], options
       end
 
       desc 'tag PROFILE', 'Tag AMIs in other regions'
@@ -126,6 +127,44 @@ module Builderator
         end
 
         say_status :complete, 'All copied images are available'
+      end
+
+      desc 'share PROFILE', 'Share copied AMIs in other accounts'
+      def share(profile)
+        invoke :configure, [profile], options
+
+        shared = false
+
+        images.each do |image_name, (image, build)|
+          build.ami_regions.each do |region|
+            build.ami_users.each do |user|
+              shared = true
+
+              filters = [{
+                :name => 'name',
+                :values => [image_name]
+              }]
+
+              regional_image = Util.ec2(region).describe_images(:filters => filters).images.first
+
+              say_status :share, "image #{image_name} (#{regional_image.image_id}) with #{user}"
+
+              share_image_parameters = {
+                :image_id => regional_image.image_id,
+                :launch_permission => {
+                  :add => [
+                    {
+                      :user_id => user
+                    }
+                  ]
+                }
+              }
+
+              Util.ec2(region).modify_image_attribute(share_image_parameters)
+            end
+          end
+        end
+        say_status :complete, 'All images are shared' if shared
       end
 
       private
