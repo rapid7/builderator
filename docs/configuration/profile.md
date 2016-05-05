@@ -32,6 +32,56 @@ Add a packer build
 * `source_ami` The source AMI ID for an `amazon-ebs`
 * `ssh_username` Default `ubuntu`
 * `ami_virtualization_type` Default `hvm`
+* `tagging_role` the name of an IAM role that exists in each remote account that allows the AMI to be retagged
+
+  Example usage:
+
+  <pre>
+     profile bake: Config.profile(:default) do |bake|
+       bake.packer do |packer|
+         packer.build :default do |build|
+           build.tagging_role 'CreateTagsOnAllImages'
+         end
+       end
+     end
+  </pre>
+
+  Example IAM policy in remote account:
+
+  <pre>
+  {
+      "Version": "2012-10-17",
+      "Statement": [
+          {
+              "Sid": "StmtId",
+              "Effect": "Allow",
+              "Action": [
+                  "ec2:CreateTags"
+              ],
+              "Resource": [
+                  "*"
+              ]
+          }
+      ]
+  }
+  </pre>
+
+
+  The above policy needs to be assigned to a role that enables a trust relationship with the account that builds the AMI:
+
+  <pre>
+  {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "arn:aws:iam::[ami_builder_account]:user/[ami_builder_user]"
+            },
+            "Action": "sts:AssumeRole"
+        }
+  }
+  </pre>
 
 ## TODO: Share accounts
 

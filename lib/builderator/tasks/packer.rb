@@ -53,6 +53,7 @@ module Builderator
 
         invoke :wait, [profile], options
         invoke :tag, [profile], options
+        invoke :share, [profile], options
       end
 
       desc 'tag PROFILE', 'Tag AMIs in other regions'
@@ -142,26 +143,66 @@ module Builderator
           }]
 
           if build.tagging_role.nil?
-            puts "No remote tagging to be performed as no IAM role is defined"
+            say_status :complete, 'No remote tagging to be performed as no IAM role is defined'
             return
           end
 
           build.ami_users.each do |account|
             role_arn = "arn:aws:iam::#{account}:role/#{build.tagging_role}"
             begin
-              response = sts_client.assume_role( role_arn: role_arn, role_session_name: "tag-new-ami")
+              response = sts_client.assume_role( :role_arn => role_arn, :role_session_name => "tag-new-ami")
               raise "Could not assume role [#{role_arn}].  Perhaps it does not exist?" unless response.successful?
             rescue => e
-              puts "=> Got error when trying to assume role:#{e.message} - continuing."
+              say_status :skip, "Got error when trying to assume role: #{e.message} - continuing."
               next
             end
 
-            creds_hash = response.credentials.to_h.reject! { |k,v| !allowed_cred_keys.include?(k.to_s) }
+            creds_hash = response.credentials.to_h.keep_if { |k,v| allowed_cred_keys.include?(k.to_s) }
 
-            say_status :remote_tag, "AMI #{image_name} (#{image.image_id}) in account #{account}"
-            Util.ec2(Config.aws.region, creds_hash).create_tags(:dry_run => false, :resources => [image.image_id], :tags => image.tags)
+            say_status :remote_tag, "Tag AMI #{image_name} (#{image.image_id}) in account #{account}"
+            Util.ec2(Config.aws.region, creds_hash)
+                .create_tags(:dry_run => false, :resources => [image.image_id], :tags => image.tags)
           end
         end
+        say_status :complete, 'Remote tagging complete'
+      end
+
+      desc 'share PROFILE', 'Share copied AMIs in other accounts'
+      def share(profile)
+        invoke :configure, [profile], options
+
+        shared = false
+
+        images.each do |image_name, (image, build)|
+          build.ami_regions.each do |region|
+            build.ami_users.each do |user|
+              shared = true
+
+              filters = [{
+                :name => 'name',
+                :values => [image_name]
+              }]
+
+              regional_image = Util.ec2(region).describe_images(:filters => filters).images.first
+
+              say_status :share, "image #{image_name} (#{regional_image.image_id}) with #{user}"
+
+              share_image_parameters = {
+                :image_id => regional_image.image_id,
+                :launch_permission => {
+                  :add => [
+                    {
+                      :user_id => user
+                    }
+                  ]
+                }
+              }
+
+              Util.ec2(region).modify_image_attribute(share_image_parameters)
+            end
+          end
+        end
+        say_status :complete, 'All images are shared' if shared
       end
 
       private
