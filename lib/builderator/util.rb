@@ -60,8 +60,15 @@ module Builderator
       ##
       # AWS Clients
       ##
-      def ec2(region = Config.aws.region)
-        clients["ec2-#{region}"] ||= Aws::EC2::Client.new(:region => region)
+      def ec2(region = Config.aws.region, credentials=nil)
+        options = { :region => region }
+
+        # Don't memoize if supplying explicit credentials as it could be an assumed role for a remote account
+        if credentials.nil?
+          clients["ec2-#{region}"] ||= Aws::EC2::Client.new(options)
+        else
+          Aws::EC2::Client.new options.merge(credentials)
+        end
       end
 
       def asg(region = Config.aws.region)

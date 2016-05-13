@@ -68,11 +68,13 @@ module Builderator
 
       desc 'image [PROFILE = default]', 'Build an AMI of PROFILE'
       method_option :debug, :type => :boolean
+      method_option :remote_tag, :type => :boolean, :default => true
       method_option :copy, :type => :boolean, :default => true
       def image(profile = :default)
         prepare
 
         invoke Tasks::Packer, :build, [profile], options
+        invoke Tasks::Packer, :remote_tag, [profile], options if options['remote_tag']
         invoke Tasks::Packer, :copy, [profile], options if options['copy']
       end
 

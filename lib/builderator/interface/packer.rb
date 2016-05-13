@@ -33,6 +33,9 @@ module Builderator
             # has full support again.
             build_hash.delete(:ami_regions)
 
+            # This is not directly supported by Packer
+            build_hash.delete(:tagging_role)
+
             json[:builders] << build_hash
           end
 
