@@ -36,11 +36,13 @@ module Builderator
       end
 
       desc 'vendor', 'Vendor a cookbook release and its dependencies'
+      option :debug, :type => :boolean, :desc => 'Show debug output'
       def vendor
         invoke :configure, [], options
         empty_directory Interface.berkshelf.vendor
 
         command = "#{Interface.berkshelf.command} vendor #{Interface.berkshelf.vendor} "
+        command << "-d " if options[:debug]
         command << "-c #{Interface.berkshelf.berkshelf_config} " unless Interface.berkshelf.berkshelf_config.nil?
         command << "-b #{Interface.berkshelf.source}"
 
