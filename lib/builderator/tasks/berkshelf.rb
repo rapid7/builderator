@@ -53,10 +53,12 @@ module Builderator
       end
 
       desc 'upload', 'Upload the local cookbook source and its dependencies to the Chef server'
+      option :debug, :type => :boolean, :desc => 'Show debug output'
       def upload
         vendor
 
         command = "#{Interface.berkshelf.command} upload "
+        command << "-d " if options[:debug]
         command << "-c #{Interface.berkshelf.berkshelf_config} " unless Interface.berkshelf.berkshelf_config.nil?
         command << "-b #{Interface.berkshelf.source}"
 
