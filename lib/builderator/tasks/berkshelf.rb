@@ -12,6 +12,8 @@ module Builderator
     class Berkshelf < Thor
       include Thor::Actions
 
+      class_option :debug, :type => :boolean, :desc => 'Show debug output'
+
       def self.exit_on_failure?
         true
       end
@@ -36,7 +38,6 @@ module Builderator
       end
 
       desc 'vendor', 'Vendor a cookbook release and its dependencies'
-      option :debug, :type => :boolean, :desc => 'Show debug output'
       def vendor
         invoke :configure, [], options
         empty_directory Interface.berkshelf.vendor
@@ -53,7 +54,6 @@ module Builderator
       end
 
       desc 'upload', 'Upload the local cookbook source and its dependencies to the Chef server'
-      option :debug, :type => :boolean, :desc => 'Show debug output'
       def upload
         vendor
 
