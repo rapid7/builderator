@@ -58,17 +58,16 @@ module Builderator
         end
 
         context 'current' do
-          around(:example) do |example|
-            if example.metadata[:version_file]
-              Util.relative_path('VERSION').write('1.2.3')
-            end
-            example.run
-            if example.metadata[:version_file]
-              Util.relative_path('VERSION').delete
-            end
+          it 'provides an error message if no version is found' do
+            version_file = Util.relative_path('VERSION')
+            version_file.delete if version_file.exist?
+
+            expect(SCM.tags.last).to be_nil
+            expect { Version.current }.to raise_error RuntimeError
           end
 
-          it 'falls back to VERSION file if no tags are found', :version_file => true do
+          it 'falls back to VERSION file if no tags are found' do
+            Util.relative_path('VERSION').write('1.2.3')
             expect(Version.current).to be == Version.from_string('1.2.3')
           end
         end
