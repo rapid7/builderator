@@ -58,7 +58,17 @@ module Builderator
         end
 
         context 'current' do
-          it 'falls back to VERSION file if no tags are found' do
+          around(:example) do |example|
+            if example.metadata[:version_file]
+              Util.relative_path('VERSION').write('1.2.3')
+            end
+            example.run
+            if example.metadata[:version_file]
+              Util.relative_path('VERSION').delete
+            end
+          end
+
+          it 'falls back to VERSION file if no tags are found', :version_file => true do
             expect(Version.current).to be == Version.from_string('1.2.3')
           end
         end
