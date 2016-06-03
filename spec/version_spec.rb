@@ -24,12 +24,43 @@ module Builderator
         end
       end
 
+      ## Test stub with no history
+      module NoHistory
+        extend SCM
+
+        def self.supported?
+          true
+        end
+
+        def self._history
+          []
+        end
+      end
+
       ## Disable the Git provider
       module Git
         extend SCM
 
         def self.supported?
           false
+        end
+      end
+
+      RSpec.describe Builderator::Control::Version do
+        before(:context) do
+          SCM.unregister(Test)
+          SCM.register(NoHistory)
+        end
+
+        after(:context) do
+          SCM.unregister(NoHistory)
+          SCM.register(Test)
+        end
+
+        context 'current' do
+          it 'falls back to VERSION file if no tags are found' do
+            expect(Version.current).to be == Version.from_string('1.2.3')
+          end
         end
       end
 
