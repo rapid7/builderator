@@ -37,6 +37,10 @@ module Builderator
             @current ||= Version.from_string(Util.relative_path('VERSION').read)
           end
 
+          if @current.nil?
+            fail 'No current version found! Create a VERSION file or set a version tag in your SCM.'
+          end
+
           @current
         end
 
