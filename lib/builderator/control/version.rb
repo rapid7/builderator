@@ -32,6 +32,12 @@ module Builderator
       class << self
         def current
           @current ||= SCM.tags.last
+
+          if @current.nil? && Util.relative_path('VERSION').exist?
+            @current ||= Version.from_string(Util.relative_path('VERSION').read)
+          end
+
+          @current
         end
 
         def set_config_version
