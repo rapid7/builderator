@@ -62,6 +62,10 @@ module Builderator
             providers.unshift(klass)
           end
 
+          def unregister(klass)
+            providers.delete(klass)
+          end
+
           def providers
             @providers ||= []
           end

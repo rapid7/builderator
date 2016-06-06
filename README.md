@@ -55,6 +55,8 @@ to install required plugins for Builderator.
 
 Builderator can automatically detect versions from SCM tags, increment the latest version of an SCM branch by a variety of steps, and create new SCM tags for new versions.
 
+If the SCM has no version tags, Builderator will try to read the version from a VERSION file in the repository.
+
 [Additional documentation](docs/versioning.md) describes CLI commands, configuration, and detailed behavior.
 
 ## Generators
