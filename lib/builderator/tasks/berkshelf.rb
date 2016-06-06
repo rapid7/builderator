@@ -12,6 +12,8 @@ module Builderator
     class Berkshelf < Thor
       include Thor::Actions
 
+      class_option :debug, :type => :boolean, :desc => 'Show debug output'
+
       def self.exit_on_failure?
         true
       end
@@ -41,6 +43,7 @@ module Builderator
         empty_directory Interface.berkshelf.vendor
 
         command = "#{Interface.berkshelf.command} vendor #{Interface.berkshelf.vendor} "
+        command << "-d " if options[:debug]
         command << "-c #{Interface.berkshelf.berkshelf_config} " unless Interface.berkshelf.berkshelf_config.nil?
         command << "-b #{Interface.berkshelf.source}"
 
@@ -55,6 +58,7 @@ module Builderator
         vendor
 
         command = "#{Interface.berkshelf.command} upload "
+        command << "-d " if options[:debug]
         command << "-c #{Interface.berkshelf.berkshelf_config} " unless Interface.berkshelf.berkshelf_config.nil?
         command << "-b #{Interface.berkshelf.source}"
 
