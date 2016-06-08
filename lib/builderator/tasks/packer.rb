@@ -133,7 +133,6 @@ module Builderator
       def remote_tag(profile)
         invoke :configure, [profile], options
 
-        sts_client = Aws::STS::Client.new(region: Config.aws.region)
         allowed_cred_keys = %w(access_key_id secret_access_key session_token)
 
         images.each do |image_name, (image, build)|
@@ -141,6 +140,9 @@ module Builderator
           ami_regions << Config.aws.region
           ami_regions.uniq!
           ami_regions.each do |region|
+
+            sts_client = Aws::STS::Client.new(region: region)
+
             filters = [{
               :name => 'name',
               :values => [image_name]
