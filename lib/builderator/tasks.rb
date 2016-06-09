@@ -74,8 +74,8 @@ module Builderator
         prepare
 
         invoke Tasks::Packer, :build, [profile], options
-        invoke Tasks::Packer, :remote_tag, [profile], options if options['remote_tag']
         invoke Tasks::Packer, :copy, [profile], options if options['copy']
+        invoke Tasks::Packer, :remote_tag, [profile], options if options['remote_tag']
       end
 
       # desc 'cookbook SUBCOMMAND', 'Cookbook tasks'
