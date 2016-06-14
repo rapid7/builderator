@@ -19,6 +19,10 @@ module Builderator
         skip
         expect(berkshelf.render).to eq IO.read(::File.expand_path('../data/Berksfile', __FILE__))
       end
+
+      it 'defaults to the gecode solver' do
+        expect(berkshelf.solver).to eq :gecode
+      end
     end
 
     context 'Vagrantfile' do
