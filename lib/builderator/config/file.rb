@@ -132,6 +132,10 @@ module Builderator
         attribute :version
       end
 
+      namespace :berkshelf do
+        attribute :solver
+      end
+
       ##
       # Cookbook build options
       ##

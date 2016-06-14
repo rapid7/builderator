@@ -32,6 +32,10 @@ module Builderator
         cookbook.add_source 'https://supermarket.chef.io'
       end
 
+      berkshelf do |berkshelf|
+        berkshelf.solver :gecode
+      end
+
       aws.region 'us-east-1'
 
       profile :default do |profile|
