@@ -13,11 +13,9 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://github.com/rapid7/builderator'
   spec.license       = 'MIT'
 
-  files = `git ls-files -z`.split("\x0")
-
-  spec.files         = files.reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.executables   = files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.test_files    = files.grep(%r{^(test|spec|features)/})
+  spec.files         = Dir['README.md', 'LICENSE.txt', 'lib/**/*', 'bin/**/*', 'template/**/*']
+  spec.executables   = Dir['bin/**/*'].map { |f| File.basename(f) }
+  spec.test_files    = Dir['spec/**/*']
   spec.require_paths = ['lib']
 
   spec.add_development_dependency 'rake', '~> 10.0'
