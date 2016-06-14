@@ -16,8 +16,3 @@ module FaradayMiddleware
 end
 
 Faraday::Response.register_middleware :gzip => FaradayMiddleware::Gzip
-
-# Force Berkshelf to use the gecode dependency solver
-require 'solve'
-
-Solve.engine = :gecode
