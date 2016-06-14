@@ -33,10 +33,6 @@ module Builderator
       def source
         directory.join('Berksfile')
       end
-
-      def solver
-        Config.berkshelf.solver
-      end
     end
   end
 end
