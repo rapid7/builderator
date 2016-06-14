@@ -8,6 +8,11 @@ module Builderator
       Config.load(::File.expand_path('../resource/Buildfile', __FILE__))
     end
 
+    it 'defaults to the gecode solver' do
+      Config.compile
+      expect(Config.berkshelf.solver).to eq :gecode
+    end
+
     it 'loads a DSL file' do
       expect(Config.layers.length).to eq 1
     end

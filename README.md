@@ -37,6 +37,31 @@ Configuration can be loaded from DSL files as well as JSON and command line argu
 
 Builderator integrates with other tools, including [Berkshelf](http://berkshelf.com), [Vagrant](https://www.vagrantup.com/), and [Packer](https://www.packer.io/), to orchestrate workflows by generating `Berksfile`s, `Vagrantfile`s, and JSON strings for Packer. This means that you can replace all of these files in your project with a single `Buildfile`.
 
+### Berkshelf
+
+The Berkshelf integration generates a Berksfile. The following configuration
+values are supported.
+
+#### solver
+
+The generated Berksfile uses the `:gecode` dependency resolver by default. To
+use the `:ruby` solver, add this snippet to your Buildfile.
+
+```ruby
+berkshelf do |berks|
+  berks.solver :ruby
+end
+```
+
+For help debugging cookbook dependency issues, you can set the `DEBUG_RESOLVER`
+environment variable and use the `--debug` flag when running `build berks`
+sucommands.
+
+```bash
+export DEBUG_RESOLVER=1
+build berks vendor --debug
+```
+
 ### Packer
 
 The Packer integration generates a Packer JSON configuration and passes it to STDIN of `packer build -`.
