@@ -53,6 +53,15 @@ berkshelf do |berks|
 end
 ```
 
+For help debugging cookbook dependency issues, you can set the `DEBUG_RESOLVER`
+environment variable and use the `--debug` flag when running `build berks`
+sucommands.
+
+```bash
+export DEBUG_RESOLVER=1
+build berks vendor --debug
+```
+
 ### Packer
 
 The Packer integration generates a Packer JSON configuration and passes it to STDIN of `packer build -`.
