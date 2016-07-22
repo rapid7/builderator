@@ -3,6 +3,8 @@ require 'thor'
 require_relative '../interface/vagrant'
 require_relative '../patch/thor-actions'
 
+require_relative './berkshelf'
+
 module Builderator
   module Tasks
     ##
@@ -55,6 +57,9 @@ module Builderator
       def provision(profile = :default, *args)
         invoke :configure, [profile], options
 
+        invoke Berkshelf, :vendor, [], options
+        invoke :rsync, [profile], options
+
         inside Interface.vagrant.directory do
           command = Interface.vagrant.command
           command << " provision #{args.join(' ')}"
@@ -84,6 +89,19 @@ module Builderator
         inside Interface.vagrant.directory do
           command = Interface.vagrant.command
           command << " ssh #{args.join(' ')}"
+
+          return run command if Interface.vagrant.bundled?
+          run_without_bundler command
+        end
+      end
+
+      desc 'rsync [PROFILE [ARGS ...]]', 'Sync resources to Vagrant VM(s)'
+      def rsync(profile = :default, *args)
+        invoke :configure, [profile], options
+
+        inside Interface.vagrant.directory do
+          command = Interface.vagrant.command
+          command << " rsync #{args.join(' ')}"
 
           return run command if Interface.vagrant.bundled?
           run_without_bundler command
