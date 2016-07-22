@@ -91,7 +91,7 @@ module Builderator
           command << " ssh #{args.join(' ')}"
 
           return run command if Interface.vagrant.bundled?
-          run_without_bundler command
+          run_without_bundler command, :childprocess => true
         end
       end
 

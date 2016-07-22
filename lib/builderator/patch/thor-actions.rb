@@ -1,3 +1,5 @@
+require 'bundler'
+require 'childprocess'
 require 'thor/actions'
 
 require_relative '../util'
@@ -44,10 +46,6 @@ class Thor
     # (e.g. keep vagrant happy in it's own little vendor full of unicorns)
     ##
     def run_without_bundler(command, config = {})
-      env = ENV.clone
-      env.delete('RUBYOPT')
-      env.delete('RUBYLIB')
-
       destination = relative_to_original_destination_root(destination_root, false)
       desc = "#{command} from #{destination.inspect}"
 
@@ -61,13 +59,24 @@ class Thor
 
       output = config.fetch(:stdout, STDOUT)
 
-      IO.popen(env, command, 'r+') do |io|
-        ## Stream output
-        loop do
-          break if io.eof?
+      Bundler.with_clean_env do
+        if config.fetch(:childprocess, false)
+          process = ChildProcess.build(*command.split(' '))
+          process.io.inherit!
 
-          output.write(io.readpartial(4096))
-          output.flush
+          process.start
+          process.wait
+          return process.exit_code
+        end
+
+        IO.popen(command, 'r+') do |io|
+          ## Stream output
+          loop do
+            break if io.eof?
+
+            output.write(io.readpartial(4096))
+            output.flush
+          end
         end
       end
     end
