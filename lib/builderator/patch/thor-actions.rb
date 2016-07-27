@@ -1,3 +1,5 @@
+require 'bundler'
+require 'childprocess'
 require 'thor/actions'
 
 require_relative '../util'
@@ -35,6 +37,46 @@ class Thor
 
           output.write(io.readpartial(4096))
           output.flush
+        end
+      end
+    end
+
+    ##
+    # Run an external command without bundler's injected environment variables
+    # (e.g. keep vagrant happy in it's own little vendor full of unicorns)
+    ##
+    def run_without_bundler(command, config = {})
+      destination = relative_to_original_destination_root(destination_root, false)
+      desc = "#{command} from #{destination.inspect}"
+
+      if config[:with]
+        desc = "#{File.basename(config[:with].to_s)} #{desc}"
+        command = "#{config[:with]} #{command}"
+      end
+
+      say_status :run, desc, config.fetch(:verbose, true)
+      return if options[:pretend]
+
+      output = config.fetch(:stdout, STDOUT)
+
+      Bundler.with_clean_env do
+        if config.fetch(:childprocess, false)
+          process = ChildProcess.build(*command.split(' '))
+          process.io.inherit!
+
+          process.start
+          process.wait
+          return process.exit_code
+        end
+
+        IO.popen(command, 'r+') do |io|
+          ## Stream output
+          loop do
+            break if io.eof?
+
+            output.write(io.readpartial(4096))
+            output.flush
+          end
         end
       end
     end

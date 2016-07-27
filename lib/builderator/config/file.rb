@@ -256,6 +256,7 @@ module Builderator
             attribute :availability_zone
             attribute :subnet_id
             attribute :private_ip_address
+            attribute :tags, :type => :hash
 
             attribute :instance_type
             attribute :security_groups, :type => :list

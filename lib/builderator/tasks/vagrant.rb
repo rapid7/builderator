@@ -3,6 +3,8 @@ require 'thor'
 require_relative '../interface/vagrant'
 require_relative '../patch/thor-actions'
 
+require_relative './berkshelf'
+
 module Builderator
   module Tasks
     ##
@@ -32,7 +34,8 @@ module Builderator
           command << " up --provider=#{Config.profile.current.vagrant.local.provider} "
           command << args.join(' ')
 
-          run command
+          return run(command) if Interface.vagrant.bundled?
+          run_without_bundler command
         end
       end
 
@@ -45,7 +48,8 @@ module Builderator
           command << " up --provider=#{Config.profile.current.vagrant.ec2.provider} "
           command << args.join(' ')
 
-          run command
+          return run(command) if Interface.vagrant.bundled?
+          run_without_bundler command
         end
       end
 
@@ -53,11 +57,15 @@ module Builderator
       def provision(profile = :default, *args)
         invoke :configure, [profile], options
 
+        invoke Berkshelf, :vendor, [], options
+        invoke :rsync, [profile], options
+
         inside Interface.vagrant.directory do
           command = Interface.vagrant.command
           command << " provision #{args.join(' ')}"
 
-          run command
+          return run(command) if Interface.vagrant.bundled?
+          run_without_bundler command
         end
       end
 
@@ -69,7 +77,8 @@ module Builderator
           command = Interface.vagrant.command
           command << " status #{args.join(' ')}"
 
-          run command
+          return run(command) if Interface.vagrant.bundled?
+          run_without_bundler command
         end
       end
 
@@ -81,8 +90,21 @@ module Builderator
           command = Interface.vagrant.command
           command << " ssh #{args.join(' ')}"
 
-          ## Connect to subprocesses STDIO
-          exec(command)
+          return run(command) if Interface.vagrant.bundled?
+          run_without_bundler command, :childprocess => true
+        end
+      end
+
+      desc 'rsync [PROFILE [ARGS ...]]', 'Sync resources to Vagrant VM(s)'
+      def rsync(profile = :default, *args)
+        invoke :configure, [profile], options
+
+        inside Interface.vagrant.directory do
+          command = Interface.vagrant.command
+          command << " rsync #{args.join(' ')}"
+
+          return run(command) if Interface.vagrant.bundled?
+          run_without_bundler command
         end
       end
 
@@ -96,7 +118,8 @@ module Builderator
           command << " destroy #{args.join(' ')}"
           command << ' -f' if options['force']
 
-          run command
+          return run(command) if Interface.vagrant.bundled?
+          run_without_bundler command
         end
       end
 
@@ -122,7 +145,8 @@ module Builderator
           command << " plugin install #{ pname }"
           command << " --plugin-version #{ plugin.version }" if plugin.has?(:version)
 
-          run command
+          return run(command) if Interface.vagrant.bundled?
+          run_without_bundler command
         end
       end
     end
