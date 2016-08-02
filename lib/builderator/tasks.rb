@@ -26,6 +26,10 @@ module Builderator
         Config.load(File.join(ENV['HOME'], '.builderator/Buildfile'))
         Config.load(Util.relative_path('Buildfile').to_s)
 
+        # Ignore existing config when we don't need it: i.e. `help`
+        ignore_existing_config = ['help']
+        return if ignore_existing_config.any? { |i| ARGV.include?(i) }
+
         Config.compile
       end
 
