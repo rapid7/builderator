@@ -80,6 +80,11 @@ module Builderator
 
             ## Apply relative subdirectory
             run "git filter-branch --subdirectory-filter \"#{ params.rel }\" --force" if params.has?(:rel)
+
+            ## Update Submodules
+            if path.join('.gitmodules').exist?
+              run "git submodule update --init --recursive"
+            end
           end
         end
 
