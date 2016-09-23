@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'berkshelf', '~> 4.3'
   spec.add_dependency 'childprocess', '~> 0.5'
   spec.add_dependency 'dep_selector', '~> 1.0'
-  spec.add_dependency 'chef', '~> 12.13.37'
+  spec.add_dependency 'chef', '~> 12.7.2'
   spec.add_dependency 'faraday_middleware', '~> 0.10.0'
   spec.add_dependency 'ignorefile'
   spec.add_dependency 'thor', '~> 0.19.0'
