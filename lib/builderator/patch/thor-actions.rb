@@ -30,6 +30,7 @@ class Thor
 
       IO.popen(command, 'r+') do |io|
         io.write(input)
+        io.close_write
 
         ## Stream output
         loop do
