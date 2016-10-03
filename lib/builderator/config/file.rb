@@ -247,6 +247,16 @@ module Builderator
             attribute :memory
           end
 
+          collection :port do
+            attribute :host
+            attribute :guest
+          end
+
+          collection :sync do
+            attribute :path, :relative => true
+            attribute :destination
+          end
+
           namespace :ec2 do
             attribute :provider
             attribute :box
