@@ -28,6 +28,12 @@ module Builderator
               b[:tags] = Config.profile.current.tags
             end
 
+            # If we specify encrypted boot, packer won't allow ami_users.
+            # We have to figure out another way to share.
+            if build_hash.key?(:encrypt_boot)
+              build_hash.delete(:ami_users)
+            end
+
             ## Support is missing for several regions in some versions of Packer
             # Moving this functionality into a task until we can confirm that Packer
             # has full support again.
