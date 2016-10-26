@@ -210,6 +210,7 @@ module Builderator
             attribute :enhanced_networking
             attribute :security_group_ids, :type => :list, :singular => :security_group_id
             attribute :iam_instance_profile
+            attribute :encrypt_boot
 
             attribute :source_ami
             attribute :user_data

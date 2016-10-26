@@ -28,6 +28,16 @@ module Builderator
               b[:tags] = Config.profile.current.tags
             end
 
+            # If we specify encrypted boot, packer won't allow ami_users.
+            # See: https://github.com/MYOB-Technology/packer/blob/509cd7dcf194beb6ca6d0c39057f7490fa630d78/builder/amazon/common/ami_config.go#L59-L61
+
+            # A PR (https://github.com/mitchellh/packer/pull/4023) has been
+            # submitted to resolve this issue but we shouldn't remove this
+            # until a new Packer release with this feature.
+            if build_hash.key?(:encrypt_boot)
+              build_hash.delete(:ami_users)
+            end
+
             ## Support is missing for several regions in some versions of Packer
             # Moving this functionality into a task until we can confirm that Packer
             # has full support again.
