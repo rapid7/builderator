@@ -29,7 +29,7 @@ module Builderator
             end
 
             # If we specify encrypted boot, packer won't allow ami_users.
-            # We have to figure out another way to share.
+            # See: https://github.com/mitchellh/packer/pull/4023
             if build_hash.key?(:encrypt_boot)
               build_hash.delete(:ami_users)
             end
