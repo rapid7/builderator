@@ -188,6 +188,7 @@ module Builderator
           attribute :run_list, :type => :list, :singular => :run_list_item
           attribute :environment
           attribute :node_attrs, :type => :hash
+          attribute :binary_env
         end
 
         ##

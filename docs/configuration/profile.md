@@ -17,6 +17,10 @@ An externally managed resource to push to VMs and image builds, e.g. `bundle.tar
 * `run_list, type: list, singular: run_list_item, unique: true` The Chef runlist for this profile
 * `environment` The Chef environment to load for this
 * `node_attrs, type: hash` A hash of node attributes for this profile
+* `binary_env` A space separated, KEY=VALUE formatted string to pass data
+    into the provisioning process as environment variables. See
+    [the vagrant docs](https://www.vagrantup.com/docs/provisioning/chef_common.html#binary_env)
+    for more information.
 
 
 ## Namespace `packer`

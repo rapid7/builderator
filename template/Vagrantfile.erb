@@ -81,6 +81,10 @@ Vagrant.configure('2') do |config|
     chef.environment = '<%= profile.current.chef.environment %>'
 <% end -%>
 
+<% unless profile.current.chef.binary_env.nil? -%>
+    chef.binary_env = '<%= profile.current.chef.binary_env %>'
+<% end -%>
+
 <% if profile.current.chef.node_attrs.nil? -%>
     chef.json = {}
 <% else -%>
