@@ -21,7 +21,8 @@ module Builderator
 
         @packerfile ||= {
           :builders => [],
-          :provisioners => []
+          :provisioners => [],
+          'post-processors' => []
         }.tap do |json|
           Config.profile.current.packer.build.each do |_, build|
             build_hash = build.to_hash.tap do |b|
@@ -49,12 +50,30 @@ module Builderator
             json[:builders] << build_hash
           end
 
+          post_processors = []
+
+          # Post-processors should be considered as a sequence
+          Config.profile.current.packer.post_processor.each do |name, post_processor|
+            post_processor_hash = post_processor.to_hash
+
+            # Single, named step in a sequence
+            if post_processor_hash.empty?
+              post_processors << name
+              next
+            end
+
+            post_processors << post_processor_hash
+          end
+          json['post-processors'].push(post_processors)
+
           ## Initialize the staging directory
           json[:provisioners] << {
             :type => 'shell',
             :inline => "sudo mkdir -p #{Config.chef.staging_directory}/cache && "\
                        "sudo chown $(whoami) -R #{Config.chef.staging_directory}"
           }
+
+          json.delete('post-processors') if json['post-processors'].empty?
         end
 
         _artifact_provisioners
