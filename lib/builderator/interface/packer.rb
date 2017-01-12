@@ -26,7 +26,7 @@ module Builderator
         }.tap do |json|
           Config.profile.current.packer.build.each do |_, build|
             build_hash = build.to_hash.tap do |b|
-              b[:tags] = Config.profile.current.tags
+              b[:tags] = Config.profile.current.tags unless Config.profile.current.tags.empty?
             end
 
             # If we specify encrypted boot, packer won't allow ami_users.
