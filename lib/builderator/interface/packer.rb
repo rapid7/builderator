@@ -29,6 +29,15 @@ module Builderator
               b[:tags] = Config.profile.current.tags unless Config.profile.current.tags.empty?
             end
 
+            if build_hash[:type] == 'docker'
+              raise 'The Docker builder requires a base image' unless build_hash.key?(:image)
+
+              # The Docker builder requires one and only one of 'commit', 'discard', or 'export_path' set
+              if build_hash.keys.find_all { |k| [:commit, :discard, :export_path].include?(k) }.length != 1
+                raise 'The Docker builder requires one and only one of `commit`, `discard`, or `export_path` attributes to be defined'
+              end
+            end
+
             # If we specify encrypted boot, packer won't allow ami_users.
             # See: https://github.com/MYOB-Technology/packer/blob/509cd7dcf194beb6ca6d0c39057f7490fa630d78/builder/amazon/common/ami_config.go#L59-L61
 
