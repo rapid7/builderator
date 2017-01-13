@@ -80,6 +80,16 @@ module Builderator
         end
       end
 
+      profile :docker do |profile|
+        profile.log_level :info
+
+        profile.packer do |packer|
+          packer.build :docker do |build|
+            build.type 'docker'
+          end
+        end
+      end
+
       cleaner do |cleaner|
         cleaner.commit false
         cleaner.force false
