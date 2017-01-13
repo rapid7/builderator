@@ -33,7 +33,7 @@ module Builderator
               raise 'The Docker builder requires a base image' unless build_hash.key?(:image)
 
               # The Docker builder requires one and only one of 'commit', 'discard', or 'export_path' set
-              if build_hash.keys.find_all { |k| [:commit, :discard, :export_path].include?(k) }.length != 1
+              if build_hash.keys.select { |k| [:commit, :discard, :export_path].include?(k) }.length != 1
                 raise 'The Docker builder requires one and only one of `commit`, `discard`, or `export_path` attributes to be defined'
               end
             end
