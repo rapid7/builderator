@@ -29,9 +29,22 @@ Packer configurations for this profile
 
 ### Collection `build`
 
-Add a packer build
+Add a Packer build
 
-* `type` the build provider (e.g. amazon-ebs, virtualbox)
+* `type` the build provider (e.g. amazon-ebs, virtualbox, docker)
+
+Options for the `docker` builder:
+* `image` The base image for the Docker container that will be started
+
+The Docker builder requires one, and only one, of the following options:
+* `commit` The container will be committed to an image rather than exported
+* `discard` Throw away the container when the build is complete
+* `export_path` The path where the final container will be exported as a tar file
+
+There are additional options specified in `lib/builderator/config/file.rb` and
+in the Packer documentation.
+
+Options for the `amazon-ebs` builder:
 * `instance_type` the EC2 instance type to use
 * `source_ami` The source AMI ID for an `amazon-ebs`
 * `ssh_username` Default `ubuntu`
@@ -87,6 +100,37 @@ Add a packer build
   }
   </pre>
 
+### Collection `post_processor`
+
+Add a packer post-processor to run after the provisioning steps.
+The `post_processor` collection currently only supports the `docker-tag`,
+`docker-import`, `docker-save`, and `docker-push` post-processors.
+
+* `type` The type of post-processor
+
+[Docker-tag][] and [docker-import][] post-processors
+* `repository` The repository of the imported image
+* `tag` The tag for the imported image
+* `force` If true, the `docker-tag` post-processor forcibly
+tags the image even if there is a tag name collision. Defaults to `false`.
+
+[Docker-save][] post-processor
+* `path` The path to save the image
+
+[Docker-push][] post-processor
+
+* `aws_access_key`
+* `aws_secret_key`
+* `aws_token`
+* `ecr_login`
+* `login`
+* `login_email`
+* `login_username`
+* `login_password`
+* `login_server`
+
+See the [documentation][docker-push] for configuration information.
+
 ## TODO: Share accounts
 
 * `ami_name` Name for new AMI
@@ -124,3 +168,8 @@ Parameters for the provisioning EC2 nodes with Vagrant
 * `security_groups, type: list, singular: security_group, unique: true`
 * `public_ip`
 * `ssh_host_attribute` One of: `[:public_ip_address, :dns_name, :private_ip_address]`, Default `:private_ip_address`
+
+[docker-tag]: https://www.packer.io/docs/post-processors/docker-tag.html
+[docker-import]: https://www.packer.io/docs/post-processors/docker-import.html
+[docker-save]: https://www.packer.io/docs/post-processors/docker-save.html
+[docker-push]: https://www.packer.io/docs/post-processors/docker-push.html
