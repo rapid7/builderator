@@ -34,17 +34,20 @@ Add a Packer build
 * `type` the build provider (e.g. amazon-ebs, virtualbox, docker)
 
 Options for the `docker` builder:
+
 * `image` The base image for the Docker container that will be started
 
 The Docker builder requires one, and only one, of the following options:
+
 * `commit` The container will be committed to an image rather than exported
 * `discard` Throw away the container when the build is complete
 * `export_path` The path where the final container will be exported as a tar file
 
-There are additional options specified in `lib/builderator/config/file.rb` and
+There are additional options specified in [`lib/builderator/config/file.rb`](../../lib/builderator/config/file.rb) and
 in the Packer documentation.
 
 Options for the `amazon-ebs` builder:
+
 * `instance_type` the EC2 instance type to use
 * `source_ami` The source AMI ID for an `amazon-ebs`
 * `ssh_username` Default `ubuntu`
@@ -109,12 +112,13 @@ The `post_processor` collection currently only supports the `docker-tag`,
 * `type` The type of post-processor
 
 [Docker-tag][] and [docker-import][] post-processors
+
 * `repository` The repository of the imported image
 * `tag` The tag for the imported image
-* `force` If true, the `docker-tag` post-processor forcibly
-tags the image even if there is a tag name collision. Defaults to `false`.
+* `force` If true, the `docker-tag` post-processor forcibly tags the image even if there is a tag name collision. Defaults to `false`.
 
 [Docker-save][] post-processor
+
 * `path` The path to save the image
 
 [Docker-push][] post-processor
