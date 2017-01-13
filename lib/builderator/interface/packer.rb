@@ -71,6 +71,9 @@ module Builderator
               next
             end
 
+            # The post-processor's type should be the same as the name
+            post_processor_hash[:type] = name
+
             post_processors << post_processor_hash
           end
           json['post-processors'].push(post_processors)
