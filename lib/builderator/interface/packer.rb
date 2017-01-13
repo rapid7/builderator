@@ -19,6 +19,10 @@ module Builderator
       def initialize(*_)
         super
 
+        docker_builders = Config.profile.current.packer.build.select do |_, builder|
+          builder.to_h[:type] == 'docker'
+        end
+
         @packerfile ||= {
           :builders => [],
           :provisioners => [],
@@ -78,18 +82,25 @@ module Builderator
           end
           json['post-processors'].push(post_processors)
 
-          ## Initialize the staging directory
+          ## Initialize the staging directory unless using the docker builder
           json[:provisioners] << {
             :type => 'shell',
             :inline => "sudo mkdir -p #{Config.chef.staging_directory}/cache && "\
                        "sudo chown $(whoami) -R #{Config.chef.staging_directory}"
-          }
+          } if docker_builders.empty?
 
           json.delete('post-processors') if json['post-processors'].empty?
         end
 
         _artifact_provisioners
-        _chef_provisioner
+
+        # There are certain options (staging directory, run as sudo) that don't apply
+        # to the docker builder.
+        if docker_builders.empty?
+          _chef_provisioner
+        else
+          _chef_provisioner_docker
+        end
       end
 
       def render
@@ -110,7 +121,21 @@ module Builderator
       end
 
       def _chef_provisioner
-        packerfile[:provisioners] << {
+        packerfile[:provisioners] << _chef_provisioner_base.merge(
+          :staging_directory => Config.chef.staging_directory,
+          :install_command => _chef_install_command
+        )
+      end
+
+      def _chef_provisioner_docker
+        packerfile[:provisioners] << _chef_provisioner_base.merge(
+          :prevent_sudo => true,
+          :install_command => _chef_install_command(false)
+        )
+      end
+
+      def _chef_provisioner_base
+        {
           :type => 'chef-solo',
           :run_list => Config.profile.current.chef.run_list,
           :cookbook_paths => Config.local.cookbook_path,
@@ -118,9 +143,12 @@ module Builderator
           :environments_path => Config.local.environment_path,
           :chef_environment => Config.profile.current.chef.environment,
           :json => Config.profile.current.chef.node_attrs,
-          :staging_directory => Config.chef.staging_directory,
-          :install_command => "curl -L https://www.chef.io/chef/install.sh | sudo bash -s -- -v #{Config.chef.version}"
         }
+      end
+
+      def _chef_install_command(sudo = true)
+        template = sudo ? 'sudo' : ''
+        format("curl -L https://www.chef.io/chef/install.sh | %s bash -s -- -v #{Config.chef.version}", template)
       end
     end
   end
