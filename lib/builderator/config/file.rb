@@ -194,11 +194,37 @@ module Builderator
         ##
         # Packerfile
         #
-        # This currently supports the AWS/EC2 builder.
+        # This currently supports the AWS/EC2 and Docker builders.
         ##
         namespace :packer do
           collection :build do
             attribute :type
+
+            ## Docker-specific attributes
+            # Required
+            attribute :image
+            # One (and only one) of the following is required
+            attribute :commit
+            attribute :discard
+            attribute :export_path
+
+            # Optional attributes
+            attribute :author
+            attribute :aws_access_key
+            attribute :aws_secret_key
+            attribute :aws_token
+            attribute :changes, :type => :list
+            attribute :ecr_login
+            attribute :login
+            attribute :login_email
+            attribute :login_username
+            attribute :login_password
+            attribute :login_server
+            attribute :message
+            attribute :privileged
+            attribute :pull
+            attribute :run_command, :type => :list
+            attribute :volumes, :type => :hash
 
             ## EC2 Placement and Virtualization parameters
             attribute :region
@@ -233,6 +259,29 @@ module Builderator
 
             ## Assumable role for tagging AMIs in remote accounts
             attribute :tagging_role
+          end
+
+          collection :post_processor do
+            attribute :type
+
+            ## Docker-tag and docker-import post-processors
+            attribute :repository
+            attribute :tag
+            attribute :force
+
+            ## Docker-save post-processor
+            attribute :path
+
+            ## Docker-push post-processor
+            attribute :aws_access_key
+            attribute :aws_secret_key
+            attribute :aws_token
+            attribute :ecr_login
+            attribute :login
+            attribute :login_email
+            attribute :login_username
+            attribute :login_password
+            attribute :login_server
           end
         end
 

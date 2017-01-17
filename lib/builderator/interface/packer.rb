@@ -19,13 +19,27 @@ module Builderator
       def initialize(*_)
         super
 
+        docker_builders = Config.profile.current.packer.build.select do |_, builder|
+          builder.to_h[:type] == 'docker'
+        end
+
         @packerfile ||= {
           :builders => [],
-          :provisioners => []
+          :provisioners => [],
+          'post-processors' => []
         }.tap do |json|
           Config.profile.current.packer.build.each do |_, build|
             build_hash = build.to_hash.tap do |b|
-              b[:tags] = Config.profile.current.tags
+              b[:tags] = Config.profile.current.tags unless Config.profile.current.tags.empty?
+            end
+
+            if build_hash[:type] == 'docker'
+              raise 'The Docker builder requires a base image' unless build_hash.key?(:image)
+
+              # The Docker builder requires one and only one of 'commit', 'discard', or 'export_path' set
+              if build_hash.keys.select { |k| [:commit, :discard, :export_path].include?(k) }.length != 1
+                raise 'The Docker builder requires one and only one of `commit`, `discard`, or `export_path` attributes to be defined'
+              end
             end
 
             # If we specify encrypted boot, packer won't allow ami_users.
@@ -49,16 +63,44 @@ module Builderator
             json[:builders] << build_hash
           end
 
-          ## Initialize the staging directory
+          post_processors = []
+
+          # Post-processors should be considered as a sequence
+          Config.profile.current.packer.post_processor.each do |name, post_processor|
+            post_processor_hash = post_processor.to_hash
+
+            # Single, named step in a sequence
+            if post_processor_hash.empty?
+              post_processors << name
+              next
+            end
+
+            # The post-processor's type should be the same as the name
+            post_processor_hash[:type] = name
+
+            post_processors << post_processor_hash
+          end
+          json['post-processors'].push(post_processors)
+
+          ## Initialize the staging directory unless using the docker builder
           json[:provisioners] << {
             :type => 'shell',
             :inline => "sudo mkdir -p #{Config.chef.staging_directory}/cache && "\
                        "sudo chown $(whoami) -R #{Config.chef.staging_directory}"
-          }
+          } if docker_builders.empty?
+
+          json.delete('post-processors') if json['post-processors'].empty?
         end
 
         _artifact_provisioners
-        _chef_provisioner
+
+        # There are certain options (staging directory, run as sudo) that don't apply
+        # to the docker builder.
+        if docker_builders.empty?
+          _chef_provisioner
+        else
+          _chef_provisioner_docker
+        end
       end
 
       def render
@@ -79,7 +121,21 @@ module Builderator
       end
 
       def _chef_provisioner
-        packerfile[:provisioners] << {
+        packerfile[:provisioners] << _chef_provisioner_base.merge(
+          :staging_directory => Config.chef.staging_directory,
+          :install_command => _chef_install_command
+        )
+      end
+
+      def _chef_provisioner_docker
+        packerfile[:provisioners] << _chef_provisioner_base.merge(
+          :prevent_sudo => true,
+          :install_command => _chef_install_command(false)
+        )
+      end
+
+      def _chef_provisioner_base
+        {
           :type => 'chef-solo',
           :run_list => Config.profile.current.chef.run_list,
           :cookbook_paths => Config.local.cookbook_path,
@@ -87,9 +143,12 @@ module Builderator
           :environments_path => Config.local.environment_path,
           :chef_environment => Config.profile.current.chef.environment,
           :json => Config.profile.current.chef.node_attrs,
-          :staging_directory => Config.chef.staging_directory,
-          :install_command => "curl -L https://www.chef.io/chef/install.sh | sudo bash -s -- -v #{Config.chef.version}"
         }
+      end
+
+      def _chef_install_command(sudo = true)
+        template = sudo ? 'sudo' : ''
+        format("curl -L https://www.chef.io/chef/install.sh | %s bash -s -- -v #{Config.chef.version}", template)
       end
     end
   end

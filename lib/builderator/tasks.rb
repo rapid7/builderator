@@ -82,6 +82,14 @@ module Builderator
         invoke Tasks::Packer, :remote_tag, [profile], options if options['remote_tag']
       end
 
+      desc 'container [PROFILE = docker]', 'Build a container of PROFILE'
+      method_option :debug, :type => :boolean
+      def container(profile = :docker)
+        prepare
+
+        invoke Tasks::Packer, :build, [profile], options
+      end
+
       # desc 'cookbook SUBCOMMAND', 'Cookbook tasks'
       # subcommand 'cookbook', Tasks::Cookbook
 
