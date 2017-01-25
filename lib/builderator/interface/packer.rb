@@ -63,24 +63,8 @@ module Builderator
             json[:builders] << build_hash
           end
 
-          post_processors = []
-
-          # Post-processors should be considered as a sequence
-          Config.profile.current.packer.post_processor.each do |name, post_processor|
-            post_processor_hash = post_processor.to_hash
-
-            # Single, named step in a sequence
-            if post_processor_hash.empty?
-              post_processors << name
-              next
-            end
-
-            # The post-processor's type should be the same as the name
-            post_processor_hash[:type] = name
-
-            post_processors << post_processor_hash
-          end
-          json['post-processors'].push(post_processors)
+          json['post-processors'].push(_post_processors)
+          json.delete('post-processors') if json['post-processors'].compact.empty?
 
           ## Initialize the staging directory unless using the docker builder
           json[:provisioners] << {
@@ -89,17 +73,28 @@ module Builderator
                        "sudo chown $(whoami) -R #{Config.chef.staging_directory}"
           } if docker_builders.empty?
 
-          json.delete('post-processors') if json['post-processors'].empty?
-        end
+          # Only add artifact provisioners if they're defined
+          Config.profile.current.artifact.each do |_, artifact|
+            json[:provisioners] << _artifact_provisioner(artifact)
+          end unless Config.profile.current.artifact.attributes.empty?
 
-        _artifact_provisioners
+          # Only add chef provisioners if they're defined
+          unless Config.profile.current.chef.attributes.empty?
+            # There are certain options (staging directory, run as sudo) that don't apply
+            # to the docker builder.
+            json[:provisioners] << if docker_builders.empty?
+                                     _chef_provisioner
+                                   else
+                                     _chef_provisioner_docker
+                                   end
+          end
 
-        # There are certain options (staging directory, run as sudo) that don't apply
-        # to the docker builder.
-        if docker_builders.empty?
-          _chef_provisioner
-        else
-          _chef_provisioner_docker
+          # After adding the default provisioners, we add any additional ones to the provisioners array
+          Config.profile.current.provisioner.each do |name, provisioner|
+            json[:provisioners] << provisioner.attributes.tap { |p| p[:type] = name.to_s }
+          end
+
+          json.delete(:provisioners) if json[:provisioners].empty?
         end
       end
 
@@ -109,26 +104,44 @@ module Builderator
 
       private
 
-      ## Upload artifacts to the build container
-      def _artifact_provisioners
-        Config.profile.current.artifact.each do |_, artifact|
-          packerfile[:provisioners] << {
-            :type => 'file',
-            :source => artifact.path,
-            :destination => artifact.destination
-          }
+      def _post_processors
+        post_processors = []
+        # Post-processors should be considered as a sequence
+        Config.profile.current.packer.post_processor.each do |name, post_processor|
+          post_processor_hash = post_processor.to_hash
+
+          # Single, named step in a sequence
+          if post_processor_hash.empty?
+            post_processors << name
+            next
+          end
+
+          # The post-processor's type should be the same as the name
+          post_processor_hash[:type] = name
+
+          post_processors << post_processor_hash
         end
+        post_processors.empty? ? nil : post_processors
+      end
+
+      ## Upload artifacts to the build container
+      def _artifact_provisioner(artifact)
+        {
+          :type => 'file',
+          :source => artifact.path,
+          :destination => artifact.destination
+        }
       end
 
       def _chef_provisioner
-        packerfile[:provisioners] << _chef_provisioner_base.merge(
+        _chef_provisioner_base.merge(
           :staging_directory => Config.chef.staging_directory,
           :install_command => _chef_install_command
         )
       end
 
       def _chef_provisioner_docker
-        packerfile[:provisioners] << _chef_provisioner_base.merge(
+        _chef_provisioner_base.merge(
           :prevent_sudo => true,
           :install_command => _chef_install_command(false)
         )
