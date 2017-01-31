@@ -261,28 +261,7 @@ module Builderator
             attribute :tagging_role
           end
 
-          collection :post_processor do
-            attribute :type
-
-            ## Docker-tag and docker-import post-processors
-            attribute :repository
-            attribute :tag
-            attribute :force
-
-            ## Docker-save post-processor
-            attribute :path
-
-            ## Docker-push post-processor
-            attribute :aws_access_key
-            attribute :aws_secret_key
-            attribute :aws_token
-            attribute :ecr_login
-            attribute :login
-            attribute :login_email
-            attribute :login_username
-            attribute :login_password
-            attribute :login_server
-          end
+          attribute :post_processors, :type => :list, :dimension => :broad
         end
 
         ##
