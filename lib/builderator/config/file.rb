@@ -191,6 +191,11 @@ module Builderator
           attribute :binary_env
         end
 
+        collection :provisioner do
+          attribute :inline, :type => :list
+          attribute :environment_vars, :type => :list
+        end
+
         ##
         # Packerfile
         #
