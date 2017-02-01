@@ -266,7 +266,7 @@ module Builderator
             attribute :tagging_role
           end
 
-          attribute :post_processors, :type => :list, :dimension => :broad
+          attribute :post_processors, :type => :list, :flatten => false
         end
 
         ##

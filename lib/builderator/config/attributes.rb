@@ -25,7 +25,7 @@ module Builderator
 
               unless arg.empty?
                 @attributes[attribute_name].set(*arg.flatten)
-                @attributes[attribute_name].set(*arg) if options[:dimension] == :broad
+                @attributes[attribute_name].set(*arg) if options[:flatten] == false
               end
               @attributes[attribute_name]
             end
