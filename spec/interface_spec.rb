@@ -37,7 +37,6 @@ module Builderator
     end
 
     context 'Packer post-processors' do
-      require 'pp'
       before(:example) do
         Config.reset!
         Config.load(::File.expand_path('../resource/Buildfile-with-post-processors', __FILE__))
