@@ -35,5 +35,68 @@ module Builderator
         expect(vagrant.render).to eq IO.read(::File.expand_path('../data/Vagrantfile', __FILE__))
       end
     end
+
+    context 'Packer post-processors' do
+      require 'pp'
+      before(:example) do
+        Config.reset!
+        Config.load(::File.expand_path('../resource/Buildfile-with-post-processors', __FILE__))
+        Config.compile
+      end
+
+      it 'generates a single post-processor' do
+        Config.profile.use('single')
+        packer = Interface::Packer.new
+        expect(packer.packerfile['post-processors']).to eq ['docker-push']
+      end
+
+      it 'generates a complex post-processor' do
+        Config.profile.use('complex')
+        packer = Interface::Packer.new
+        expect(packer.packerfile['post-processors']).to eq [{
+          :type => 'docker-tag',
+          :repository => 'rapid7/builderator',
+          :tag => 'latest'
+        }]
+      end
+
+      it 'generates a sequence of post-processors' do
+        Config.profile.use('sequence')
+        packer = Interface::Packer.new
+        expect(packer.packerfile['post-processors']).to eq [
+          [
+            {
+              :type => 'docker-tag',
+              :repository => 'rapid7/builderator',
+              :tag => 'latest'
+            },
+            'docker-push'
+          ]
+        ]
+      end
+
+      it 'generates multiple sequences of post-processors' do
+        Config.profile.use('multiple_sequences')
+        packer = Interface::Packer.new
+        expect(packer.packerfile['post-processors']).to eq [
+          [
+            {
+              :type => 'docker-tag',
+              :repository => 'rapid7/builderator',
+              :tag => '1.2.2'
+            },
+            'docker-push'
+          ],
+          [
+            {
+              :type => 'docker-tag',
+              :repository => 'rapid7/builderator',
+              :tag => 'latest'
+            },
+            'docker-push'
+          ]
+        ]
+      end
+    end
   end
 end
