@@ -1,0 +1,82 @@
+##
+# This test file simulates a Buildfile with a set of post-processors
+##
+build_name 'builderator-with-post-processors'
+
+profile :single do |single|
+  single.packer do |packer|
+    packer.build :docker do |build|
+      build.commit true
+      build.image 'openjdk:8-jdk'
+    end
+
+    packer.post_processors [
+      'docker-push'
+    ]
+  end
+end
+
+profile :complex do |complex|
+  complex.packer do |packer|
+    packer.build :docker do |build|
+      build.commit true
+      build.image 'openjdk:8-jdk'
+    end
+
+    packer.post_processors [
+      {
+        :type => 'docker-tag',
+        :repository => 'rapid7/builderator',
+        :tag => 'latest'
+      }
+    ]
+  end
+end
+
+profile :sequence do |sequence|
+  sequence.packer do |packer|
+    packer.build :docker do |build|
+      build.commit true
+      build.image 'openjdk:8-jdk'
+    end
+
+    packer.post_processors [
+      [
+        {
+          :type => 'docker-tag',
+          :repository => 'rapid7/builderator',
+          :tag => 'latest'
+        },
+        'docker-push'
+      ]
+    ]
+  end
+end
+
+profile :multiple_sequences do |sequence|
+  sequence.packer do |packer|
+    packer.build :docker do |build|
+      build.commit true
+      build.image 'openjdk:8-jdk'
+    end
+
+    packer.post_processors [
+      [
+        {
+          :type => 'docker-tag',
+          :repository => 'rapid7/builderator',
+          :tag => '1.2.2'
+        },
+        'docker-push'
+      ],
+      [
+        {
+          :type => 'docker-tag',
+          :repository => 'rapid7/builderator',
+          :tag => 'latest'
+        },
+        'docker-push'
+      ]
+    ]
+  end
+end

@@ -23,7 +23,10 @@ module Builderator
               ## Instantiate List if it doesn't exist yet. `||=` will always return a new Rash.
               @attributes[attribute_name] = Config::List.new(run_options) unless @attributes.has?(attribute_name, Config::List)
 
-              @attributes[attribute_name].set(*arg.flatten) unless arg.empty?
+              unless arg.empty?
+                @attributes[attribute_name].set(*arg.flatten)
+                @attributes[attribute_name].set(*arg) if options[:flatten] == false
+              end
               @attributes[attribute_name]
             end
 

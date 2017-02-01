@@ -94,4 +94,16 @@ Vagrant.configure('2') do |config|
     ## Tell Chef that this is a Vagrant build
     chef.json[:vagrant] = true
   end
+
+<%- profile.current.provisioner.each do |name, provisioner| -%>
+    <%- provisioner.each do |func, val| -%>
+        <%- if val.is_a?(Array) -%>
+          <%- val.each do |v| -%>
+  config.vm.provision "<%= name %>", <%= func %>: "<%= v %>"
+          <%- end -%>
+        <%- else -%>
+  config.vm.provision "<%= name %>", <%= func %>: "<%= val %>"
+      <%- end -%>
+    <%- end -%>
+  <%- end -%>
 end
