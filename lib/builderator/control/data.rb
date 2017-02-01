@@ -14,3 +14,4 @@ module Builderator
 end
 
 require_relative './data/image'
+require_relative './data/ecr'

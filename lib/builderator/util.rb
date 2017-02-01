@@ -71,6 +71,10 @@ module Builderator
         end
       end
 
+      def ecr(region = Config.aws.region)
+        clients["ecr-#{region}"] ||= Aws::ECR::Client.new(:region => region)
+      end
+
       def asg(region = Config.aws.region)
         clients["asg-#{region}"] ||= Aws::AutoScaling::Client.new(:region => region)
       end
