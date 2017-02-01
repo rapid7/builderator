@@ -22,6 +22,12 @@ An externally managed resource to push to VMs and image builds, e.g. `bundle.tar
     [the vagrant docs](https://www.vagrantup.com/docs/provisioning/chef_common.html#binary_env)
     for more information.
 
+## Collection `provisioner`
+
+Packer/Vagrant provisioner definitions. Currently only supports inline shell provisioners.
+
+* `inline, type: list` A list of shell provisioners
+* `environment_vars, type: list` A list of environment vars (in `KEY=VALUE` format) to pass to the shell script
 
 ## Namespace `packer`
 
