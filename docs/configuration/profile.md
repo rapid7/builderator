@@ -109,37 +109,41 @@ Options for the `amazon-ebs` builder:
   }
   </pre>
 
-### Collection `post_processor`
+### Attribute `post_processors`
 
-Add a packer post-processor to run after the provisioning steps.
-The `post_processor` collection currently only supports the `docker-tag`,
-`docker-import`, `docker-save`, and `docker-push` post-processors.
+Add a packer post-processor to run after the provisioning steps. This is a free-form
+attribute as there is no validation of elements defined here. If invalid configuration
+is supplied, errors will only appear when Packer tries to execute them.
 
-* `type` The type of post-processor
+The `post_processors` attribute supports simple, complex, and sequence definitions.
 
-[Docker-tag][] and [docker-import][] post-processors
+Example:
 
-* `repository` The repository of the imported image
-* `tag` The tag for the imported image
-* `force` If true, the `docker-tag` post-processor forcibly tags the image even if there is a tag name collision. Defaults to `false`.
+```ruby
+packer.post_processors [
+  [
+    # Complex
+    {
+      :type => 'docker-tag',
+      :repository => 'rapid7/builderator',
+      :tag => '1.2.2'
+    },
 
-[Docker-save][] post-processor
+    'docker-push' # Simple
+  ],
 
-* `path` The path to save the image
+  # Sequence
+  [
+    {
+      :type => 'docker-tag',
+      :repository => 'rapid7/builderator',
+      :tag => 'latest'
+    },
+    'docker-push'
+  ]
+]
+```
 
-[Docker-push][] post-processor
-
-* `aws_access_key`
-* `aws_secret_key`
-* `aws_token`
-* `ecr_login`
-* `login`
-* `login_email`
-* `login_username`
-* `login_password`
-* `login_server`
-
-See the [documentation][docker-push] for configuration information.
 
 ## TODO: Share accounts
 
