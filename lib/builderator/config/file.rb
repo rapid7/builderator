@@ -262,6 +262,10 @@ module Builderator
             attribute :ami_users, :type => :list
             attribute :ami_regions, :type => :list
 
+            # Tagging
+            attribute :run_tags, :type => :hash
+            attribute :run_volume_tags, :type => :hash
+
             ## Assumable role for tagging AMIs in remote accounts
             attribute :tagging_role
           end
