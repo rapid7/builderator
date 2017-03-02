@@ -67,6 +67,14 @@ Options for the `amazon-ebs` builder:
        bake.packer do |packer|
          packer.build :default do |build|
            build.tagging_role 'CreateTagsOnAllImages'
+           build.run_tags {
+             'Owner' => 'ops',
+             'Product' => 'packer'
+           }
+           build.run_volume_tags {
+             'Owner' => 'ops',
+             'Product' => 'packer'
+           }
          end
        end
      end
