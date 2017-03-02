@@ -73,6 +73,7 @@ module Builderator
             build.ami_virtualization_type 'hvm'
 
             build.ssh_username 'ubuntu'
+            build.ssh_timeout '300s'  # Packer default.  Shown as an example.  Naked ints are ns.
 
             build.ami_name [Config.build_name, Config.version, Config.build_number].reject(&:nil?).join('-')
             build.ami_description Config.description

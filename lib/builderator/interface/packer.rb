@@ -138,12 +138,20 @@ module Builderator
           :environments_path => Config.local.environment_path,
           :chef_environment => Config.profile.current.chef.environment,
           :json => Config.profile.current.chef.node_attrs,
+          :staging_directory => Config.chef.staging_directory,
+          :execute_command => _chef_execute_command(true),
+          :install_command => _chef_install_command(true)
         }
       end
 
+      def _chef_execute_command(sudo = true)
+        template = sudo ? 'sudo ' : ''
+        "#{template}chef-solo --no-color -c #{Config.chef.staging_directory}/solo.rb -j #{Config.chef.staging_directory}/node.json"
+      end
+
       def _chef_install_command(sudo = true)
-        template = sudo ? 'sudo' : ''
-        format("curl -L https://www.chef.io/chef/install.sh | %s bash -s -- -v #{Config.chef.version}", template)
+        template = sudo ? 'sudo ' : ''
+        "curl -L https://www.chef.io/chef/install.sh | #{template}bash -s -- -v #{Config.chef.version}"
       end
     end
   end
