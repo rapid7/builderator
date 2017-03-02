@@ -95,6 +95,7 @@ module Builderator
           say_status :wait, "for #{image.image_id} (#{image_name}) to be available in #{build.ami_regions.join(', ')}", :yellow
         end
 
+        sleep_period = 30
         while waiting
           waiting = false
 
@@ -105,25 +106,30 @@ module Builderator
             }]
 
             build.ami_regions.each do |region|
-              regional_image = Util.ec2(region).describe_images(:filters => filters).images.first
+              begin
+                regional_image = Util.ec2(region).describe_images(:filters => filters).images.first
 
-              ## It takes a few seconds for the new AMI to show up in the `describe_images` response-set
-              state = regional_image.nil? ? 'unknown' : regional_image.state
-              image_id = regional_image.nil? ? 'unknown' : regional_image.image_id
+                ## It takes a few seconds for the new AMI to show up in the `describe_images` response-set
+                state = regional_image.nil? ? 'unknown' : regional_image.state
+                image_id = regional_image.nil? ? 'unknown' : regional_image.image_id
 
-              waiting = (state != 'available') || waiting
-              status_color = case state
-                             when 'pending', 'unknown' then :yellow
-                             when 'available' then :green
-                             else :red
-                             end
+                waiting = (state != 'available') || waiting
+                status_color = case state
+                               when 'pending', 'unknown' then :yellow
+                               when 'available' then :green
+                               else :red
+                               end
 
-              say_status :image, "#{image_id} (#{image.name}) is #{state} in #{region}", status_color
+                say_status :image, "#{image_id} (#{image.name}) is #{state} in #{region}", status_color
+              rescue Aws::EC2::Errors::RequestLimitExceeded => e
+                say_status :image, "Getting throttled checking for status of #{image_id} (#{image.name}) in #{region}", :orange
+                sleep_period = 60
+              end
             end
           end
 
           ## If waiting == false, loop immediately to break
-          sleep(10) if waiting
+          sleep(sleep_period) if waiting
         end
 
         say_status :complete, 'All copied images are available'
