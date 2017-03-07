@@ -1,4 +1,4 @@
-# Builderator
+# Builderator [![Build Status](https://api.travis-ci.org/rapid7/builerator.svg?branch=master)](https://travis-ci.org/rapid7/builerator)
 
 Orchestration and configuration of the code development life-cycle.
 
