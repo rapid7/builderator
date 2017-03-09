@@ -113,7 +113,7 @@ module Builderator
           end
 
           ## If waiting == false, loop immediately to break
-          sleep(10) if waiting
+          sleep(20) if waiting
         end
 
         say_status :complete, 'All copied images are available'
