@@ -61,11 +61,6 @@ module Builderator
         invoke :configure, [profile], options
 
         images.each do |image_name, (image, build)|
-          filters = [{
-            :name => 'name',
-            :values => [image_name]
-          }]
-
           ## Add some additional tags about the regional source
           image.tags << {
             :key => 'source_region',
@@ -77,7 +72,7 @@ module Builderator
           }
 
           build.ami_regions.each do |region|
-            regional_image = Util.ec2(region).describe_images(:filters => filters).images.first
+            regional_image = find_image(region, image_name)
 
             say_status :tag, "AMI #{image_name} (#{regional_image.image_id}) in #{region}"
             Util.ec2(region).create_tags(:resources => [regional_image.image_id], :tags => image.tags)
@@ -99,13 +94,8 @@ module Builderator
           waiting = false
 
           images.each do |image_name, (image, build)|
-            filters = [{
-              :name => 'name',
-              :values => [image_name]
-            }]
-
             build.ami_regions.each do |region|
-              regional_image = Util.ec2(region).describe_images(:filters => filters).images.first
+              regional_image = find_image(region, image_name)
 
               ## It takes a few seconds for the new AMI to show up in the `describe_images` response-set
               state = regional_image.nil? ? 'unknown' : regional_image.state
@@ -123,7 +113,7 @@ module Builderator
           end
 
           ## If waiting == false, loop immediately to break
-          sleep(10) if waiting
+          sleep(20) if waiting
         end
 
         say_status :complete, 'All copied images are available'
@@ -143,17 +133,12 @@ module Builderator
 
             sts_client = Aws::STS::Client.new(region: region)
 
-            filters = [{
-              :name => 'name',
-              :values => [image_name]
-            }]
-
             if build.tagging_role.nil?
               say_status :complete, 'No remote tagging to be performed as no IAM role is defined'
               return
             end
 
-            regional_image = Util.ec2(region).describe_images(:filters => filters).images.first
+            regional_image = find_image(region, image_name)
 
             build.ami_users.each do |account|
               role_arn = "arn:aws:iam::#{account}:role/#{build.tagging_role}"
@@ -187,12 +172,7 @@ module Builderator
             build.ami_users.each do |user|
               shared = true
 
-              filters = [{
-                :name => 'name',
-                :values => [image_name]
-              }]
-
-              regional_image = Util.ec2(region).describe_images(:filters => filters).images.first
+              regional_image = find_image(region, image_name)
 
               say_status :share, "image #{image_name} (#{regional_image.image_id}) with #{user}"
 
@@ -221,6 +201,20 @@ module Builderator
         @images ||= Config.profile.current.packer.build.each_with_object({}) do |(_, build), memo|
           memo[build.ami_name] = [Control::Data.lookup(:image, :name => build.ami_name).first, build]
         end
+      end
+
+      def find_image(region, image_name)
+        filters = [{
+          :name => 'name',
+          :values => [image_name]
+        }]
+
+        image = nil
+        Retryable.retryable(:sleep => lambda { |n| 4**n }, :tries => 4, :on => [Aws::EC2::Errors::ServiceError]) do |retries, _|
+          say_status :error, 'Error finding image', :red if retries.positive?
+          image = Util.ec2(region).describe_images(:filters => filters).images.first
+        end
+        image
       end
     end
   end
