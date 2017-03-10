@@ -19,7 +19,7 @@ module Builderator
       desc 'current', 'Print the current version and write it to file'
       def current
         unless Config.autoversion.search_tags
-          say_status :disabled, 'Automatically detecting version informantion '\
+          say_status :disabled, 'Automatically detecting version information '\
                                 'from SCM tags is disabled', :red
           return
         end
