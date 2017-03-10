@@ -206,7 +206,7 @@ module Builderator
       def copy_image(region, params)
         Retryable.retryable(:sleep => lambda { |n| 4**n }, :tries => 4, :on => [Aws::EC2::Errors::ServiceError]) do |retries, _|
           say_status :error, 'Error copying image', :red if retries.positive?
-          Util.ec2(region).copy_image(parameters)
+          Util.ec2(region).copy_image(params)
         end
       end
 
