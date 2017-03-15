@@ -41,7 +41,7 @@ module Builderator
     end
 
     def copy_image
-      Retryable.retryable(sleep: ->(n) {  4**n }, tries: 4, on: AWS_ERRORS) do |retries, _|
+      Retryable.retryable(sleep: ->(n) { 4**n }, tries: 4, on: AWS_ERRORS) do |retries, _|
         say_status :error, 'Error copying image', :red if retries.positive?
         ec2_client.copy_image(copy_params)
       end
