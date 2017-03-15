@@ -4,6 +4,7 @@ require 'thor'
 require_relative '../control/data'
 require_relative '../interface/packer'
 require_relative '../patch/thor-actions'
+require_relative '../image'
 
 module Builderator
   module Tasks
@@ -38,16 +39,14 @@ module Builderator
         invoke :configure, [profile], options
 
         images.each do |image_name, (image, build)|
-          parameters = {
-            :source_region => Config.aws.region,
-            :source_image_id => image.image_id,
-            :name => image_name,
-            :description => image.description
-          }
-
           build.ami_regions.each do |region|
-            say_status :copy, "image #{image_name} (#{image.image_id}) from #{Config.aws.region} to #{region}"
-            copy_image(region, parameters)
+            Image.new(
+              source_region: Config.aws.region,
+              dest_region: region,
+              source_image_id: image.image_id,
+              image_name: image_name,
+              description: image.description
+            ).copy
           end
         end
 
@@ -200,13 +199,6 @@ module Builderator
       def images
         @images ||= Config.profile.current.packer.build.each_with_object({}) do |(_, build), memo|
           memo[build.ami_name] = [Control::Data.lookup(:image, :name => build.ami_name).first, build]
-        end
-      end
-
-      def copy_image(region, params)
-        Retryable.retryable(:sleep => lambda { |n| 4**n }, :tries => 4, :on => [Aws::EC2::Errors::ServiceError]) do |retries, _|
-          say_status :error, 'Error copying image', :red if retries.positive?
-          Util.ec2(region).copy_image(params)
         end
       end
 
