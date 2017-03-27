@@ -193,6 +193,7 @@ Fetch remote artifacts for builds
 
 * Sources:
   * `path` Link to a local file/directory
+  * `url` Link to a remote file/directory to download via HTTP
   * `git` Fetch a git repository
   * `github` Fetch a git repository from a GitHub URI (e.g. `OWNER/REPO`) using the SSH protocol. You must have a valid SSH key configuration for public GitHub.
 * Git-specific parameters:
