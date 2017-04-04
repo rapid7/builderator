@@ -21,3 +21,11 @@ RescueModifier:
   Enabled: false
 SpaceInsideStringInterpolation:
   Enabled: false
+
+# This is a Ruby 2.4 rule
+Style/NumericPredicate:
+  Enabled: false
+
+# Disable this Ruby 3.x compatility rule...
+Style/FrozenStringLiteralComment:
+  Enabled: false

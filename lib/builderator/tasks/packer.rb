@@ -39,15 +39,29 @@ module Builderator
         invoke :configure, [profile], options
 
         images.each do |image_name, (image, build)|
-          build.ami_regions.each do |region|
+          i = build.ami_regions.map do |region|
             Image.new(
               source_region: Config.aws.region,
               dest_region: region,
               source_image_id: image.image_id,
               image_name: image_name,
               description: image.description
-            ).copy
+            )
           end
+          i.each(&:copy)
+          # sleep 10
+
+          # waiting_images = i
+          # until waiting_images.all?(&:available?)
+          #   waiting_images.each do |img|
+          #     if image.wait
+          #       sleep 10
+          #     else
+          #       waiting_images.delete(img)
+          #     end
+          #   end
+          #   sleep 20
+          # end
         end
 
         invoke :wait, [profile], options
