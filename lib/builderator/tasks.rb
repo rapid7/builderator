@@ -39,7 +39,7 @@ module Builderator
 
       desc '--version, -v', 'Print Builderator version'
       def print_version
-        say Builderator::VERSION
+        say Gem.loaded_specs['builderator'].version
       end
 
       def self.exit_on_failure?
