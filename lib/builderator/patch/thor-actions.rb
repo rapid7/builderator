@@ -82,6 +82,12 @@ class Thor
       end
     end
 
+    alias_method :thor_run, :run
+    def run(command, config = {})
+      thor_run(command, config)
+      fail "Command failed: #{command}" if $?.exitstatus != 0
+    end
+
     ##
     # Make `template` load from a sane path and render in the context of Config
     ##
