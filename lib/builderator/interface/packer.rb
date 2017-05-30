@@ -15,6 +15,7 @@ module Builderator
     class Packer < Interface
       command 'packer'
       attr_reader :packerfile
+      attr_reader :security_group_id
 
       def initialize(*_)
         super
@@ -59,6 +60,12 @@ module Builderator
 
             # This is not directly supported by Packer
             build_hash.delete(:tagging_role)
+
+            # Use a security group that doesn't suck if user didn't specify
+            if !build_hash.key?(:security_group_ids) && !build_hash.key?(:security_group_id)
+              @security_group_id = Util.get_security_group_id(build_hash[:region])
+              build_hash[:security_group_id] = @security_group_id
+            end
 
             json[:builders] << build_hash
           end
