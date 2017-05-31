@@ -1,5 +1,6 @@
 require 'aws-sdk'
 require 'thor'
+require 'retryable'
 
 require_relative '../control/data'
 require_relative '../interface/packer'
