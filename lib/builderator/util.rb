@@ -80,23 +80,31 @@ module Builderator
       end
 
       def remove_security_group(region = Config.aws.region, group_id = nil)
+        if !Config.cleaner.commit
+          puts "  Dry-run; skipping delete of group_id #{group_id}"
+          return
+        end
         ec2 = ec2(region)
         resp = ec2.delete_security_group(group_id: group_id)
         puts "  Deleted SecurityGroup #{group_id}"
       end
 
-      def get_security_group_id(region = Config.aws.region, vpc_id = nil)
+      def get_security_group_id(region = Config.aws.region)
+        group_id = nil
+        if !Config.cleaner.commit
+          group_id = 'sg-DRYRUNSG'
+          puts "  Dry-run; skipping create and returning #{group_id}"
+          return group_id
+        end
         ec2 = ec2(region)
         group = nil
-        group_id = nil
         require 'open-uri'
         external_ip = open('http://checkip.amazonaws.com').read.strip
         cidr_ip = external_ip + '/32'
 
         # Create a security group
         resp = ec2.create_security_group(group_name: "BuilderatorSecurityGroupSSHOnly-#{Time.now.to_i}",
-                                         description: "Created by Builderator at #{Time.now}",
-                                         vpc_id: vpc_id)
+                                         description: "Created by Builderator at #{Time.now}")
         group_id = resp[:group_id]
 
         resp = ec2.describe_security_groups(group_ids: [group_id])
