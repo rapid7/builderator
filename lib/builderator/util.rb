@@ -80,7 +80,7 @@ module Builderator
       end
 
       def remove_security_group(region = Config.aws.region, group_id = nil)
-        if !Config.cleaner.commit
+        if region.nil?
           puts "  Dry-run; skipping delete of group_id #{group_id}"
           return
         end
@@ -91,7 +91,7 @@ module Builderator
 
       def get_security_group_id(region = Config.aws.region)
         group_id = nil
-        if !Config.cleaner.commit
+        if region.nil?
           group_id = 'sg-DRYRUNSG'
           puts "  Dry-run; skipping create and returning #{group_id}"
           return group_id
