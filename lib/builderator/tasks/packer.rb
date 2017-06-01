@@ -25,9 +25,6 @@ module Builderator
         Config.profile.use(profile)
 
         invoke Tasks::Version, :current, [], options
-        # TODO: There's a feature here where if you run configure from the
-        # command line and in debug mode, you will get a security group
-        # created but not destroyed.  This may or may not be expected or desired.
         puts Interface.packer.render if options['debug']
       end
 
