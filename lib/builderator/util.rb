@@ -81,19 +81,23 @@ module Builderator
 
       def remove_security_group(region = Config.aws.region, group_id = nil)
         if region.nil?
-          puts "  Dry-run; skipping delete of group_id #{group_id}"
+          puts "Dry-run; skipping delete of group_id #{group_id}"
+          return
+        end
+        if group_id.nil?
+          puts "Not removing security group"
           return
         end
         ec2 = ec2(region)
         resp = ec2.delete_security_group(group_id: group_id)
-        puts "  Deleted SecurityGroup #{group_id}"
+        puts "Deleted SecurityGroup #{group_id}"
       end
 
       def get_security_group_id(region = Config.aws.region)
         group_id = nil
         if region.nil?
           group_id = 'sg-DRYRUNSG'
-          puts "  Dry-run; skipping create and returning #{group_id}"
+          puts "Dry-run; skipping create and returning #{group_id}"
           return group_id
         end
         ec2 = ec2(region)
@@ -117,7 +121,7 @@ module Builderator
                                                     from_port: 22,
                                                     to_port: 22,
                                                     cidr_ip: cidr_ip)
-        puts "  Created SecurityGroup #{group_id}"
+        puts "Created SecurityGroup #{group_id}"
         group_id
       end
 
