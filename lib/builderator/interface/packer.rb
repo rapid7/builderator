@@ -15,6 +15,7 @@ module Builderator
     class Packer < Interface
       command 'packer'
       attr_reader :packerfile
+      attr_reader :security_group_id
 
       def initialize(*_)
         super
@@ -59,6 +60,25 @@ module Builderator
 
             # This is not directly supported by Packer
             build_hash.delete(:tagging_role)
+
+            # Use a security group that doesn't suck if user didn't specify.
+            # Note that @security_group_id in this class will only ever be the one created here,
+            # and will be nil if the user specified their own
+            if build_hash.key?(:security_group_ids)
+              puts "Using SecurityGroups #{build_hash[:security_group_ids]}"
+            elsif build_hash.key?(:security_group_id)
+              puts "Using SecurityGroup #{build_hash[:security_group_id]}"
+            else
+              @security_group_id = Util.get_security_group_id(build_hash[:region])
+              build_hash[:security_group_id] = @security_group_id
+
+              # Delete the security group created above when on builderator exit.
+              # Note that for an unclean exit in which the instance was NOT terminated,
+              # Amazon will refuse to delete the security group, as it is still attached
+              # to an existing instance.  This is unfortunate, but is equivalent to packer's
+              # default behavior except that now you'll get an exception from aws-sdk.
+              at_exit { Util.remove_security_group(build_hash[:region], @security_group_id) }
+            end
 
             json[:builders] << build_hash
           end

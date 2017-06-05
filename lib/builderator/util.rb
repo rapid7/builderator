@@ -79,6 +79,52 @@ module Builderator
         clients["asg-#{region}"] ||= Aws::AutoScaling::Client.new(:region => region)
       end
 
+      def remove_security_group(region = Config.aws.region, group_id = nil)
+        if region.nil?
+          puts "Dry-run; skipping delete of group_id #{group_id}"
+          return
+        end
+        if group_id.nil?
+          puts "Not removing security group"
+          return
+        end
+        ec2 = ec2(region)
+        resp = ec2.delete_security_group(group_id: group_id)
+        puts "Deleted SecurityGroup #{group_id}"
+      end
+
+      def get_security_group_id(region = Config.aws.region)
+        group_id = nil
+        if region.nil?
+          group_id = 'sg-DRYRUNSG'
+          puts "Dry-run; skipping create and returning #{group_id}"
+          return group_id
+        end
+        ec2 = ec2(region)
+        group = nil
+        require 'open-uri'
+        external_ip = open('http://checkip.amazonaws.com').read.strip
+        cidr_ip = external_ip + '/32'
+
+        # Create a security group
+        resp = ec2.create_security_group(group_name: "BuilderatorSecurityGroupSSHOnly-#{Time.now.to_i}",
+                                         description: "Created by Builderator at #{Time.now}")
+        group_id = resp[:group_id]
+
+        resp = ec2.describe_security_groups(group_ids: [group_id])
+        groups = resp[:security_groups]
+        group = groups.first
+
+        # Ensure the group_id has the right permissions
+        resp = ec2.authorize_security_group_ingress(group_id: group_id,
+                                                    ip_protocol: 'tcp',
+                                                    from_port: 22,
+                                                    to_port: 22,
+                                                    cidr_ip: cidr_ip)
+        puts "Created SecurityGroup #{group_id}"
+        group_id
+      end
+
       private
 
       def clients

@@ -18,3 +18,6 @@ vendor
 .vagrant
 Berksfile.lock
 /VERSION
+*.patch
+.ruby-gemset
+*.sw[a-z]
