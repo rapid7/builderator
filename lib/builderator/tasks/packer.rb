@@ -102,6 +102,7 @@ module Builderator
               state = regional_image.nil? ? 'unknown' : regional_image.state
               image_id = regional_image.nil? ? 'unknown' : regional_image.image_id
 
+              puts "ERROR: Unknown image state, region: #{region}, image_name: #{image_name}, image_details: #{regional_image}" if regional_image.nil?
               waiting = (state != 'available') || waiting
               status_color = case state
                              when 'pending', 'unknown' then :yellow
