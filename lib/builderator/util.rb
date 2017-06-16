@@ -106,8 +106,8 @@ module Builderator
         external_ip = open('http://checkip.amazonaws.com').read.strip
         cidr_ip = external_ip + '/32'
 
-        # Create a security group
-        resp = ec2.create_security_group(group_name: "BuilderatorSecurityGroupSSHOnly-#{Time.now.to_i}",
+        # Create a security group with microsecond timestamp (to avoid collisions when using seconds)
+        resp = ec2.create_security_group(group_name: "BuilderatorSecurityGroupSSHOnly-#{(Time.now.to_f*1000000).to_i}",
                                          description: "Created by Builderator at #{Time.now}")
         group_id = resp[:group_id]
 
