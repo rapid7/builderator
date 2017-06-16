@@ -107,7 +107,8 @@ module Builderator
         cidr_ip = external_ip + '/32'
 
         # Create a security group with microsecond timestamp (to avoid collisions when using seconds)
-        resp = ec2.create_security_group(group_name: "BuilderatorSecurityGroupSSHOnly-#{(Time.now.to_f*1000000).to_i}",
+        ts_usec = (Time.now.to_f*1000000).to_i
+        resp = ec2.create_security_group(group_name: "BuilderatorSecurityGroupSSHOnly-#{ts_usec}",
                                          description: "Created by Builderator at #{Time.now}")
         group_id = resp[:group_id]
 
