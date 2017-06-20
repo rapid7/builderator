@@ -42,6 +42,9 @@ module Builderator
         elsif params.has?(:git)
           say_status :vendor, "#{ name } from git repository #{ params.git }"
           _fetch_git(path, params)
+        elsif params.has?(:url)
+          say_status :vendor, "#{ name } from remote url #{ params.url }"
+          _fetch_url(path, params)
         elsif params.has?(:path)
           say_status :vendor, "#{ name } from path #{ params.path }"
           _fetch_path(path, params)
@@ -96,6 +99,11 @@ module Builderator
         def _fetch_path(path, params)
           remove_dir path.to_s if path.exist?
           create_link path.to_s, params.path.to_s
+        end
+
+        def _fetch_url(path, params)
+          remove_file path.to_s if path.exist?
+          get params.url, path.to_s
         end
       end
     end

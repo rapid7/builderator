@@ -332,6 +332,8 @@ module Builderator
       collection :vendor do
         attribute :path, :relative => true
 
+        attribute :url
+
         attribute :git
         attribute :github
         attribute :remote
