@@ -18,19 +18,28 @@ module Builderator
     ##
     class CLI < Thor
       include Thor::Actions
+      VERSION = ['--version', '-v'].freeze
+
+      map VERSION => :print_version
 
       def initialize(*_)
         super
 
+        # Ignore existing config when we don't need it: i.e. `help`
+        ignore_existing_config = ['help'] + VERSION
+        return if ignore_existing_config.any? do |i|
+          ARGV.include?(i) || ARGV.empty?
+        end
+
         Config.argv(options) ## Load command flags
         Config.load(File.join(ENV['HOME'], '.builderator/Buildfile'))
         Config.load(Util.relative_path('Buildfile').to_s)
-
-        # Ignore existing config when we don't need it: i.e. `help`
-        ignore_existing_config = ['help']
-        return if ignore_existing_config.any? { |i| ARGV.include?(i) }
-
         Config.compile
+      end
+
+      desc '--version, -v', 'Print Builderator version'
+      def print_version
+        say Gem.loaded_specs['builderator'].version
       end
 
       def self.exit_on_failure?
