@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'thor-scmversion', '1.7.0'
 
   spec.add_dependency 'aws-sdk', '~> 2.0'
-  spec.add_dependency 'berkshelf', '~> 5.6'
+  spec.add_dependency 'berkshelf', '~> 6.2'
   spec.add_dependency 'childprocess', '~> 0.5'
   spec.add_dependency 'dep_selector', '~> 1.0'
   spec.add_dependency 'chef', '~> 12.7.2'
