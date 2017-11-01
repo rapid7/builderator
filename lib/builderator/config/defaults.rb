@@ -74,6 +74,11 @@ module Builderator
 
             build.ssh_username 'ubuntu'
 
+            # Packer default is 300 seconds.  Specify as a string to give units
+            # such as s (seconds), ms (milliseconds), ns (nanoseconds), etc.
+            # Ints will be interpreted as ns.  Buyer beware.
+            build.ssh_timeout '300s'
+
             build.ami_name [Config.build_name, Config.version, Config.build_number].reject(&:nil?).join('-')
             build.ami_description Config.description
           end

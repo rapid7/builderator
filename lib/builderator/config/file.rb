@@ -252,6 +252,7 @@ module Builderator
 
             ## Access parameters
             attribute :ssh_username
+            attribute :ssh_timeout
             attribute :ssh_keypair_name
             attribute :ssh_private_key_file
             attribute :ssh_private_ip
@@ -315,6 +316,7 @@ module Builderator
             attribute :user_data
 
             attribute :ssh_username
+            attribute :ssh_timeout
             attribute :keypair_name
             attribute :private_key_path
 
