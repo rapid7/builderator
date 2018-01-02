@@ -16,8 +16,13 @@ module Builderator
         true
       end
 
+      class_option :git_dir, desc: 'The .git directory to use (default: .git)'
+
       desc 'current', 'Print the current version and write it to file'
       def current
+        # Workaround for singleton git provider not supporting alternate path.
+        ENV['GIT_DIR'] = options[:git_dir] if options[:git_dir]
+
         unless Config.autoversion.search_tags
           say_status :disabled, 'Automatically detecting version information '\
                                 'from SCM tags is disabled', :red
@@ -31,6 +36,9 @@ module Builderator
 
       desc 'bump TYPE [PRERELEASE_NAME]', 'Increment the package version, optionally with a named prerelease'
       def bump(type = :auto, prerelease_name = nil)
+        # Workaround for singleton git provider not supporting alternate path.
+        ENV['GIT_DIR'] = options[:git_dir] if options[:git_dir]
+
         ## Guard: Don't try to create a new version if `create_tags` is explicitly disabled
         ## or `search_tags` is disabled as we won't have a valid current version to increment
         unless Config.autoversion.create_tags && Config.autoversion.search_tags
