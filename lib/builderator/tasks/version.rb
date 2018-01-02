@@ -16,7 +16,7 @@ module Builderator
         true
       end
 
-      class_option :git_dir, 'The .git directory to use (default: .git)'
+      class_option :git_dir, desc: 'The .git directory to use (default: .git)'
 
       desc 'current', 'Print the current version and write it to file'
       def current
