@@ -16,6 +16,8 @@ module Builderator
 
         ## Is there a .git repo in the project root?
         def self.supported?
+          return true if ENV['GIT_DIR'] && File.exist?(ENV['GIT_DIR'])
+
           Util.relative_path('.git').exist?
         end
 
