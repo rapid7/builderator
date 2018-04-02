@@ -199,9 +199,13 @@ module Builderator
 
       ## Find details for generated images in current region
       def images
-        @images ||= Config.profile.current.packer.build.each_with_object({}) do |(_, build), memo|
-          memo[build.ami_name] = [Control::Data.lookup(:image, :name => build.ami_name).first, build]
+        Retryable.retryable(:sleep => lambda { |n| 4**n }, :tries => 4, :on => [NoMethodError]) do |retries, _|
+          @images ||= Config.profile.current.packer.build.each_with_object({}) do |(_, build), memo|
+            memo[build.ami_name] = [Control::Data.lookup(:image, :name => build.ami_name).first, build]
+          end
+          @images.length # Will throw NoMethodError if no images found; triggers retry
         end
+        @images
       end
 
       def copy_image(region, params)
