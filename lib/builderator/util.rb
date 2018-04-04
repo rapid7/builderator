@@ -89,7 +89,9 @@ module Builderator
           return
         end
         ec2 = ec2(region)
-        resp = ec2.delete_security_group(group_id: group_id)
+        Retryable.retryable(:sleep => lambda { |n| 4**n }, :tries => 4, :on => [Aws::EC2::Errors::ServiceError, Aws::EC2::Errors::InternalError]) do |retries, _|
+          resp = ec2.delete_security_group(group_id: group_id)
+        end
         puts "Deleted SecurityGroup #{group_id}"
       end
 
@@ -108,20 +110,22 @@ module Builderator
 
         # Create a security group with microsecond timestamp (to avoid collisions when using seconds)
         ts_usec = (Time.now.to_f*1000000).to_i
-        resp = ec2.create_security_group(group_name: "BuilderatorSecurityGroupSSHOnly-#{ts_usec}",
-                                         description: "Created by Builderator at #{Time.now}")
-        group_id = resp[:group_id]
+        Retryable.retryable(:sleep => lambda { |n| 4**n }, :tries => 4, :on => [Aws::EC2::Errors::ServiceError, Aws::EC2::Errors::InternalError]) do |retries, _|
+          resp = ec2.create_security_group(group_name: "BuilderatorSecurityGroupSSHOnly-#{ts_usec}",
+                                           description: "Created by Builderator at #{Time.now}")
+          group_id = resp[:group_id]
 
-        resp = ec2.describe_security_groups(group_ids: [group_id])
-        groups = resp[:security_groups]
-        group = groups.first
+          resp = ec2.describe_security_groups(group_ids: [group_id])
+          groups = resp[:security_groups]
+          group = groups.first
 
-        # Ensure the group_id has the right permissions
-        resp = ec2.authorize_security_group_ingress(group_id: group_id,
-                                                    ip_protocol: 'tcp',
-                                                    from_port: 22,
-                                                    to_port: 22,
-                                                    cidr_ip: cidr_ip)
+          # Ensure the group_id has the right permissions
+          resp = ec2.authorize_security_group_ingress(group_id: group_id,
+                                                      ip_protocol: 'tcp',
+                                                      from_port: 22,
+                                                      to_port: 22,
+                                                      cidr_ip: cidr_ip)
+        end
         puts "Created SecurityGroup #{group_id}"
         group_id
       end
