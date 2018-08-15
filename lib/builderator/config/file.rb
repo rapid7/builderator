@@ -214,6 +214,7 @@ module Builderator
             attribute :export_path
 
             # Optional attributes
+            attribute :ami_block_device_mappings, :type => :list
             attribute :author
             attribute :aws_access_key
             attribute :aws_secret_key
