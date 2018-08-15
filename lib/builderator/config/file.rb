@@ -214,12 +214,14 @@ module Builderator
             attribute :export_path
 
             # Optional attributes
+            attribute :ami_block_device_mappings, :type => :list
             attribute :author
             attribute :aws_access_key
             attribute :aws_secret_key
             attribute :aws_token
             attribute :changes, :type => :list
             attribute :ecr_login
+            attribute :launch_block_device_mappings, :type => :list
             attribute :login
             attribute :login_email
             attribute :login_username

@@ -79,6 +79,23 @@ module Builderator
             # Ints will be interpreted as ns.  Buyer beware.
             build.ssh_timeout '300s'
 
+            # Clear the AMI and launch block device mappings for the default
+            # c3.large instance type.
+            build.ami_block_device_mappings [{
+              'device_name' => '/dev/sdb',
+              'no_device' => true,
+            }, {
+              'device_name' => '/dev/sdc',
+              'no_device' => true,
+            }]
+            build.launch_block_device_mappings [{
+              'device_name' => '/dev/sdb',
+              'no_device' => true,
+            }, {
+              'device_name' => '/dev/sdc',
+              'no_device' => true,
+            }]
+
             build.ami_name [Config.build_name, Config.version, Config.build_number].reject(&:nil?).join('-')
             build.ami_description Config.description
           end
