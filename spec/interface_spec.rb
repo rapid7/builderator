@@ -97,5 +97,23 @@ module Builderator
         ]
       end
     end
+
+    context 'Packer block-device-mappings' do
+      before(:example) do
+        Config.reset!
+        Config.load(::File.expand_path('../resource/Buildfile-with-block-device-mappings', __FILE__))
+        Config.compile
+      end
+
+      it 'generates an AMI block device mapping' do
+        Config.profile.use('ami_mappings')
+        packer = Interface::Packer.new
+        mappings = packer.packerfile[:builders].first[:ami_block_device_mappings]
+        expect(mappings).to eq [{
+          'device_name' => '/dev/sda',
+          'no_device' => true,
+        }]
+      end
+    end
   end
 end
