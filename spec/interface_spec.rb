@@ -114,6 +114,16 @@ module Builderator
           'no_device' => true,
         }]
       end
+
+      it 'generates a Packer launch block device mapping' do
+        Config.profile.use('launch_mappings')
+        packer = Interface::Packer.new
+        mappings = packer.packerfile[:builders].first[:launch_block_device_mappings]
+        expect(mappings).to eq [{
+          'device_name' => '/dev/sda',
+          'no_device' => true,
+        }]
+      end
     end
   end
 end

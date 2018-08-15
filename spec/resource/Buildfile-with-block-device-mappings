@@ -13,3 +13,14 @@ profile :ami_mappings do |ami|
     end
   end
 end
+
+profile :launch_mappings do |ami|
+  ami.packer do |packer|
+    packer.build :aws do |build|
+      build.launch_block_device_mappings [{
+        'device_name' => '/dev/sda',
+        'no_device' => true,
+      }]
+    end
+  end
+end
