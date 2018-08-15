@@ -221,6 +221,7 @@ module Builderator
             attribute :aws_token
             attribute :changes, :type => :list
             attribute :ecr_login
+            attribute :launch_block_device_mappings, :type => :list
             attribute :login
             attribute :login_email
             attribute :login_username
