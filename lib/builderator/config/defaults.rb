@@ -24,7 +24,7 @@ module Builderator
       chef do |chef|
         chef.log_level :info
         chef.staging_directory '/var/chef'
-        chef.version = '12.5.1'
+        chef.version = '14.7.17'
       end
 
       cookbook do |cookbook|
@@ -58,7 +58,7 @@ module Builderator
             local.provider :virtualbox
 
             ## Atlas metadata for Ubuntu cloud-images: https://atlas.hashicorp.com/ubuntu/boxes/trusty64
-            local.box 'ubuntu/trusty64'
+            local.box 'ubuntu/bionic64'
 
             local.memory 1024
             local.cpus 2

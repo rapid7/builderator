@@ -140,7 +140,7 @@ build-data image architecture x86_64 virtualization-type hvm ...
 
 Pre-defined filters can also be applied with the `-f FILTER` flag. These currently include
 
-* `ubuntu-14.04-daily`
+* `ubuntu-18.04-daily`
 * `windows-server2012-r2`
 * `windows-server2012-r2-core`
 
