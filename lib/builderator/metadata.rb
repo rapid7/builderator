@@ -2,7 +2,7 @@ require_relative './util'
 
 # :nodoc:
 module Builderator
-  VERSION = Util.source_path('VERSION').read rescue '2.0.0-ubuntu1804'
+  VERSION = Util.source_path('VERSION').read rescue '18.0.4'
   DESCRIPTION = 'Builderator automates many of the common steps required to build VMs '\
                 'and images with Chef. It provides a common configuration layer for '\
                 'Chef, Berkshelf, Vagrant, and Packer, and tasks to orchestrate the '\
