@@ -21,3 +21,6 @@ Berksfile.lock
 *.patch
 .ruby-gemset
 *.sw[a-z]
+
+## Jetbrains...
+.idea/
