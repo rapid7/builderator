@@ -168,7 +168,7 @@ Vagrant VM configurations
 Parameters for a local VM build
 
 * `provider` Default `virtualbox`
-* `box` Default `ubuntu-14.04-x86_64`
+* `box` Default `ubuntu-18.04-x86_64`
 * `box_url` Default `https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box`
 
 * `cpus` Default 2

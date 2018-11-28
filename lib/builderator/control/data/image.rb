@@ -33,6 +33,14 @@ module Builderator
             'block-device-mapping.volume-type' => 'gp2',
             'name' => '*ubuntu-trusty-daily-amd64-server-201*'
           },
+          'ubuntu-18.04-daily' => {
+              'owner' => OWNERS[:ubuntu],
+              'architecture' => 'x86_64',
+              'root-device-type' => 'ebs',
+              'virtualization-type' => 'hvm',
+              'block-device-mapping.volume-type' => 'gp2',
+              'name' => '*ubuntu-bionic-daily-amd64-server-201*'
+          },
           'windows-server2012-r2' => {
             'owner' => OWNERS[:amazon],
             'architecture' => 'x86_64',
