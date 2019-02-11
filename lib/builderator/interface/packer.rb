@@ -171,7 +171,7 @@ module Builderator
 
       def _chef_install_command(sudo = true)
         template = sudo ? 'sudo ' : ''
-        "curl -L https://www.chef.io/chef/install.sh | #{template}bash -s -- -v #{Config.chef.version}"
+        "curl -L https://omnitruck.chef.io/install.sh | #{template}bash -s -- -v #{Config.chef.version}"
       end
     end
   end
