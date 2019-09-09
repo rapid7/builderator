@@ -133,7 +133,7 @@ module Builderator
       def _build_dependencies
         {
           :type => 'shell',
-          :inline => "sudo apt list --installed && sudo apt-get install -y libffi-dev"
+          :inline => "sudo apt list --installed && sudo apt-get install -y gcc47 gmake autoconf binutils libffi-dev"
         }
       end
       ## Upload artifacts to the build container
