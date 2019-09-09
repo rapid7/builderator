@@ -134,9 +134,9 @@ module Builderator
         {
           :type => 'shell',
           :inline => "sudo apt list --installed && "\
-                     "sudo apt-get update -y && "\
-                     "sudo apt-get install -y build-essential && "\
-                     "sudo apt-get clean -y"
+                     "sudo apt-get update -y && "
+                     # "sudo apt-get update -y && "\
+                     # "sudo apt-get install -y build-essential"
         }
       end
       ## Upload artifacts to the build container
