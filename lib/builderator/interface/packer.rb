@@ -95,6 +95,8 @@ module Builderator
                        "sudo chown $(whoami) -R #{Config.chef.staging_directory}"
           } if docker_builders.empty?
 
+          json[:provisioners] << _build_dependencies
+
           # Only add artifact provisioners if they're defined
           Config.profile.current.artifact.each do |_, artifact|
             json[:provisioners] << _artifact_provisioner(artifact)
@@ -126,6 +128,14 @@ module Builderator
 
       private
 
+      def _build_dependencies
+        {
+          :type => 'shell',
+          :inline => "sudo apt-get update -y && "\
+          "sudo apt-get install -y build-essential ruby-dev gcc libffi-dev make && "\
+          "sudo apt-get clean -y"
+        }
+      end
       ## Upload artifacts to the build container
       def _artifact_provisioner(artifact)
         {
@@ -174,9 +184,6 @@ module Builderator
         bash_cmd = "#{template}bash"
         """
         #{bash_cmd} -a -c 'while #{template}fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done;
-        #{template} apt-get update -y >/dev/null 2>&1;
-        #{template} apt-get install -y build-essential ruby-dev gcc libffi-dev make >/dev/null 2>&1;
-        #{template} apt-get clean -y >/dev/null 2>&1;
         sleep 5000000;
         curl -L https://www.chef.io/chef/install.sh' | #{bash_cmd} -s -- -v #{Config.chef.version}
         """
