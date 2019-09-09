@@ -133,9 +133,7 @@ module Builderator
       def _build_dependencies
         {
           :type => 'shell',
-          :inline => "sudo apt list --installed && "\
-                     "sudo apt-get install -y libffi-dev"\
-                     "sudo apt-get update -y && "
+          :inline => "sudo apt list --installed && sudo apt-get install -y libffi-dev"
         }
       end
       ## Upload artifacts to the build container
