@@ -172,9 +172,13 @@ module Builderator
       def _chef_install_command(sudo = true)
         template = sudo ? 'sudo ' : ''
         bash_cmd = "#{template}bash"
-        "#{bash_cmd} -a -c 'while #{template}fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done; " +
-        "#{template} apt-get update -y && #{template} apt-get install -y ruby-dev gcc libffi-dev make && #{template} apt-get clean -y; " +
-        "curl -L https://www.chef.io/chef/install.sh' | #{bash_cmd} -s -- -v #{Config.chef.version}"
+        """
+        #{bash_cmd} -a -c 'while #{template}fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done;
+        #{template} apt-get update -y >/dev/null 2>&1;
+        #{template} apt-get install -y ruby-dev gcc libffi-dev make >/dev/null 2>&1;
+        #{template} apt-get clean -y >/dev/null 2>&1;
+        curl -L https://www.chef.io/chef/install.sh' | #{bash_cmd} -s -- -v #{Config.chef.version}
+        """
       end
     end
   end
