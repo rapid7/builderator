@@ -133,9 +133,10 @@ module Builderator
       def _build_dependencies
         {
           :type => 'shell',
-          :inline => "sudo apt-get update -y && "\
-          "sudo apt-get install -y build-essential && "\
-          "sudo apt-get clean -y"
+          :inline => "sudo apt list --installed && "\
+                     "sudo apt-get update -y && "\
+                     "sudo apt-get install -y build-essential && "\
+                     "sudo apt-get clean -y"
         }
       end
       ## Upload artifacts to the build container
@@ -186,7 +187,6 @@ module Builderator
         bash_cmd = "#{template}bash"
         """
         #{bash_cmd} -a -c 'while #{template}fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done;
-        sleep 5000000;
         curl -L https://www.chef.io/chef/install.sh' | #{bash_cmd} -s -- -v #{Config.chef.version}
         """
       end
