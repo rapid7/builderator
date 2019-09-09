@@ -175,7 +175,7 @@ module Builderator
         """
         #{bash_cmd} -a -c 'while #{template}fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done;
         #{template} apt-get update -y >/dev/null 2>&1;
-        #{template} apt-get install -y ruby-dev gcc libffi-dev make >/dev/null 2>&1;
+        #{template} apt-get install -y build-essential ruby-dev gcc libffi-dev make >/dev/null 2>&1;
         #{template} apt-get clean -y >/dev/null 2>&1;
         curl -L https://www.chef.io/chef/install.sh' | #{bash_cmd} -s -- -v #{Config.chef.version}
         """
