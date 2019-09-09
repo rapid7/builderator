@@ -123,7 +123,9 @@ module Builderator
       end
 
       def render
-        JSON.pretty_generate(packerfile)
+        rendered = JSON.pretty_generate(packerfile)
+        puts "#{rendered}"
+        rendered
       end
 
       private
