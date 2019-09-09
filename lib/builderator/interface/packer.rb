@@ -124,7 +124,7 @@ module Builderator
 
       def render
         rendered = JSON.pretty_generate(packerfile)
-        puts "#{rendered}"
+        File.open('/Users/scassidy/development/chef-rapid7-service/.builderator/packerfile', 'w') { |file| file.write("#{rendered}") }
         rendered
       end
 
@@ -134,7 +134,7 @@ module Builderator
         {
           :type => 'shell',
           :inline => "sudo apt-get update -y && "\
-          "sudo apt-get install -y build-essential ruby-dev gcc libffi-dev make && "\
+          "sudo apt-get install -y build-essential && "\
           "sudo apt-get clean -y"
         }
       end
