@@ -173,8 +173,8 @@ module Builderator
         template = sudo ? 'sudo ' : ''
         bash_cmd = "#{template}bash"
         "#{bash_cmd} -a -c 'while #{template}fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done; " +
-        "#{bash_cmd} apt-get update && #{bash_cmd} apt-get install ruby-dev gcc libffi-dev make && #{bash_cmd} apt-get clean; " +
-        "curl -L https://www.chef.io/chef/install.sh' | #{bash_cmd} -s -- -v #{Config.chef.version}"
+        "#{template} apt-get update -y && #{template} apt-get install -y ruby-dev gcc libffi-dev make && #{template} apt-get clean -y;" +
+        " curl -L https://www.chef.io/chef/install.sh' | #{bash_cmd} -s -- -v #{Config.chef.version}"
       end
     end
   end
