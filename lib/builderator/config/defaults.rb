@@ -24,7 +24,7 @@ module Builderator
       chef do |chef|
         chef.log_level :info
         chef.staging_directory '/var/chef'
-        chef.version = '~> 14.7'
+        chef.version = '14.13.11'
       end
 
       cookbook do |cookbook|
