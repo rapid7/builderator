@@ -88,6 +88,7 @@ module Builderator
           json['post-processors'] = post_processors.first unless post_processors.empty?
           json.delete('post-processors') if json['post-processors'].compact.empty?
 
+          json[:provisioners] << _build_dependencies
           ## Initialize the staging directory unless using the docker builder
           json[:provisioners] << {
             :type => 'shell',
@@ -95,7 +96,6 @@ module Builderator
                        "sudo chown $(whoami) -R #{Config.chef.staging_directory}"
           } if docker_builders.empty?
 
-          json[:provisioners] << _build_dependencies
 
           # Only add artifact provisioners if they're defined
           Config.profile.current.artifact.each do |_, artifact|
