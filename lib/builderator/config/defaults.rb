@@ -81,7 +81,14 @@ module Builderator
 
             # Clear the AMI and launch block device mappings for the default
             # c3.large instance type.
+            # Also lets give each server at least 20gb of space instead of the default of 8
             build.ami_block_device_mappings [{
+              'device_name' => '/dev/sda1',
+              'volume_size' => 20,
+              'delete_on_termination' => true,
+              'volume_type' => 'gp2'
+            },
+            {
               'device_name' => '/dev/sdb',
               'no_device' => true,
             }, {
