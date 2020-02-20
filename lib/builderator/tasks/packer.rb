@@ -1,4 +1,5 @@
-require 'aws-sdk'
+require 'aws-sdk-core'
+require 'aws-sdk-ec2'
 require 'thor'
 require 'retryable'
 
