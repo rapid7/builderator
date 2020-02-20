@@ -25,5 +25,6 @@ WORKDIR /builderator
 
 RUN echo "source 'https://rubygems.org'" >> Gemfile
 RUN echo "gem 'builderator', :git => 'https://github.com/rapid7/builderator.git', :branch => 'docker'" >> Gemfile
+COPY Gemfile.lock Gemfile.lock
 RUN bundle install --binstubs
 ENTRYPOINT ["/builderator/bin/build"]
