@@ -28,6 +28,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'childprocess', '~> 0.5'
   spec.add_dependency 'dep_selector', '~> 1.0'
   spec.add_dependency 'chef', '~> 14.7.17'
+  spec.add_dependency 'chef-zero', '~> 14.0.17'
   spec.add_dependency 'faraday_middleware', '~> 0.10.0'
   spec.add_dependency 'ignorefile'
   spec.add_dependency 'thor', '~> 0.19.0'
