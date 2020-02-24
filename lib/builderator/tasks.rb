@@ -3,13 +3,8 @@ require 'thor'
 require_relative './config'
 require_relative './patch/thor-actions'
 
-# require_relative './tasks/cookbook'
-require_relative './tasks/vendor'
-require_relative './tasks/version'
-
-require_relative './tasks/berkshelf'
-require_relative './tasks/packer'
-require_relative './tasks/vagrant'
+tasks_dir = File.join(File.dirname(File.absolute_path(__FILE__)), 'tasks')
+Dir.glob( File.join( tasks_dir, '**', '*.rb'), &method(:require))
 
 module Builderator
   module Tasks
