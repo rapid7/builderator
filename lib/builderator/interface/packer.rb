@@ -169,10 +169,12 @@ module Builderator
         "#{template}chef-solo --no-color -c #{Config.chef.staging_directory}/solo.rb -j #{Config.chef.staging_directory}/node.json"
       end
 
+      # Note: the sed at the end is to remove the expired Let's Encrypt Root certificate bundled with chef 14.
+      # More recent versions of Chef might not have the same issue in which case sed will be a noop.
       def _chef_install_command(sudo = true)
         template = sudo ? 'sudo ' : ''
         bash_cmd = "#{template}bash"
-        "sleep 10; #{bash_cmd} -a -c 'while #{template}fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done; curl -L https://omnitruck.chef.io/install.sh' | #{bash_cmd} -s -- -v #{Config.chef.version}"
+        "sleep 10; #{bash_cmd} -a -c 'while #{template}fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done; curl -L https://omnitruck.chef.io/install.sh' | #{bash_cmd} -s -- -v #{Config.chef.version} && sudo /bin/sed -i.bck '/DST Root CA X3/I,+19 d' /opt/chef/embedded/ssl/certs/cacert.pem"
       end
     end
   end
