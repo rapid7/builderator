@@ -1,4 +1,3 @@
-require 'aws-sdk'
 require_relative '../../util'
 
 module Builderator
