@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'aws-sdk-core', '~> 3'
   spec.add_dependency 'aws-sdk-ec2'
+  spec.add_dependency 'aws-sdk-ecr'
   spec.add_dependency 'aws-sdk-s3'
   spec.add_dependency 'berkshelf', '~> 7.1.0'
   spec.add_dependency 'childprocess', '~> 4.0.0'
