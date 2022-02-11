@@ -1,4 +1,6 @@
 require 'pathname'
+require 'aws-sdk-ec2'
+require 'aws-sdk-ecr'
 
 module Builderator
   ##
