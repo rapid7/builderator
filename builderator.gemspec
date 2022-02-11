@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'thor-scmversion', '1.7.0'
 
   spec.add_dependency 'aws-sdk-core', '~> 3'
+  spec.add_dependency 'aws-sdk-autoscaling'
   spec.add_dependency 'aws-sdk-ec2'
   spec.add_dependency 'aws-sdk-ecr'
   spec.add_dependency 'aws-sdk-s3'
