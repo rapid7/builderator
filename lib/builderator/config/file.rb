@@ -259,6 +259,7 @@ module Builderator
             attribute :ssh_private_key_file
             attribute :ssh_private_ip
             attribute :temporary_key_pair_name
+            attribute :temporary_key_pair_type
 
             attribute :ami_name
             attribute :ami_description
