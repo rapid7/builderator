@@ -174,7 +174,7 @@ module Builderator
       def _chef_install_command(sudo = true)
         template = sudo ? 'sudo ' : ''
         bash_cmd = "#{template}bash"
-        "sleep 10; #{bash_cmd} -a -c 'while #{template}fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done; curl -L https://omnitruck.cinc.sh/install.sh' | #{bash_cmd} -s -- -v #{Config.chef.version} && sudo /bin/sed -i.bck '/DST Root CA X3/I,+19 d' /opt/chef/embedded/ssl/certs/cacert.pem"
+        "sleep 10; #{bash_cmd} -a -c 'while #{template}fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done; curl -L https://omnitruck.cinc.sh/install.sh' | #{bash_cmd} -s -- -v #{Config.chef.version} && sudo /bin/sed -i.bck '/DST Root CA X3/I,+19 d' /opt/cinc/embedded/ssl/certs/cacert.pem"
       end
     end
   end
