@@ -1,0 +1,16 @@
+---
+info:
+  title: Builderator
+  description: Tools to make CI Packer builds awesome
+  x-cortex-git:
+    github:
+      alias: r7org
+      repository: rapid7/builderator
+  x-cortex-tag: builderator
+  x-cortex-type: service
+  x-cortex-dependency: []
+  x-cortex-domain-parents:
+  - tag: platform-delivery
+openapi: 3.0.1
+servers:
+- url: "/"
