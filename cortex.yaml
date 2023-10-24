@@ -10,7 +10,7 @@ info:
   x-cortex-type: service
   x-cortex-dependency: []
   x-cortex-domain-parents:
-  - tag: platform-delivery
+  - tag: pd-automation
 openapi: 3.0.1
 servers:
 - url: "/"
