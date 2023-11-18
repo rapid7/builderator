@@ -23,6 +23,26 @@ module Builderator
         Interface.berkshelf.write
       end
 
+      desc 'chefignore', 'Create or Update chefignore to ignore .builderator directory'
+      def chefignore
+        ignore_file_list = ['.builderator']
+        ignore = Util.relative_path('chefignore').to_s
+        ignore_file = ::File.readlines(ignore)
+        ignore_file.map! { |i| i.chomp }
+        files = ignore_file_list.all? { |i| ignore_file.include?(i) }
+        unless files
+          file = ::File.open(ignore, 'a')
+          file.printf("\n# Builderator Added Values\n")
+          say_status :chefignore, "Adding the following to chefignore: #{ignore_file_list.join(',')}.  Add this to SCM!", :yellow
+          ignore_file_list.each do |ignore|
+            file.puts(ignore)
+          end
+        end
+        dest_chefignore = Interface.berkshelf.directory.join('chefignore')
+        ::FileUtils.rm dest_chefignore if ::File.exist?(dest_chefignore)
+        ::FileUtils.cp ignore, dest_chefignore
+      end
+
       desc 'metadata COOKBOOK', 'Generate metadata.json from metadata.rb for a COOKBOOK that has a path'
       def metadata(cookbook)
         fail "Cookbook #{ cookbook } does not have a path!" unless Config.cookbook.depends.has?(cookbook) &&
@@ -39,7 +59,9 @@ module Builderator
 
       desc 'vendor', 'Vendor a cookbook release and its dependencies'
       def vendor
+        invoke :chefignore, [], options
         invoke :configure, [], options
+
         empty_directory Interface.berkshelf.vendor
 
         command = "#{Interface.berkshelf.command} vendor #{Interface.berkshelf.vendor} "
