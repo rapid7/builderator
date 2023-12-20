@@ -34,7 +34,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'dep_selector', '1.0.6'
   spec.add_dependency 'chef', '~> 16.6.14'
   spec.add_dependency 'chef-zero', '~> 15.0.3'
-  spec.add_dependency 'faraday_middleware', '~> 1.2.0'
   spec.add_dependency 'ignorefile'
   spec.add_dependency 'thor', '~> 1.0.1'
   spec.add_dependency 'retryable', '~> 3.0.5'
